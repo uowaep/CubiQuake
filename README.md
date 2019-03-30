@@ -2,7 +2,7 @@
 Cubic Game Framework for the FTE Engine
 
 Controls:
-impulse 1 - Tool Size: Cubic (1x)
+impulse 1 - Tool Size: Cubic (1x) c
 impulse 2 - Tool Size: Chunk (6x)
 impulse 3 - Tool Size: Cluster (24x)
 impulse 4 - No Tool
