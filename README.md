@@ -6,11 +6,11 @@ Cubic Game Framework for the FTE Engine
 - "impulse 2" - Tool Size: Chunk (6x)
 - "impulse 3" - Tool Size: Cluster (18x) (each world file is 1 cluster of chunks, which is 5832 cubics at default settings)
 - "impulse 4" - No Tool
-- "impulse 100" - Tool Mode: Add Cubic(s)
-- "impulse 101" - Tool Mode: Remove Cubic(s)
-- "impulse 102" - Tool Mode: Copy/Save Cubics(s)
-- "impulse 103" - Tool Mode: Paste/Load Cubics(s)
-- "+attack" - Use Tool
+- "impulse 100" - Tool Mode: Add Cubic(s) (default e)
+- "impulse 101" - Tool Mode: Remove Cubic(s) (default q)
+- "impulse 102" - Tool Mode: Copy/Save Cubics(s) (default c)
+- "impulse 103" - Tool Mode: Paste/Load Cubics(s) (default v)
+- "+attack" - Use Tool  (default mouse1)
 
 ### CVAR prefabname
 The Copy and Paste tools use a file as a clipboard. This tool works with the Chunk and Cluster size options, and saves to different directories per size. The filename can be set in the cvar "prefabname". This tool is intended to save several different prefabs for world generation. The generator is yet take advantage of these prefabs.
@@ -32,6 +32,5 @@ Other files of intereset include:
 ### ToDo (before code release)
 - set up cvars and functionality for generating new worlds (worldsize, worldname)(you currently have to edit code to switch between generation and play mode, and you can't set a world name)
 - prevent editing on edge of visible world (causes face cull issues)
-- rename a bunch of variables and functions :P
 - separate menu code for a clean base branch
 - probably some other stuff
