@@ -7,7 +7,7 @@ Cubic Game Framework for the FTE Engine
 - start map world.ent
 - if the world files don't exist they will generate into their directory and the world will spawn after generation
 
-### Controls:
+### Controls
 - "impulse 1" - Tool Size: Cubic (1x)
 - "impulse 2" - Tool Size: Chunk (6x)
 - "impulse 3" - Tool Size: Cluster (18x) (each world file is 1 cluster of chunks, which is 5832 cubics at default settings)
