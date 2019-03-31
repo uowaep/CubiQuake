@@ -1,6 +1,12 @@
 # CubiQuake
 Cubic Game Framework for the FTE Engine
 
+### Playing
+- set cvar worldname
+- set cvar worldsize
+- start map world.ent
+- if the world files don't exist they will generate into their directory and the world will spawn after generation
+
 ### Controls:
 - "impulse 1" - Tool Size: Cubic (1x)
 - "impulse 2" - Tool Size: Chunk (6x)
@@ -23,11 +29,6 @@ Other files of intereset include:
 - server/sv_cubicgen.qc - world generation
 - server/sv_cubics.qc - the major portion of cubic handling on the server
 - client/cs_cubics.qc - client cubic handling
-
-### Playing
-- set worldname
-- start a game running map world.ent
-- if the world files don't exist they will generate into their directory
 
 ### ToDo (before code release)
 - prevent editing on edge of visible world (causes face cull issues)
