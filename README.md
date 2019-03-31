@@ -30,7 +30,6 @@ Other files of intereset include:
 - if the world files don't exist they will generate into their directory
 
 ### ToDo (before code release)
-- set up cvars and functionality for generating new worlds (worldsize, worldname)(you currently have to edit code to switch between generation and play mode, and you can't set a world name)
 - prevent editing on edge of visible world (causes face cull issues)
 - separate menu code for a clean base branch
 - probably some other stuff
