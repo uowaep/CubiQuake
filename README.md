@@ -23,7 +23,7 @@ The Copy and Paste tools use a file as a clipboard. This tool works with the Chu
 
 ### Modify Source
 Look for this function to modify settings such as cubic size, chunk size, physics, etc.
-- shared_server_client/sh_sv_cs_cubics.qc -> void InitGameVariables(){}
+- void InitGameVariables(){} in shared_server_client/sh_sv_cs_cubics.qc
 
 Other files of intereset include:
 - server/sv_cubicgen.qc - world generation
