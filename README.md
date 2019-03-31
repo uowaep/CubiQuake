@@ -1,7 +1,7 @@
 # CubiQuake
 Cubic Game Framework for the FTE Engine
 
-### Playing
+### Playing/Generation
 - set cvar worldname
 - set cvar worldsize
 - start map world.ent
