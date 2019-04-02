@@ -31,6 +31,5 @@ Other files of intereset include:
 - client/cs_cubics.qc - client cubic handling
 
 ### ToDo (before code release)
-- prevent editing on edge of visible world (causes face cull issues)
 - separate menu code for a clean base branch
 - probably some other stuff
