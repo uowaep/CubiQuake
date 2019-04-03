@@ -19,7 +19,7 @@ Cubic Game Framework for the FTE Engine
 - "+attack" - Use Tool  (default mouse1)
 
 ### CVAR prefabname
-The Copy and Paste tools use a file as a clipboard. This tool works with the Chunk and Cluster size options, and saves to different directories per size. The filename can be set in the cvar "prefabname". This tool is intended to save several different prefabs for world generation. The generator is yet take advantage of these prefabs.
+The Copy and Paste tools use a file as a clipboard. This tool works with the Chunk and Cluster size options, and saves to different directories per size. The filename can be set in the **cvar prefabname**. This tool is intended to save several different prefabs for world generation. The generator is yet take advantage of these prefabs.
 
 ### Modify Source
 Look for this function to modify settings such as cubic size, chunk size, physics, etc.
