@@ -31,4 +31,4 @@ Other files of intereset include:
 - client/cs_cubics.qc - client cubic handling
 
 ### ToDo (before code release)
-- probably some other stuff :)
+- probably some stuff :)
