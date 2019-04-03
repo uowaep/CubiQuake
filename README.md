@@ -2,9 +2,9 @@
 Cubic Game Framework for the FTE Engine
 
 ### Playing/Generation
-- set cvar worldname
-- set cvar worldsize
-- start map world.ent
+- set **cvar worldname**
+- set **cvar worldsize**
+- start **map world.ent**
 - if the world files don't exist they will generate into their directory and the world will spawn after generation
 
 ### Controls
