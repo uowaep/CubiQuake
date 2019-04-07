@@ -31,8 +31,8 @@ Other files of intereset include:
 - server/sv_cubics.qc - the major portion of cubic handling on the server
 - client/cs_cubics.qc - client cubic handling
 
-### ToDo (before code release)
-- set default tool size
+### Multiplayer
+It hasn't been tested yet, but CubiQuake is designed to be multiplayer.
 
 ### ToDo (after code release)
 - move code out of server/sv_client.qc functions to a new file
