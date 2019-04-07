@@ -1,0 +1,20 @@
+#pragma target fte
+#pragma		progs_dat	"../progs.dat"
+
+#define SSQC
+#include "shared_all/fteextensions.qc"
+
+#include "shared_all/sh_all_subs.qc"
+
+#include "shared_server_client/sh_sv_cs_precaches.qc"
+#include "shared_server_client/sh_sv_cs_chains.qc"
+#include "shared_server_client/sh_sv_cs_cubics.qc"
+
+#include "server/sv_chains.qc"
+#include "server/sv_subs.qc"
+#include "server/sv_cubiccollision.qc"
+#include "server/sv_attacks.qc"
+#include "server/sv_cubicgen.qc"
+#include "server/sv_cubics.qc"
+#include "server/sv_main.qc"
+#include "server/sv_client.qc"
