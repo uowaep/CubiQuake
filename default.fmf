@@ -1,0 +1,4 @@
+game cubiquake
+name "CubiQuake"
+basegame "gamedata"
+disablehomedir 1
