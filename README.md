@@ -6,7 +6,7 @@ Cubic Game Framework for the FTE Engine
 - "worldname name" (default: world1)
 - "worldsize size" (default: 9 - there is no max, but beware of long generation times)
 - "map world"
-- If the world files don't exist they will generate into their directory and the world will spawn after generation.
+- If the world files don't exist they will generate into /gamedata/data/worlds/worldname and the world will spawn after generation.
 
 ### Controls
 - "+attack" - Use Tool  (default mouse1)
