@@ -32,7 +32,7 @@ Other files of intereset include:
 - client/cs_cubics.qc - client cubic handling
 
 ### ToDo (before code release)
-- fix trace function
+- fix bug: collision box not removing when removing chunk
 
 ### ToDo (after code release)
 - move code out of server/sv_client.qc functions to a new file
