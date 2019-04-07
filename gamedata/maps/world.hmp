@@ -1,0 +1,4 @@
+{
+	classname worldspawn
+	fog "0.025 0 0.6 0.2"
+}
