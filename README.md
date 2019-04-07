@@ -12,7 +12,7 @@ Cubic Game Framework for the FTE Engine
 - "+attack"     - Use Tool  (default: mouse1)
 - "impulse 11"  - Exit edit mode (default: x) (any impulse will work)
 - "impulse 100" - Tool Size: Cubic (default: 1) (1x)
-- "impulse 101" - Tool Size: Chunk (defaulty: 2) (6x)
+- "impulse 101" - Tool Size: Chunk (default: 2) (6x)
 - "impulse 102" - Tool Size: Cluster (default: 3) (18x - Each world file is 1 cluster of chunks at 3x, which is 5832 cubics at default settings.)
 - "impulse 110" - Tool Mode: Add Cubic(s) (defaulty: e)
 - "impulse 111" - Tool Mode: Remove Cubic(s) (default: q)
