@@ -12,7 +12,7 @@ Cubic Game Framework for the FTE Engine
 Bind | Description | Default Key | Notes
 --- | --- | --- | ---
 +attack | Use Tool |  mouse1 | 
-impulse 11 | Exit edit mode | x | any impulse will work
+impulse 11 | Exit Edit Mode | x | Any impulse will work.
 impulse 100 | Tool Size: Cubic | 1 | 1x
 impulse 101 | Tool Size: Chunk | 2 | 6x
 impulse 102 | Tool Size: Cluster | 3 | 18x
