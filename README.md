@@ -26,14 +26,23 @@ The Copy and Paste tools use a file as a clipboard. This tool works with the Chu
 Look for this function to modify settings such as cubic size, chunk size, physics, etc.
 - void InitGameVariables(){} in shared_server_client/sh_sv_cs_cubics.qc
 
-Other files of intereset include:
-- server/sv_cubicgen.qc - world generation
-- server/sv_cubics.qc - the major portion of cubic handling on the server
-- client/cs_cubics.qc - client cubic handling
+### Files of Interest
+File | Description
+--- | ---
+server/sv_cubics.qc | the major portion of cubic handling on the server
+server/sv_cubicgen.qc | world generation
+server/sv_cubiccollision.qc | collision handling
+server/sv_attacks.qc | projectile collision handling and example code for adding projectiles
+client/cs_cubics.qc | client cubic handling
+client/cs_cubicinterface.qc | hud / clientside tool drawing and positioning is handled here
+shared_server_client/sh_sv_cs_cubics.qc | tools for working with the cubic framework, and general world settings
 
 ### Multiplayer
 It hasn't been tested yet, but CubiQuake is designed to be multiplayer.
 
-### ToDo (after code release)
-- move code out of server/sv_client.qc functions to a new file
+### ToDo
 - another pass at cleaning up code
+- add 'block type' tool setting (texture)
+- add 'block shape' tool setting
+- add ramp shape
+- test multiplayer
