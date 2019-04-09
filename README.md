@@ -39,7 +39,7 @@ shared_server_client/sh_sv_cs_cubics.qc | tools for working with the cubic frame
 It hasn't been tested yet, but CubiQuake is designed to be multiplayer.
 
 ### ToDo
-- another pass at cleaning up code
+- improve GetChunkForLocation() and GetClusterForLocation() performance
 - add 'block type' tool setting (texture)
 - add 'block shape' tool setting
 - add ramp shape
