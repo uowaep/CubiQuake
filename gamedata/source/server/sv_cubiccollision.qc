@@ -74,5 +74,5 @@ void CallPhysicsFunctionForCubic(vector org, void(entity, entity, vector) func)
 	}	
 }
 
-void SetSolidCubics(vector org)		{	CallPhysicsFunctionForCubic(org, SetSolidCubic_Func);	}
-void LeaveSolidCubics(vector org)	{	CallPhysicsFunctionForCubic(org, LeaveSolidCubic_Func);	}
+void SetSolidCubics(entity e, vector org)	{	CallPhysicsFunctionForCubic(org, SetSolidCubic_Func);	e.physicssolidsset = TRUE;	}
+void LeaveSolidCubics(entity e, vector org)	{	if(e.physicssolidsset)	CallPhysicsFunctionForCubic(org, LeaveSolidCubic_Func);	}

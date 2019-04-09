@@ -8,9 +8,7 @@
 	if(other.enttype == ENT_CUBICBBOX)
 		RemoveCubic(other);
 	
-	if(self.physicssolidsset)
-		LeaveSolidCubics(self.lastsolidcubicorigin);
-	
+	LeaveSolidCubics(self, self.lastsolidcubicorigin);
 	Remove(self);
 }
 
@@ -35,10 +33,8 @@ void ProjectileUpdate()
 {
 	for(entity e = list_projectilechain; e; e = e.projectilechain)
 	{
-		if(e.physicssolidsset)
-			LeaveSolidCubics(e.lastsolidcubicorigin);
-		SetSolidCubics(e.origin);
-		e.physicssolidsset = TRUE;
+		LeaveSolidCubics(e, e.lastsolidcubicorigin);
+		SetSolidCubics(e, e.origin);
 		e.lastsolidcubicorigin = e.origin;
 	}
 	

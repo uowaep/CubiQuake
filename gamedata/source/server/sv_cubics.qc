@@ -1073,13 +1073,9 @@ void Player_WorldInterface()
 		}
 	}
 
-	if(self.physicssolidsset)
-		LeaveSolidCubics(self.lastsolidcubicorigin);
-	
-	SetSolidCubics(self.origin);	// fixme adjust search size for lag spikes in both functions
-	self.physicssolidsset = TRUE;
+	LeaveSolidCubics(self, self.lastsolidcubicorigin);
+	SetSolidCubics(self, self.origin);
 	self.lastsolidcubicorigin = self.origin;
-	
 	RemoveUnusedCubicBBoxes();
 }
 
@@ -1087,8 +1083,6 @@ void Player_CubiQuakeControls()
 {
 	vector org = '0 0 0';
 	vector targetpos = '0 0 0';
-	
-	
 
 	if(self.impulse == TOOLSIZE_EDITOR_CUBIC)
 		self.toolsize = TOOLSIZE_EDITOR_CUBIC;
