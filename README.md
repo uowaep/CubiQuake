@@ -24,10 +24,6 @@ impulse 113 | Tool Mode: Paste/Load Cubics(s) | v |
 ### CVAR prefabname
 The Copy and Paste tools use a file as a clipboard. This tool works with the Chunk and Cluster size options, and saves to different directories per size. The filename can be set in the **cvar prefabname**. This tool is intended to save several different prefabs for world generation. The generator is not yet coded to take advantage of these files.
 
-### Modify Source
-Look for this function to modify settings such as cubic size, chunk size, physics, etc.
-- void InitGameVariables(){} in shared_server_client/sh_sv_cs_cubics.qc
-
 ### Files of Interest
 File | Description
 --- | ---
