@@ -12,7 +12,6 @@ Cubic Game Framework for the FTE Engine
 Bind | Description | Default Key | Notes
 --- | --- | --- | ---
 +attack | Use Tool |  mouse1 | 
-impulse 11 | Exit Edit Mode | X | Any impulse will work.
 impulse 100 | Tool Size: Cubic | 1 | 1x
 impulse 101 | Tool Size: Chunk | 2 | 6x
 impulse 102 | Tool Size: Cluster | 3 | 18x
@@ -20,6 +19,7 @@ impulse 110 | Tool Mode: Remove Cubic(s) | Q |
 impulse 111 | Tool Mode: Add Cubic(s) | E | 
 impulse 112 | Tool Mode: Copy/Save Cubics(s) | C | 
 impulse 113 | Tool Mode: Paste/Load Cubics(s) | V | 
+impulse 11 | Exit Edit Mode | X | Any impulse will work.
 
 ### CVAR prefabname
 The Copy and Paste tools use a file as a clipboard. This tool works with the Chunk and Cluster size options, and saves to different directories per size. The filename can be set in the **cvar prefabname**. This tool is intended to save several different prefabs for world generation. The generator is not yet coded to take advantage of these files.
