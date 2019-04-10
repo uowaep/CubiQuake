@@ -1,5 +1,5 @@
 # CubiQuake
-Cubic Game Framework for the FTE Engine
+Cubic Game Framework for the FTE Engine (Requires 5441 or better.)
 
 ### Playing/Generation
 - open the console (SHIFT-ESC) and run the following (or just run "**map world**" and use default settings)
