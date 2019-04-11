@@ -39,8 +39,8 @@ shared_server_client/sh_sv_cs_cubics.qc | tools for working with the cubic frame
 It hasn't been tested yet, but CubiQuake is designed to be multiplayer.
 
 ### Known Bugs
-Sometimes cubics don't draw.
-Diagonal from edge cubic placement.
+- Sometimes cubics don't draw.
+- Diagonal from edge cubic placement.
 
 ### ToDo
 - improve GetChunkForLocation() and GetClusterForLocation() performance
