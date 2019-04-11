@@ -39,7 +39,7 @@ shared_server_client/sh_sv_cs_cubics.qc | tools for working with the cubic frame
 It hasn't been tested yet, but CubiQuake is designed to be multiplayer.
 
 ### Known Bugs
-- Sometimes cubics don't draw.
+- Face cull bug when enclosing an empty cubic.
 - Diagonal from edge cubic placement.
 
 ### ToDo
