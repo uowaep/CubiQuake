@@ -39,8 +39,8 @@ shared_server_client/sh_sv_cs_cubics.qc | tools for working with the cubic frame
 It hasn't been tested yet, but CubiQuake is designed to be multiplayer.
 
 ### Known Bugs
-- Face cull bug when enclosing an empty cubic.
-- Diagonal from edge cubic placement.
+- diagonal from edge cubic placement.
+- other strange selection bug where the client shows a different cubic selection when aiming in holes, but not always...
 
 ### ToDo
 - improve GetChunkForLocation() and GetClusterForLocation() performance
