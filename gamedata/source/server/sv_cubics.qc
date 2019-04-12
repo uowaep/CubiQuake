@@ -165,6 +165,9 @@ void SaveModifiedClusterFiles()
 
 void SetCubicVisibility(entity chunk, int memslot)
 {
+	if(chunk.cubic_blocktype[memslot] == 0)
+		return;	
+	
 	int cullbits;
 	vector nearcubicorg, cubicchunkorg, ofs;
 	entity originalchunk = chunk;
@@ -740,10 +743,10 @@ void RemoveCubic(entity chunk, vector cubicorg)
 	if(memslot == -1)
 		return;
 	
-	if(chunk.cubic_cullbits[memslot] != CULLBITS_ALL)
-		chunk.numvisiblecubics-=1;
-	else
-		return;	// If invisible cubics are ever to be removed in this way, must find out why removing a non-visible cubic causes face drawing errors.
+	if(chunk.cubic_cullbits[memslot] == CULLBITS_ALL)
+		return;	// If invisible cubics are ever to be removed in this way, must find out why removing a non-visible cubic causes face drawing errors.		
+	
+	chunk.numvisiblecubics-=1;
 	
 	entity bbox = GetCubicBBoxForLocation(cubicorg);
 	if(bbox)
@@ -1079,6 +1082,8 @@ void Player_WorldInterface()
 	RemoveUnusedCubicBBoxes();
 }
 
+//entity	testbox;
+//float	tracetime;
 void Player_CubiQuakeControls()
 {
 	vector org = '0 0 0';
@@ -1116,6 +1121,15 @@ void Player_CubiQuakeControls()
 	else
 		self.button0_down = FALSE;
 
+/*	if(time > tracetime)
+	{
+		tracetime = time+0.06;
+		makevectors(self.v_angle);
+		targetpos = self.origin+self.view_ofs+v_forward*cubicradius*2*20;
+		vector tracepostest = TraceCubic(self.origin+self.view_ofs, targetpos, TRUE);
+		setorigin(testbox, tracepostest);
+	}*/
+	
 	if(self.tool >= TOOL_EDITOR_REMOVE && self.tool <= TOOL_EDITOR_PASTE)	
 	if(self.button0_down == 1)
 	if(!self.loadingchunks)
@@ -1184,6 +1198,9 @@ void Player_CubiQuakeControls()
 
 void InitServerCubics()
 {
+//	testbox = spawn();
+//	setmodel(testbox, "models/editor/cubeselector.mdl");
+	
 	int *world_data;	
 	worldpath = strcat("worlds/", cvar_string("worldname"), "/");
 	string filename = strcat(worldpath, "world_data");

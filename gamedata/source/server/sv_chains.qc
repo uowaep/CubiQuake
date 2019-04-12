@@ -4,23 +4,11 @@ entity		list_playerchain;
 void PlayerChain_Add(entity e)		{	list_playerchain = LinkedList_Add(e, list_playerchain, playerchain, playerchain_prev);	}
 void PlayerChain_Remove(entity e)		{	list_playerchain = LinkedList_Remove(e, list_playerchain, playerchain, playerchain_prev);	}
 
-entity		list_clusterchain;
-.entity		clusterchain;
-.entity		clusterchain_prev;
-void ClusterChain_Add(entity e)		{	list_clusterchain = LinkedList_Add(e, list_clusterchain, clusterchain, clusterchain_prev);	}
-void ClusterChain_Remove(entity e)		{	list_clusterchain = LinkedList_Remove(e, list_clusterchain, clusterchain, clusterchain_prev);	}
-
 .entity		list_chunkchain;
 .entity		chunkchain;
 .entity		chunkchain_prev;
 void ChunkChain_Add(entity o, entity e)		{	o.list_chunkchain = LinkedList_Add(e, o.list_chunkchain, chunkchain, chunkchain_prev);	}
 void ChunkChain_Remove(entity o, entity e)		{	o.list_chunkchain = LinkedList_Remove(e, o.list_chunkchain, chunkchain, chunkchain_prev);	}
-
-entity		list_updatechunkchain;
-.entity		updatechunkchain;
-.entity		updatechunkchain_prev;
-void UpdateChunkChain_Add(entity e)		{	list_updatechunkchain = LinkedList_Add(e, list_updatechunkchain, updatechunkchain, updatechunkchain_prev);	}
-void UpdateChunkChain_Remove(entity e)		{	list_updatechunkchain = LinkedList_Remove(e, list_updatechunkchain, updatechunkchain, updatechunkchain_prev);	}
 
 .entity		list_cubicbboxchain;
 .entity		cubicbboxchain;

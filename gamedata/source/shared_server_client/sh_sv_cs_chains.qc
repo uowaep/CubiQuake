@@ -1,9 +1,3 @@
-entity		list_affectedchunkchain;
-.entity		affectedchunkchain;
-.entity		affectedchunkchain_prev;
-void AffectedChunkChain_Add(entity e)		{	list_affectedchunkchain = LinkedList_Add(e, list_affectedchunkchain, affectedchunkchain, affectedchunkchain_prev);	}
-void AffectedChunkChain_Remove(entity e)		{	list_affectedchunkchain = LinkedList_Remove(e, list_affectedchunkchain, affectedchunkchain, affectedchunkchain_prev);	}
-
 .entity		list_cubicchain;
 .entity		cubicchain;
 .entity		cubicchain_prev;

@@ -37,7 +37,7 @@ int		numworldslots	= 1;
 int		WORLDSLOT_WORLDSIZE		= 0;
 
 int		numprechunkvaluesincluster	= 2;
-int		CLUSTERSLOT_AVERAGETYPE			= 0;
+int		CLUSTERSLOT_AVERAGETYPE			= 0; // not used, was going to use for distant drawing.
 int		CLUSTERSLOT_NUMVISIBLECUBICS	= 1;
 
 int		numprecubicvaluesinchunk	= 2;
@@ -342,7 +342,7 @@ entity GetChunkForLocation(entity chunk, vector cubicchunkorg)
 	if(chunk && cubicchunkorg == chunk.origin)
 		return chunk;
 
-	for(chunk = findradius(cubicchunkorg, 1); chunk; chunk = chunk.chain)
+	for(chunk = findradius(cubicchunkorg, 0); chunk; chunk = chunk.chain)
 		if(chunk.enttype == ENT_CHUNK)
 			return chunk;
 
@@ -421,10 +421,12 @@ int CubicSharesEdges(vector cubicorg, vector start)
 		{
 			nearcubicorg = GetNearestCubicOrigin(cubicorg+ofs*cubicradius*2, chunksize_iseven);
 			if(GetCubicStatus(GetChunkForLocation(__NULL__, GetNearChunkOrg(nearcubicorg)), nearcubicorg) != -1)
+			{
 				foundsharededges++;
 			
-			if(foundsharededges == 3)
-				return TRUE;			
+				if(foundsharededges == 3)
+					return TRUE;		
+			}			
 		}
 	}
 	
@@ -471,11 +473,12 @@ vector TraceCubic(vector start, vector end, int getinside)
 
 	for(vector pos = start; (start-pos)*(start-pos) < (start-end)*(start-end); pos = pos+offset)
 	{
-		chunk = GetChunkForLocation(chunk, GetNearChunkOrg(pos));
 		cubicorg = GetNearestCubicOrigin(pos, chunksize_iseven);
 	
 		if(cubicorg != lastcubicorg)
 		{
+			chunk = GetChunkForLocation(chunk, GetNearChunkOrg(pos));			
+			
 			if(chunk)
 			{
 				#ifdef SSQC
