@@ -39,11 +39,9 @@ shared_server_client/sh_sv_cs_cubics.qc | tools for working with the cubic frame
 It hasn't been tested yet, but CubiQuake is designed to be multiplayer.
 
 ### Known Bugs
-- diagonal from edge cubic placement.
-- other strange selection bug where the client shows a different cubic selection when aiming in holes, but not always...
+- no known bugs
 
 ### ToDo
-- improve GetChunkForLocation() and GetClusterForLocation() performance
 - add 'block type' tool setting (texture)
 - add 'block shape' tool setting
 - add ramp shape
