@@ -33,7 +33,7 @@ void PutClientInServer()
 	self.flags = FL_CLIENT;
 	self.view_ofs = '0 0 22';
 	setmodel(self, "models/player/player.mdl");
-	setsize(self, '-12 -12 -24', '12 12 26');
+	setsize(self, '-8 -8 -24', '8 8 26');
 	setorigin(self, '0 0 128');
 
 	//end code

@@ -8,7 +8,7 @@
 int		client_initialized;
 
 int FACE_TOP	= 1;
-int	FACE_SIDE	= 30;
+int	FACE_SIDE	= 30; // FACE_SIDE is multiple bits containing the WEST, SOUTH, EAST. and NORTH bits. (2+4+8+16) These correspond with the CULLBITS_ bits.
 int	FACE_BOTTOM	= 32;
 
 string GetTextureForTypeFace(float type, float facebit)
@@ -20,6 +20,8 @@ string GetTextureForTypeFace(float type, float facebit)
 		case BLOCKTYPE_DIRT:	tex = "dirt";	break;
 		case BLOCKTYPE_BRICK:	tex = "brick";	break;
 		case BLOCKTYPE_BLOCK:	tex = "block";	break;
+		case BLOCKTYPE_ROCK:	tex = "rock";	break;
+		case BLOCKTYPE_METAL:	tex = "metal";	break;
 	}
 	
 	switch(facebit)
@@ -262,7 +264,6 @@ void UpdateChunk()
 		self.flags = FL_FINDABLE_NONSOLID;
 		setorigin(self, org);
 		self.enttype = ENT_CHUNK;
-
 		
 		ChunkChain_Add(self);
 	}

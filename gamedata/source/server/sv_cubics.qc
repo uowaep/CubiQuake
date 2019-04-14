@@ -4,6 +4,7 @@
 .int		loadingchunks;
 .int		loadingbackgroundchunks;
 .int		backgroundloadtime;
+.int		backgroundunloadtime;
 .int		visingchunks;
 .vector		lastbackgroundqueuepos;
 .vector		lastdistantbackgroundqueuepos;
@@ -64,7 +65,7 @@ float SendChunk(entity viewer, float sendflags)
 
 entity GetCubicBBoxForLocation(vector cubicorg)
 {
-	for(entity bbox = findradius(cubicorg, 1); bbox; bbox = bbox.chain)
+	for(entity bbox = findradius(cubicorg, 0); bbox; bbox = bbox.chain)
 		if(bbox.enttype == ENT_CUBICBBOX)
 			return bbox;
 
@@ -758,14 +759,22 @@ void RemoveCubic(entity chunk, vector cubicorg)
 	UpdateChunkAreaVisibility(chunk, cubicorg, TRUE);
 }
 
-void RemoveUnoccupiedClusters()
+void RemoveUnoccupiedClusters(int numframesbetweenunloads)
 {
-	entity cluster, chunk, nextcluster, nextchunk;
+	entity cluster, chunk, nextchunk;
 	
-	for(cluster = list_unoccupiedclusterchain; cluster; cluster = nextcluster)
+	if(!list_unoccupiedclusterchain)
+		return;
+	
+	if(time >= self.backgroundunloadtime)	
+		self.backgroundunloadtime = time+frametime*numframesbetweenunloads;
+	else
+		return;	
+	
+	cluster = list_unoccupiedclusterchain;
+	
+	if(cluster)
 	{
-		nextcluster = cluster.unoccupiedclusterchain;
-
 		for(chunk = cluster.list_chunkchain; chunk; chunk = nextchunk)
 		{
 			nextchunk = chunk.chunkchain;
@@ -1051,9 +1060,9 @@ void Player_WorldInterface()
 		SetClusterOccupancyForPlayer(newclusterorg);
 		self.playerclusterorg = newclusterorg;
 		self.playerclusterid = GetClusterRef(self.playerclusterorg);
-		
-		RemoveUnoccupiedClusters();
 	}
+
+	RemoveUnoccupiedClusters(1);
 	
 	if(self.loadingchunks)
 	{
@@ -1063,13 +1072,13 @@ void Player_WorldInterface()
 	else
 	if(self.loadingbackgroundchunks == 1)
 	{
-		if(!LoadWorldForPlayer(self.playerclusterorg, viewsize, viewheight, viewcenter, 1, TRUE, loadsize, loadsize, 20))
+		if(!LoadWorldForPlayer(self.playerclusterorg, viewsize, viewheight, viewcenter, 1, TRUE, loadsize, loadsize, 3))
 			self.loadingbackgroundchunks = 2;
 	}
 	else
 	if(self.loadingbackgroundchunks == 2)
 	{
-		if(!LoadWorldForPlayer(self.playerclusterorg, viewsize_distant, viewheight_distant, viewcenter_distant, 1, TRUE, viewsize, viewheight, 60))
+		if(!LoadWorldForPlayer(self.playerclusterorg, viewsize_distant, viewheight_distant, viewcenter_distant, 1, TRUE, viewsize, viewheight, 4))
 		{
 			self.loadingbackgroundchunks = FALSE;
 			numplayersloadingfiles -= 1;

@@ -60,13 +60,16 @@ int		CULLBITS_S		= 4;
 int		CULLBITS_E		= 8;
 int		CULLBITS_N		= 16;
 int		CULLBITS_D		= 32;
-int		CULLBITS_ALL	= 63;
+int		CULLBITS_ALL	= 63; // (1+2+4+8+16+32)
 
 .*int	cubic_blocktype;
-int		numblocktypes = 3;
+int		numblocktypes = 5;
 int		BLOCKTYPE_DIRT	= 1;
 int		BLOCKTYPE_BRICK	= 2;
 int		BLOCKTYPE_BLOCK	= 3;
+int		BLOCKTYPE_ROCK	= 4;
+int		BLOCKTYPE_METAL	= 5;
+
 
 void InitGameVariables()
 {
@@ -163,7 +166,6 @@ int		TOOL_EDITOR_REMOVE	= 110;
 int		TOOL_EDITOR_ADD		= 111;
 int		TOOL_EDITOR_COPY	= 112;
 int		TOOL_EDITOR_PASTE	= 113;
-
 
 int GetClusterOccupancyRef(vector ofs)
 {
@@ -329,7 +331,7 @@ entity GetClusterForLocation(entity cluster, vector clusterorg)
 	if(cluster && clusterorg == cluster.origin)
 		return cluster;
 		
-	for(cluster = findradius(clusterorg, 1); cluster; cluster = cluster.chain)
+	for(cluster = findradius(clusterorg, 0); cluster; cluster = cluster.chain)
 		if(cluster.enttype == ENT_CLUSTER)
 			return cluster;
 
@@ -347,6 +349,43 @@ entity GetChunkForLocation(entity chunk, vector cubicchunkorg)
 			return chunk;
 
 	return __NULL__;
+}
+
+int	CubicSharesSide(entity chunk, vector cubicorg)
+{
+	int cullmatch, cubicslot;
+	vector ofs, nearcubicorg, nearchunkorg;
+	entity nearchunk;
+	
+	for(int sidecount = 0; sidecount < 6; sidecount++)
+	{
+		switch(sidecount)
+		{
+			case 0:	ofs = VECOFS_U;	cullmatch = CULLBITS_D;		break;
+			case 1:	ofs = VECOFS_W;	cullmatch = CULLBITS_E;		break;
+			case 2:	ofs = VECOFS_S;	cullmatch = CULLBITS_N;		break;
+			case 3:	ofs = VECOFS_E;	cullmatch = CULLBITS_W;		break;
+			case 4:	ofs = VECOFS_N;	cullmatch = CULLBITS_S;		break;
+			case 5:	ofs = VECOFS_D;	cullmatch = CULLBITS_U;		break;
+		}
+		
+		nearcubicorg = cubicorg + ofs*cubicradius*2;
+		nearchunkorg = GetNearChunkOrg(nearcubicorg);
+		if(!chunk || nearchunkorg != chunk.origin)
+			nearchunk = GetChunkForLocation(__NULL__, nearchunkorg);
+		else
+			nearchunk = chunk;
+		
+		if(!nearchunk)
+			continue;
+		
+		cubicslot = GetCubicStatus(nearchunk, nearcubicorg);
+		
+		if(cubicslot != -1)
+			return TRUE;		
+	}		
+	
+	return FALSE;
 }
 
 int CubicSharesCulledSide(entity chunk, vector cubicorg)
@@ -467,7 +506,8 @@ vector TraceCubic(vector start, vector end, int getinside)
 	#ifdef SSQC
 	int cullbits;
 	#endif
-	vector cubicorg, lastcubicorg;
+	vector cubicorg;
+	vector lastcubicorg = GetNearestCubicOrigin(start, chunksize_iseven);
 	entity chunk = __NULL__;
 	vector offset = normalize(end-start)*cubicradius;
 
@@ -497,7 +537,19 @@ vector TraceCubic(vector start, vector end, int getinside)
 					if(getinside)
 						return cubicorg;
 					else
-						return lastcubicorg;
+					{
+						if(CubicSharesSide(chunk, lastcubicorg))	// checks if the lastcubicorg is touching another cubic side
+							return lastcubicorg;
+						else
+						{
+							cubicorg = NearestNearCubicOrg(cubicorg, start);	// closest cubic from the first solid cubic found
+
+							if(GetCubicStatus(GetChunkForLocation(chunk, GetNearChunkOrg(cubicorg)), cubicorg) == -1)	// check if nearest is located at an empty, 
+								return cubicorg;	// cubic was empty so trace ends there
+							else
+								return NearestNearCubicOrg(cubicorg, start);	// cubic was not empty so set trace 1 cubic closer
+						}
+					}
 				}
 			}
 			
