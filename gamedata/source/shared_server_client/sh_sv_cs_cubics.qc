@@ -63,12 +63,10 @@ int		CULLBITS_D		= 32;
 int		CULLBITS_ALL	= 63; // (1+2+4+8+16+32)
 
 .*int	cubic_blocktype;
-int		numblocktypes = 5;
+int		numblocktypes = 3;
 int		BLOCKTYPE_DIRT	= 1;
 int		BLOCKTYPE_BRICK	= 2;
 int		BLOCKTYPE_BLOCK	= 3;
-int		BLOCKTYPE_ROCK	= 4;
-int		BLOCKTYPE_METAL	= 5;
 
 
 void InitGameVariables()

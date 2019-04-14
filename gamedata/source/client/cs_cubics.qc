@@ -20,8 +20,6 @@ string GetTextureForTypeFace(float type, float facebit)
 		case BLOCKTYPE_DIRT:	tex = "dirt";	break;
 		case BLOCKTYPE_BRICK:	tex = "brick";	break;
 		case BLOCKTYPE_BLOCK:	tex = "block";	break;
-		case BLOCKTYPE_ROCK:	tex = "rock";	break;
-		case BLOCKTYPE_METAL:	tex = "metal";	break;
 	}
 	
 	switch(facebit)
