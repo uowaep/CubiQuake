@@ -38,8 +38,10 @@ void PutClientInServer()
 
 	//end code
 
-	if(world_initialized == 3)				// allows new player to move/fall only if the world is done generating
+	if(world_initialized == 3)					// allows new player to move/fall only if the world is done generating
 		self.movetype = MOVETYPE_WALK;
-	self.toolsize = TOOLSIZE_EDITOR_CUBIC;	// sets default tool size	
-	PlayerChain_Add(self);					// adds the player to a linked list
+	self.toolsize = TOOLSIZE_EDITOR_CUBIC;		// sets default tool size
+	self.editor_blocktype = 1;					// sets default editor block type
+	self.editor_blockshape = BLOCKSHAPE_CUBE;	// default editor block shape
+	PlayerChain_Add(self);						// adds the player to a linked list
 }

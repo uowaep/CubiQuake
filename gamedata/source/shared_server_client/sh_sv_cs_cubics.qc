@@ -1,3 +1,6 @@
+// VERSION
+int		cubic_revision	= 78;
+
 // WORLD SETTINGS
 
 int 	worldsize;
@@ -44,9 +47,11 @@ int		numprecubicvaluesinchunk	= 2;
 int		CHUNKSLOT_CHUNKBITS				= 0;
 int		CHUNKSLOT_NUMVISIBLECUBICS		= 1;
 
-int		numvaluespercubic			= 2;
+int		numvaluespercubic			= 4;
 int		CUBICSLOT_TYPE					= 0;
-int		CUBICSLOT_CULLBITS				= 1;
+int		CUBICSLOT_SHAPE					= 1;
+int		CUBICSLOT_ROTATION				= 2;
+int		CUBICSLOT_CULLBITS				= 3;
 
 .int	numvisiblecubics;
 
@@ -54,19 +59,51 @@ int		CUBICSLOT_CULLBITS				= 1;
 int		CHUNKBITS_CORPOREAL		= 1;
 
 .*int	cubic_cullbits;
-int		CULLBITS_U		= 1;
-int		CULLBITS_W		= 2;
-int		CULLBITS_S		= 4;
-int		CULLBITS_E		= 8;
-int		CULLBITS_N		= 16;
-int		CULLBITS_D		= 32;
-int		CULLBITS_ALL	= 63; // (1+2+4+8+16+32)
+int		CULLBITS_U				= 1;
+int		CULLBITS_W				= 2;
+int		CULLBITS_S				= 4;
+int		CULLBITS_E				= 8;
+int		CULLBITS_N				= 16;
+int		CULLBITS_D				= 32;
+int		CULLBITS_ALL			= 63;	// (1+2+4+8+16+32)
+
+int		CULLBITS_PARTIAL_U		= 64;
+int		CULLBITS_PARTIAL_W		= 128;
+int		CULLBITS_PARTIAL_S		= 256;
+int		CULLBITS_PARTIAL_E		= 512;
+int		CULLBITS_PARTIAL_N		= 1024;
+int		CULLBITS_PARTIAL_D		= 2048;
+int		CULLBITS_PARTIAL_ALL	= 4032;	// (64+128+256+512+1024+2048)
 
 .*int	cubic_blocktype;
 int		numblocktypes = 3;
-int		BLOCKTYPE_DIRT	= 1;
-int		BLOCKTYPE_BRICK	= 2;
-int		BLOCKTYPE_BLOCK	= 3;
+int		BLOCKTYPE_DIRT		= 1;
+int		BLOCKTYPE_BRICK		= 2;
+int		BLOCKTYPE_BLOCK		= 3;
+
+.*int	cubic_blockshape;
+int		numblockshapes	= 2;
+int		BLOCKSHAPE_CUBE		= 1;
+int		BLOCKSHAPE_RAMP		= 2;
+
+.*int	cubic_blockrotation;
+int		BLOCKROTATION_E				= 0;
+int		BLOCKROTATION_N				= 1;
+int		BLOCKROTATION_W				= 2;
+int		BLOCKROTATION_S				= 3;
+int		BLOCKROTATION_SIDE_E		= 4;
+int		BLOCKROTATION_SIDE_N		= 5;
+int		BLOCKROTATION_SIDE_W		= 6;
+int		BLOCKROTATION_SIDE_S		= 7;
+int		BLOCKROTATION_UPSIDEDOWN_E	= 8;
+int		BLOCKROTATION_UPSIDEDOWN_N	= 9;
+int		BLOCKROTATION_UPSIDEDOWN_W	= 10;
+int		BLOCKROTATION_UPSIDEDOWN_S	= 11;
+
+
+
+
+
 
 
 void InitGameVariables()
@@ -119,9 +156,12 @@ int		ENT_CLUSTER			= 1;
 int		ENT_CHUNK			= 2;
 int		ENT_CUBICBBOX		= 3;
 
-int		STAT_TOOL				= 32;
-int		STAT_TOOLSIZE			= 33;
-int		STAT_PLAYERCLUSTERID	= 34;
+int		STAT_TOOL					= 32;
+int		STAT_TOOLSIZE				= 33;
+int		STAT_PLAYERCLUSTERID		= 34;
+int		STAT_EDITOR_BLOCKTYPE		= 35;
+int		STAT_EDITOR_BLOCKSHAPE		= 36;
+int		STAT_EDITOR_BLOCKROTATION	= 37;
 
 .int	numvertexindexes;
 .entity	parentchunk;
@@ -156,6 +196,7 @@ vector	VECOFS_DSW = '-1 -1 -1';
 vector	VECOFS_DS	= '0 -1 -1';
 vector	VECOFS_DSE = '1 -1 -1';
 
+// these are all also impulses
 int		TOOLSIZE_EDITOR_CUBIC	= 100;
 int		TOOLSIZE_EDITOR_CHUNK	= 101;
 int		TOOLSIZE_EDITOR_CLUSTER	= 102;
@@ -164,6 +205,15 @@ int		TOOL_EDITOR_REMOVE	= 110;
 int		TOOL_EDITOR_ADD		= 111;
 int		TOOL_EDITOR_COPY	= 112;
 int		TOOL_EDITOR_PASTE	= 113;
+
+int		EDITOR_BLOCKTYPE_INCREASE		= 120;
+int		EDITOR_BLOCKTYPE_DECREASE		= 121;
+int		EDITOR_BLOCKSHAPE_INCREASE		= 122;
+int		EDITOR_BLOCKSHAPE_DECREASE		= 123;
+int		EDITOR_BLOCKROTATION_Y_INCREASE	= 124;
+int		EDITOR_BLOCKROTATION_Y_DECREASE	= 125;
+int		EDITOR_BLOCKROTATION_Z_INCREASE	= 126;
+int		EDITOR_BLOCKROTATION_Z_DECREASE	= 127;
 
 int GetClusterOccupancyRef(vector ofs)
 {
@@ -521,7 +571,7 @@ vector TraceCubic(vector start, vector end, int getinside)
 			{
 				#ifdef SSQC
 				cullbits = chunk.cubic_cullbits[GetCubicRef(cubicorg-chunk.origin)];
-				if(cullbits == CULLBITS_ALL)
+				if((cullbits & CULLBITS_ALL) == CULLBITS_ALL)
 				{
 					if(getinside)
 						return NearestNearCubicOrg(cubicorg, start);

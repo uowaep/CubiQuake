@@ -5,8 +5,7 @@
 	if(other == self.owner)
 		return;
 
-	if(other.enttype == ENT_CUBICBBOX)
-		RemoveCubic(other);
+	// do stuff
 	
 	LeaveSolidCubics(self, self.lastsolidcubicorigin);
 	Remove(self);

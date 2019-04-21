@@ -2,7 +2,7 @@
 void CSQC_Init(float apilevel, string enginename, float engineversion)
 {
 	SharedPrecaches();
-	
+//	shaderforname("brick_side");
 //	chunkents = memalloc(sizeof(entity)*pow(worldsize, 3)*pow(clustersize, 3));
 
 	InitializeCubicInterface();	

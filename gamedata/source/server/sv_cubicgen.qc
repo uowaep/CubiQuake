@@ -55,6 +55,8 @@ vector GetCubicOffsetForGeneration(vector pos)	{	return (pos+'-1 -1 -1'*chunksiz
 int ChunkGen_SetCubic(int *cdata, int type, int cubicslot0)
 {
 	cdata[cubicslot0+CUBICSLOT_TYPE]		= type;
+	cdata[cubicslot0+CUBICSLOT_SHAPE]		= BLOCKSHAPE_CUBE;
+	cdata[cubicslot0+CUBICSLOT_ROTATION]	= BLOCKROTATION_E;
 	cdata[cubicslot0+CUBICSLOT_CULLBITS]	= 0;
 	
 	cubicslot0 += numvaluespercubic;
@@ -314,7 +316,7 @@ void GenCubicVisibility()
 						fclose(fileB);
 				}
 				
-				if(cullbits == CULLBITS_ALL)
+				if((cullbits & CULLBITS_ALL) == CULLBITS_ALL)
 					chunk_numvisiblecubics-=1;	
 					
 				cluster_data[cubicslot0+CUBICSLOT_CULLBITS] = cullbits;

@@ -30,8 +30,25 @@ void SetSolidCubic_Func(entity chunk, entity e, vector org)
 		e.enttype = ENT_CUBICBBOX;
 		e.parentchunk = chunk;
 		setorigin(e, org);
-		e.solid = SOLID_BBOX;
-		setsize(e, '-1 -1 -1'*cubicradius, '1 1 1'*cubicradius);
+		e.effects = EF_NODRAW;
+		
+		int id = GetCubicRef(org-chunk.origin);
+		int shape = chunk.cubic_blockshape[id];
+		int rotation = chunk.cubic_blockrotation[id];
+		
+		if(shape == BLOCKSHAPE_RAMP)
+		{
+			e.solid = SOLID_BSP;
+			e.angles_y = ((rotation/4)-floor(rotation/4))*4*90;
+			e.angles_z = floor(rotation/4)*90;
+			setmodel(e, "models/collision/ramp.bsp");
+		}
+		else
+		{
+			e.solid = SOLID_BBOX;
+			setsize(e, '-1 -1 -1'*cubicradius, '1 1 1'*cubicradius);
+		}
+		
 		CubicBBoxChain_Add(chunk, e);
 	}
 	else
