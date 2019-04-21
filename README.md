@@ -5,7 +5,7 @@ Cubic Game Framework for the FTE Engine (Requires FTEQW revision 5424 or higher.
 r78
 - added ramp shape (with collision)
 - added 2 axis block rotation (textures stay aligned to the world) (keys: [ ] -+)
-- added texture tools (keys: mwheel)
+- added cubic type/texture tools (keys: mwheel)
 - added shape tool (keys: <>)
 - added revision text in upper right of screen
 - updated surface culling to handle rotated shapes and partial cube sides (triangles)
@@ -28,8 +28,8 @@ impulse 110 | Tool Mode: Remove Cubic(s) | Q |
 impulse 111 | Tool Mode: Add Cubic(s) | E | 
 impulse 112 | Tool Mode: Copy/Save Cubics(s) | C | 
 impulse 113 | Tool Mode: Paste/Load Cubics(s) | V | 
-impulse 120 | Tool: Cubic Type Next | mwheelup |
-impulse 121 | Tool: Cubic Type Prev | mwheeldown |
+impulse 120 | Tool: Cubic Type/Texture Next | mwheelup |
+impulse 121 | Tool: Cubic Type/Texture Prev | mwheeldown |
 impulse 122 | Tool: Cubic Shape Next | . |
 impulse 123 | Tool: Cubic Shape Prev | , |
 impulse 124 | Tool: Cubic Rotation Y+ | ] |
