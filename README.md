@@ -2,7 +2,7 @@
 Cubic Game Framework for the FTE Engine (Requires FTEQW revision 5424 or higher.)
 
 ### Recent Changes
-r78
+r78 (clear data dir)
 - added ramp shape (with collision)
 - added 2 axis block rotation (textures stay aligned to the world) (keys: [ ] -+)
 - added cubic type/texture tools (keys: mwheel)
