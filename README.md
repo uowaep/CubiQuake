@@ -1,6 +1,15 @@
 # CubiQuake
 Cubic Game Framework for the FTE Engine (Requires FTEQW revision 5424 or higher.)
 
+### Recent Changes
+r78
+- added ramp shape (with collision)
+- added 2 axis block rotation (textures stay aligned to the world) (keys: [ ] -+)
+- added texture tools (keys: mwheel)
+- added shape tool (keys: <>)
+- added revision text in upper right of screen
+- updated surface culling to handle rotated shapes and partial cube sides (triangles)
+
 ### Playing/Generation
 - open the console (SHIFT-ESC) and run the following (or just run "**map world**" and use default settings)
 - "worldname name" (default: world1)
