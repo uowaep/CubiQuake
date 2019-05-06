@@ -1,4 +1,4 @@
-entity Remove(entity e)
+void Remove(entity e)
 {
 	ProjectileChain_Remove(e);
 	UnusedCubicBBoxChain_Remove(e);
@@ -11,6 +11,4 @@ entity Remove(entity e)
 		CubicBBoxChain_Remove(e.parentchunk, e);
 		
 	remove(e);
-	
-	return __NULL__;
 }

@@ -14,6 +14,11 @@
 #include "shared_server_client/sh_sv_cs_cubics.qc"
 
 #include "client/cs_chains.qc"
+#include "client/cs_faces.qc"
+#include "client/cs_shape_cube.qc"
+#include "client/cs_shape_ramp.qc"
+#include "client/cs_shape_wedgetip.qc"
+#include "client/cs_shape_wedge.qc"
 #include "client/cs_cubics.qc"
 #include "client/cs_cubicinterface.qc"
 #include "client/cs_subs.qc"

@@ -7,7 +7,7 @@ entity LinkedList_Remove(entity e, entity list, .entity entchain, .entity entpar
 	{
 		list = e.entchain;
 		if(list)
-			list.entparent = world;
+			list.entparent = __NULL__;
 	}
 	
 	if(e.entparent)
@@ -15,8 +15,8 @@ entity LinkedList_Remove(entity e, entity list, .entity entchain, .entity entpar
 	if(e.entchain)
 		e.entchain.entparent = e.entparent;
 		
-	e.entparent = world;
-	e.entchain = world;
+	e.entparent = __NULL__;
+	e.entchain = __NULL__;
 		
 	return list;
 }
@@ -88,7 +88,7 @@ void FreeBufferString(float handle, float index)	{	bufstr_free(handle-1, index);
 	return file;
 }*/
 
-entity Remove(entity e);
+void Remove(entity e);
 void Remove_self()	{	Remove(self);	}
 
 string zonecpy(string dst, string src) // if dst is not null or zoned, this will cause errors

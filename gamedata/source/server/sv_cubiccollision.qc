@@ -36,12 +36,28 @@ void SetSolidCubic_Func(entity chunk, entity e, vector org)
 		int shape = chunk.cubic_blockshape[id];
 		int rotation = chunk.cubic_blockrotation[id];
 		
-		if(shape == BLOCKSHAPE_RAMP)
+		if(shape > BLOCKSHAPE_CUBE)
 		{
 			e.solid = SOLID_BSP;
+	
+			if(shape == BLOCKSHAPE_RAMP)
+				setmodel(e, "models/collision/ramp.bsp");
+			else
+			if(shape == BLOCKSHAPE_WEDGETIP)
+				setmodel(e, "models/collision/wedgetip.bsp");
+			else
+			if(shape == BLOCKSHAPE_WEDGE)
+				setmodel(e, "models/collision/wedge.bsp");
+			
 			e.angles_y = ((rotation/4)-floor(rotation/4))*4*90;
-			e.angles_z = floor(rotation/4)*90;
-			setmodel(e, "models/collision/ramp.bsp");
+			
+			if(rotation >= BLOCKROTATION_BW_E)
+				e.angles_x = -90;
+			else
+			if(rotation >= BLOCKROTATION_FW_E)
+				e.angles_x = 90;
+			else				
+				e.angles_z = floor(rotation/4)*90;				
 		}
 		else
 		{

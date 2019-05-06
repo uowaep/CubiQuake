@@ -1,5 +1,5 @@
 // VERSION
-int		cubic_revision	= 78;
+int		cubic_revision	= 83;
 
 // WORLD SETTINGS
 
@@ -82,29 +82,37 @@ int		BLOCKTYPE_BRICK		= 2;
 int		BLOCKTYPE_BLOCK		= 3;
 
 .*int	cubic_blockshape;
-int		numblockshapes	= 2;
+int		numblockshapes	= 4;
 int		BLOCKSHAPE_CUBE		= 1;
 int		BLOCKSHAPE_RAMP		= 2;
+int		BLOCKSHAPE_WEDGETIP	= 3;
+int		BLOCKSHAPE_WEDGE	= 4;
 
 .*int	cubic_blockrotation;
-int		BLOCKROTATION_E				= 0;
-int		BLOCKROTATION_N				= 1;
-int		BLOCKROTATION_W				= 2;
-int		BLOCKROTATION_S				= 3;
-int		BLOCKROTATION_SIDE_E		= 4;
-int		BLOCKROTATION_SIDE_N		= 5;
-int		BLOCKROTATION_SIDE_W		= 6;
-int		BLOCKROTATION_SIDE_S		= 7;
-int		BLOCKROTATION_UPSIDEDOWN_E	= 8;
-int		BLOCKROTATION_UPSIDEDOWN_N	= 9;
-int		BLOCKROTATION_UPSIDEDOWN_W	= 10;
-int		BLOCKROTATION_UPSIDEDOWN_S	= 11;
-
-
-
-
-
-
+int		BLOCKROTATION_E		= 0;
+int		BLOCKROTATION_N		= 1;
+int		BLOCKROTATION_W		= 2;
+int		BLOCKROTATION_S		= 3;
+int		BLOCKROTATION_CW_E	= 4;
+int		BLOCKROTATION_CW_N	= 5;
+int		BLOCKROTATION_CW_W	= 6;
+int		BLOCKROTATION_CW_S	= 7;
+int		BLOCKROTATION_UD_E	= 8;
+int		BLOCKROTATION_UD_N	= 9;
+int		BLOCKROTATION_UD_W	= 10;
+int		BLOCKROTATION_UD_S	= 11;
+int		BLOCKROTATION_CCW_E	= 12;
+int		BLOCKROTATION_CCW_N	= 13;
+int		BLOCKROTATION_CCW_W	= 14;
+int		BLOCKROTATION_CCW_S	= 15;
+int		BLOCKROTATION_FW_E	= 16;
+int		BLOCKROTATION_FW_N	= 17;
+int		BLOCKROTATION_FW_W	= 18;
+int		BLOCKROTATION_FW_S	= 19;
+int		BLOCKROTATION_BW_E	= 20;
+int		BLOCKROTATION_BW_N	= 21;
+int		BLOCKROTATION_BW_W	= 22;
+int		BLOCKROTATION_BW_S	= 23;
 
 void InitGameVariables()
 {
@@ -128,7 +136,7 @@ void InitGameVariables()
 	viewsize_distant = 3;					// must be odd/even if loadsize is odd/even
 	viewheight = 3;							// must be odd/even if loadsize is odd/even
 	viewheight_distant = 5;					// must be odd/even if loadsize is odd/even
-	loadradiusarea = FALSE;					// broken because of layered loading using cube shaped logic
+	loadradiusarea = FALSE;					// broken because of layered loading using cube shaped logic (could try an oval type sphere)
 
 	// set these to match the highest values
 	maxviewsize = viewsize;		
@@ -206,14 +214,18 @@ int		TOOL_EDITOR_ADD		= 111;
 int		TOOL_EDITOR_COPY	= 112;
 int		TOOL_EDITOR_PASTE	= 113;
 
-int		EDITOR_BLOCKTYPE_INCREASE		= 120;
-int		EDITOR_BLOCKTYPE_DECREASE		= 121;
-int		EDITOR_BLOCKSHAPE_INCREASE		= 122;
-int		EDITOR_BLOCKSHAPE_DECREASE		= 123;
-int		EDITOR_BLOCKROTATION_Y_INCREASE	= 124;
-int		EDITOR_BLOCKROTATION_Y_DECREASE	= 125;
-int		EDITOR_BLOCKROTATION_Z_INCREASE	= 126;
-int		EDITOR_BLOCKROTATION_Z_DECREASE	= 127;
+int		EDITOR_BLOCKTYPE_INCREASE			= 120;
+int		EDITOR_BLOCKTYPE_DECREASE			= 121;
+int		EDITOR_BLOCKSHAPE_INCREASE			= 122;
+int		EDITOR_BLOCKSHAPE_DECREASE			= 123;
+int		EDITOR_BLOCKROTATION_Y_INCREASE		= 124;
+int		EDITOR_BLOCKROTATION_Y_DECREASE		= 125;
+int		EDITOR_BLOCKROTATION_XZ_INCREASE	= 126;
+int		EDITOR_BLOCKROTATION_XZ_DECREASE	= 127;
+
+int			clusters_allocated;
+entity		*cluster_ent;
+.*entity	chunk_ent;
 
 int GetClusterOccupancyRef(vector ofs)
 {
@@ -373,8 +385,8 @@ float GetToolScale(int toolsize)
 	return toolscale;
 }
 
-#ifdef SSQC
-entity GetClusterForLocation(entity cluster, vector clusterorg)
+//#ifdef SSQC
+/*entity GetClusterForLocation(entity cluster, vector clusterorg)
 {
 	if(cluster && clusterorg == cluster.origin)
 		return cluster;
@@ -384,9 +396,41 @@ entity GetClusterForLocation(entity cluster, vector clusterorg)
 			return cluster;
 
 	return __NULL__;
-}
-#endif
+}*/
 
+entity GetClusterForLocation(entity cluster, vector clusterorg)
+{
+	if(!clusters_allocated)
+		return __NULL__;
+
+	return cluster_ent[GetClusterRef(clusterorg)];
+}
+//#endif
+
+//#ifdef SSQC
+entity GetChunkForLocation(entity chunk, vector cubicchunkorg)
+{
+	if(!clusters_allocated)
+		return __NULL__;
+	
+	entity cluster = cluster_ent[GetClusterRef(GetNearClusterOrg(cubicchunkorg))];
+	
+	if(!cluster)
+		return __NULL__;
+	
+	chunk = cluster.chunk_ent[GetChunkRef(cubicchunkorg-cluster.origin)];	
+	
+	if(!chunk)
+	{
+	//	print("no chunk\n");
+		return __NULL__;
+	}
+	
+	return chunk;
+}
+//#endif
+
+/*#ifdef CSQC
 entity GetChunkForLocation(entity chunk, vector cubicchunkorg)
 {
 	if(chunk && cubicchunkorg == chunk.origin)
@@ -398,6 +442,7 @@ entity GetChunkForLocation(entity chunk, vector cubicchunkorg)
 
 	return __NULL__;
 }
+#endif*/
 
 int	CubicSharesSide(entity chunk, vector cubicorg)
 {
@@ -645,4 +690,12 @@ int ToolIsOnEdge(vector clusterpos, vector toolpos)
 		return TRUE;
 		
 	return FALSE;
+}
+
+void FreeChunkAllocations(entity chunk)
+{
+	memfree(chunk.cubic_blocktype);		
+	memfree(chunk.cubic_blockshape);
+	memfree(chunk.cubic_blockrotation);
+	memfree(chunk.cubic_cullbits);
 }

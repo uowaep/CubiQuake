@@ -1,4 +1,4 @@
-void R_DrawFace(vector pos, vector face_forward, vector face_right, vector face_up)
+void R_DrawFace(vector pos, vector face_forward, vector face_right, vector face_up) // this isn't used for anything. it's just here.
 {
 	string imgname = "textures/block.tga";
 	float alpha_ratio = 1;
@@ -42,13 +42,11 @@ void CSQC_UpdateView(float vwidth, float vheight, float notmenu)
 	// Setup Entities to be Rendered (include all base types; normal, engine and viewmodels)
 	addentities(MASK_NORMAL | MASK_ENGINE);
 	
-	//	dynamiclight_add(view_org, 500, '1 1 1', 0, "", 0);	
+//	makevectors(view_ang);
+//		dynamiclight_add(view_org+v_forward*50, 200, '1 1 1', 0, "", 128);	
 	
 	renderscene();
 	
 	string s = strcat("cubiquake r", itos(cubic_revision));
 	drawstring([vwidth-(strlen(s)*8+2), 2, 0], s, '8 8 0', '1 1 1', 1, 0);
-	
-	
-	
 }
