@@ -16,6 +16,7 @@ r83 (clear data dir if anything is broken)
 - removed some unused variables
 
 ### Playing/Generation
+- start FTE
 - open the console (SHIFT-ESC) and run the following (or just run "**map world**" and use default settings)
 - "worldname name" (default: world1)
 - "worldsize size" (default: 9 - there is no max, but beware of long generation times)
