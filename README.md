@@ -1,6 +1,6 @@
 ![alt text](https://raw.githubusercontent.com/uowaep/CubiQuake/master/cubiquake.png "CubiQuake")
 
-Cubic Game Framework for the FTE Engine __(Requires FTEQW revision 5424 or higher.)__
+Cubic Game Framework for the FTEQW Engine __(Requires FTEQW revision 5424 or higher.)__
 
 ### Recent Changes
 r83 (clear data dir if anything is broken)
