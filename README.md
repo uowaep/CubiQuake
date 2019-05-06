@@ -2,13 +2,17 @@
 Cubic Game Framework for the FTE Engine (Requires FTEQW revision 5424 or higher.)
 
 ### Recent Changes
-r78 (clear data dir)
-- added ramp shape (with collision)
-- added 2 axis block rotation (textures stay aligned to the world) (keys: [ ] -+)
-- added cubic type/texture tools (keys: mwheel)
-- added shape tool (keys: <>)
-- added revision text in upper right of screen
-- updated surface culling to handle rotated shapes and partial cube sides (triangles)
+r83 (clear data dir if anything is broken)
+- added wedge and wedgetip shapes
+- added more angles of rotation to shapes (All angles are possible now with non-symmetrical shapes.)
+- chunks are now drawn from closest to furthest for 25% ish FPS increase
+- greatly improved chunk and cluster lookup speed by using entity references rather than findradius()
+- chunk and cluster entities are re-used where possible to reduce allocations and memfree usage
+- moved face rendering functions to their own file in csqc
+- moved shape functions to their own files in csqc
+- no longer using dpcompat_findradiusarealinks cvar
+- changed some instances of world to NULL
+- removed some unused variables
 
 ### Playing/Generation
 - open the console (SHIFT-ESC) and run the following (or just run "**map world**" and use default settings)
@@ -34,8 +38,8 @@ impulse 122 | Tool: Cubic Shape Next | . |
 impulse 123 | Tool: Cubic Shape Prev | , |
 impulse 124 | Tool: Cubic Rotation Y+ | ] |
 impulse 125 | Tool: Cubic Rotation Y- | \[ |
-impulse 126 | Tool: Cubic Rotation Z+ | = |
-impulse 127 | Tool: Cubic Rotation Y- | - |
+impulse 126 | Tool: Cubic Rotation X/Z+ | = |
+impulse 127 | Tool: Cubic Rotation X/Z- | - |
 impulse 11 | Exit Edit Mode | X | Any impulse will work.
 
 ### CVAR prefabname
@@ -63,6 +67,18 @@ It hasn't been tested yet, but CubiQuake is designed to be multiplayer.
 - update world generator to use cluster prefabs
 
 ### ChangeLog
+r83
+- added wedge and wedgetip shapes
+- added more angles of rotation to shapes (All angles are possible now with non-symmetrical shapes.)
+- chunks are now drawn from closest to furthest for 25% ish FPS increase
+- greatly improved chunk and cluster lookup speed by using entity references rather than findradius()
+- chunk and cluster entities are re-used where possible to reduce allocations and memfree usage
+- moved face rendering functions to their own file in csqc
+- moved shape functions to their own files in csqc
+- no longer using dpcompat_findradiusarealinks cvar
+- changed some instances of world to NULL
+- removed some unused variables
+
 r78
 - added ramp shape (with collision)
 - added 2 axis block rotation (textures stay aligned to the world) (keys: [ ] -+)
