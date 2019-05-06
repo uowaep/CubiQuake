@@ -65,8 +65,9 @@ It hasn't been tested yet, but CubiQuake is designed to be multiplayer.
 - no known issues
 
 ### ToDo
+- lighting shaders
 - test multiplayer
-- update world generator to use cluster prefabs
+- update world generator to use cluster/chunk prefabs
 
 ### ChangeLog
 r83
