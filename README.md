@@ -72,7 +72,7 @@ shared_server_client/sh_sv_cs_cubics.qc | tools for working with the cubic frame
 It hasn't been tested yet, but CubiQuake is designed to be multiplayer.
 
 ### Known Issues
-- no known issues
+- minor collision hull weirdness
 
 ### ToDo
 - lighting shaders
