@@ -15,13 +15,23 @@ r83 (clear data dir if anything is broken)
 - changed some instances of world to NULL
 - removed some unused variables
 
+### Installation
+- Download the CubiQuake zip file from GitHub and extract the entire contents anywhere.
+- Download FTEQW from http://fte.triptohell.info/downloads into your main CubiQuake directory.
+
+Note: If sharing the same FTE install with other mods, the default.fmf file should not be installed.
+
 ### Playing/Generation
-- start FTEQW
-- open the console (SHIFT-ESC) and run the following (or just run "**map world**" and use default settings)
-- "worldname name" (default: world1)
-- "worldsize size" (default: 9 - there is no max, but beware of long generation times)
-- "map world"
-- If the world files don't exist they will generate into /gamedata/data/worlds/worldname and the world will spawn after generation.
+- Start FTEQW.
+- Open the console. (SHIFT-ESC)
+- Quick Start - Run '**map world**' and use default settings.
+>
+- Custom Start - Run the following:
+- - 'worldname name' (default: world1)
+- - 'worldsize size' (default: 9 - There is no max, but beware of long generation times.)
+- - 'map world'
+
+If the world files don't exist they will generate into /gamedata/data/worlds/worldname and the world will spawn after generation.
 
 ### Controls
 Bind | Description | Default Key | Notes
