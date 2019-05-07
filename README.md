@@ -16,8 +16,8 @@ r83 (clear data dir if anything is broken)
 - removed some unused variables
 
 ### Installation
-- Download CubiQuake from GitHub and extract the entire contents of the zip file anywhere.
-- Download FTEQW from http://fte.triptohell.info/downloads into your main CubiQuake directory.
+- Download CubiQuake https://github.com/uowaep/CubiQuake/archive/master.zip and extract the entire contents of the zip file anywhere.
+- Download the appropriate client from FTEQW http://fte.triptohell.info/downloads and place it in your main CubiQuake directory.
 
 Note: If sharing the same FTE install with other mods, the default.fmf file should not be installed.
 
