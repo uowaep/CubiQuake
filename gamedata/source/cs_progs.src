@@ -6,7 +6,6 @@
 #define CSQC
 #include "shared_all/fteextensions.qc"
 
-#include "client/cs_gamedefs.qc"
 #include "shared_all/sh_all_subs.qc"
 
 #include "shared_server_client/sh_sv_cs_precaches.qc"
@@ -14,6 +13,11 @@
 #include "shared_server_client/sh_sv_cs_cubics.qc"
 
 #include "client/cs_chains.qc"
+#include "client/cs_cubicdefs.qc"
+#include "client/cs_animation.qc"
+#include "client/cs_cubicobjects.qc"
+#include "client/cs_clusters.qc"
+#include "client/cs_light.qc"
 #include "client/cs_faces.qc"
 #include "client/cs_shape_cube.qc"
 #include "client/cs_shape_ramp.qc"

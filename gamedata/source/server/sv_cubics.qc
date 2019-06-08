@@ -1,25 +1,3 @@
-.int		averagetype;
-.int		occupantcount;
-.int		worldloaded;
-.int		loadingchunks;
-.int		loadingbackgroundchunks;
-.int		backgroundloadtime;
-.int		backgroundunloadtime;
-.int		visingchunks;
-.vector		lastbackgroundqueuepos;
-.vector		lastdistantbackgroundqueuepos;
-int			numplayersloadingfiles;
-.vector		playerclusterorg;
-.int		playerclusterid;
-.vector		client_initialized;
-
-.int		tool;
-.int		toolsize;
-.int		editor_blocktype;
-.int		editor_blockshape;
-.int		editor_blockrotation;
-
-
 float SendChunk(entity viewer, float sendflags)
 {
 	int type, cullbits, sentcount;
@@ -31,14 +9,16 @@ float SendChunk(entity viewer, float sendflags)
 //	if(dist*dist > chunk_sharerange*chunk_sharerange)
 //		return FALSE;
 	
-	WriteByte(MSG_ENTITY, ENT_CHUNK);
+	// this is a hack to ensure worldsize is sent prior to chunks needing to reference it. this continues to send until the client sends "cmd initialized" to stop it.
+	sendflags = sendflags - (sendflags & SFL_INITIALIZE);
+	if(!viewer.client_initialized)
+		sendflags = sendflags | SFL_INITIALIZE;
+	
+	WriteByte(MSG_ENTITY, ENT_CHUNK);	
 	WriteLong(MSG_ENTITY, sendflags);
 	
-	if(!viewer.client_initialized)
-	{
+	if(sendflags & SFL_INITIALIZE)
 		WriteLong(MSG_ENTITY, worldsize);
-		viewer.client_initialized = TRUE;
-	}
 	
 	if(sendflags & SFL_ISNEW)
 		WriteLong(MSG_ENTITY, GetChunkOriginRef(self.origin));
@@ -58,9 +38,12 @@ float SendChunk(entity viewer, float sendflags)
 			{
 				WriteShort(MSG_ENTITY, count);
 				WriteByte(MSG_ENTITY, type);
-				WriteByte(MSG_ENTITY, self.cubic_blockshape[count]);
-				WriteByte(MSG_ENTITY, self.cubic_blockrotation[count]);
-				WriteByte(MSG_ENTITY, cullbits & CULLBITS_ALL);
+				if(!NonSolidType(type))
+				{
+					WriteByte(MSG_ENTITY, self.cubic_blockshape[count]);
+					WriteByte(MSG_ENTITY, self.cubic_blockrotation[count]);
+					WriteByte(MSG_ENTITY, cullbits & CULLBITS_ALL);
+				}
 				sentcount++;
 			}
 		}
@@ -185,24 +168,45 @@ void GhostCluster(entity cluster)
 	GhostClusterChain_Add(cluster);
 }
 
-void InitializeCluster(entity cluster, vector org)
+float InitializeCluster(entity cluster, vector org, int forceload)
 {
-	entity nextchunk;
-	
-	if(!(cluster.flags & FL_FINDABLE_NONSOLID))
+//	entity chunk, nextchunk;
+//	int numchunksghosted;
+//	int	maxchunksghostedperframe = 9;
+	if(!(cluster.flags & FL_FINDABLE_NONSOLID))	// cluster is new
 	{
 		cluster.flags = FL_FINDABLE_NONSOLID;
 		cluster.enttype = ENT_CLUSTER;
 		setorigin(cluster, org);
 	}
 
-	for(entity chunk = cluster.list_chunkchain; chunk; chunk = nextchunk)
-	{
+/*	if(!forceload && self.stagger_initializecluster_ghostchunk)
+		chunk = self.stagger_initializecluster_ghostchunk;
+	else
+		chunk = cluster.list_chunkchain;
+	
+	for(; chunk; chunk = nextchunk)	// FIXME STAGGER could stagger this?
+	{print("wut?\n");
 		nextchunk = chunk.chunkchain;
 		GhostChunk(cluster, chunk);
 	//	FreeChunkAllocations(chunk);
 	//	Remove(chunk);
+	
+		numchunksghosted++;
+	
+		if(!forceload)
+		if(numchunksghosted == maxchunksghostedperframe)
+		if(nextchunk)
+		{print("test\n");
+			self.stagger_initializecluster_ghostchunk = nextchunk;
+			return FALSE;
+		}
 	}
+	
+	if(!forceload)
+		self.stagger_initializecluster_ghostchunk = __NULL__;*/
+	
+	return TRUE;
 }
 
 void InitializeChunk(entity cluster, entity chunk, vector org)
@@ -300,7 +304,7 @@ void SetCubicVisibility(entity chunk, int memslot)
 		if(!chunk)	// this needs to be split up or not?
 			cullbits = cullbits | bitshift(1, sidecount);
 		else
-		if(GetCubicStatus(chunk, nearcubicorg) != -1)
+		if(GetCubicStatus(chunk, nearcubicorg, TRUE) != -1)
 		{
 			nearcullbits = chunk.cubic_cullbits[GetCubicRef(nearcubicorg-chunk.origin)];			
 			if(!(nearcullbits & partialside))
@@ -631,7 +635,7 @@ void SavePrefab_Cluster(vector clusterorg)
 	print(filename, " saved.\n");
 }
 
-void AddCluster(vector clusterorg, int type)
+void AddCluster(vector clusterorg, int type, int shape, int rotation)
 {
 	entity cluster = GetClusterForLocation(__NULL__, clusterorg);
 	
@@ -659,6 +663,8 @@ void AddCluster(vector clusterorg, int type)
 				for(int i = 0; i < pow(chunksize, 3); i++)
 				{
 					chunk.cubic_blocktype[i] = type;
+					chunk.cubic_blockshape[i] = shape;
+					chunk.cubic_blockrotation[i] = rotation;						
 					chunk.cubic_cullbits[i] = CULLBITS_ALL;
 				}
 			}
@@ -787,7 +793,7 @@ void SavePrefab_Chunk(vector chunkorg)
 	print(filename, " saved.\n");
 }
 
-void AddChunk(vector chunkorg, int type)
+void AddChunk(vector chunkorg, int type, int shape, int rotation)
 {
 	entity chunk = GetChunkForLocation(__NULL__, chunkorg);
 	
@@ -799,6 +805,8 @@ void AddChunk(vector chunkorg, int type)
 	for(int i = 0; i < pow(chunksize, 3); i++)
 	{
 		chunk.cubic_blocktype[i] = type;
+		chunk.cubic_blockshape[i] = shape;
+		chunk.cubic_blockrotation[i] = rotation;		
 		chunk.cubic_cullbits[i] = CULLBITS_ALL;
 	}
 	
@@ -843,7 +851,7 @@ void AddCubic(vector org, int type, int shape, int rotation)
 	if(!chunk)
 		return;
 	
-	if(GetCubicStatus(chunk, org) != -1)
+	if(GetCubicStatus(chunk, org, FALSE) != -1)
 	{
 		dprint("Error: Trying to create cubic where one already exists.\n");
 		return;
@@ -863,7 +871,7 @@ void RemoveCubic(entity chunk, vector cubicorg)
 	if(!chunk)
 		return;
 
-	int memslot = GetCubicStatus(chunk, cubicorg);
+	int memslot = GetCubicStatus(chunk, cubicorg, FALSE);
 	
 	if(memslot == -1)
 		return;
@@ -887,6 +895,7 @@ void RemoveCubic(entity chunk, vector cubicorg)
 void RemoveUnoccupiedClusters(int numframesbetweenunloads)
 {
 	entity cluster, chunk, nextchunk;
+	int	numchunksghosted;
 	
 	if(!list_unoccupiedclusterchain)
 		return;
@@ -900,14 +909,31 @@ void RemoveUnoccupiedClusters(int numframesbetweenunloads)
 	
 	if(cluster)
 	{
-		for(chunk = cluster.list_chunkchain; chunk; chunk = nextchunk)
+		if(self.stagger_removeunoccupiedclusters_ghostchunk)
+		{
+			chunk = self.stagger_removeunoccupiedclusters_ghostchunk;
+			self.stagger_removeunoccupiedclusters_ghostchunk = __NULL__;
+		}
+		else
+			chunk = cluster.list_chunkchain;		
+		
+		
+		for(; chunk; chunk = nextchunk)	// FIXME STAGGER THIS
 		{
 			nextchunk = chunk.chunkchain;
 			GhostChunk(cluster, chunk);
 //			FreeChunkAllocations(chunk);
 //			Remove(chunk);
+
+			numchunksghosted++;
+
+			if(numchunksghosted == maxchunksghostedperframe)
+			if(nextchunk)
+			{
+				self.stagger_removeunoccupiedclusters_ghostchunk = nextchunk;
+				return;
+			}
 		}
-		
 		GhostCluster(cluster);
 //		Remove(cluster);
 	}
@@ -951,49 +977,88 @@ void UnloadWorldForPlayer(vector org)
 			}
 }
 
-entity LoadCluster(vector pos)
+entity LoadCluster(vector pos, int forceload)
 {
-	int i, chunkslot0, cubicslot0, count;
+	int chunkslot0, cubicslot0, count, numchunksloaded;
 	entity cluster;
+	int *cluster_data;
+	float file;
+	int i = 0;
 
-	string filename = strcat(worldpath, itos(GetClusterRef(pos)));
-	float file = fopen(filename, FILE_MMAP_READ, sizeof(int)*clusterdataslots);
-	
-	if(file == -1)
+	if(!forceload && self.stagger_loadcluster_chunkid)
 	{
-		print("no file found\n");
-		return __NULL__;
-	}
-
-	int *cluster_data = (int*)fgets(file);	
-	
-	if(list_ghostclusterchain)
-	{
-		cluster = list_ghostclusterchain;
-		GhostClusterChain_Remove(cluster);
+		i = self.stagger_loadcluster_chunkid;
+		self.stagger_loadcluster_chunkid =  0;
+		
+		cluster = cluster_ent[GetClusterRef(pos)];
+		if(!cluster)
+		{
+			print("no cluster\n");
+			return __NULL__;
+		}
+		
+		file = self.loadcluster_file;
+		cluster_data = self.loadcluster_cluster_data;
 	}
 	else
 	{
-		cluster = spawn();
-		cluster.chunk_ent = memalloc(sizeof(entity)*pow(clustersize, 3));
-//		memfill8(cluster.chunk_ent, __NULL__, sizeof(entity)*pow(clustersize, 3));
+	/*	if(!forceload && self.stagger_initializecluster_ghostchunk)
+		{
+			cluster = cluster_ent[GetClusterRef(pos)];
+			file = self.loadcluster_file;
+			cluster_data = self.loadcluster_cluster_data;
+		}
+		else
+		{*/
+			string filename = strcat(worldpath, itos(GetClusterRef(pos)));
+			file = fopen(filename, FILE_MMAP_READ, sizeof(int)*clusterdataslots);
+			
+			if(file == -1)
+			{
+				print("no file found\n");
+				return __NULL__;
+			}
+
+			cluster_data = (int*)fgets(file);	
+
+			if(!forceload)
+			{
+				self.loadcluster_file = file;
+				self.loadcluster_cluster_data = cluster_data;	
+			}
+			
+			
+			if(list_ghostclusterchain)
+			{
+				cluster = list_ghostclusterchain;
+				GhostClusterChain_Remove(cluster);
+			}
+			else
+			{
+				cluster = spawn();
+				cluster.chunk_ent = memalloc(sizeof(entity)*pow(clustersize, 3));
+			}
+			
+			if(!clusters_allocated)
+			{
+				clusters_allocated = TRUE;
+				cluster_ent = memalloc(sizeof(entity)*maxclusters);
+
+			}
+			
+			cluster_ent[GetClusterRef(pos)] = cluster;
+			
+			
+			
+			cluster.averagetype = cluster_data[CLUSTERSLOT_AVERAGETYPE];
+			cluster.numvisiblecubics = cluster_data[CLUSTERSLOT_NUMVISIBLECUBICS];
+	//	}
+		
+		if(!InitializeCluster(cluster, pos, forceload))	// staggering cluster ghosting here
+			return cluster;
 	}
 	
-	if(!clusters_allocated)
-	{
-		clusters_allocated = TRUE;
-		cluster_ent = memalloc(sizeof(entity)*maxclusters);
-//		memfill8(cluster_ent, __NULL__, sizeof(entity)*maxclusters);		
-	}
-	
-	cluster_ent[GetClusterRef(pos)] = cluster;
-	
-	cluster.averagetype = cluster_data[CLUSTERSLOT_AVERAGETYPE];
-	cluster.numvisiblecubics = cluster_data[CLUSTERSLOT_NUMVISIBLECUBICS];
-	
-	InitializeCluster(cluster, pos);
-	
-	for(i = 0; i < pow(clustersize, 3); i++)
+	for(; i < pow(clustersize, 3); i++)
 	{
 		chunkslot0 = numprechunkvaluesincluster + i*numslotsforchunkincluster;
 
@@ -1018,7 +1083,7 @@ entity LoadCluster(vector pos)
 		chunk.chunkbits = cluster_data[chunkslot0+CHUNKSLOT_CHUNKBITS];
 		chunk.numvisiblecubics = cluster_data[chunkslot0+CHUNKSLOT_NUMVISIBLECUBICS];
 		InitializeChunk(cluster, chunk, GetChunkOffset(i)+pos);
-		
+
 		for(count = 0; count < pow(chunksize, 3); count++)
 		{
 			cubicslot0 = chunkslot0 + numprecubicvaluesinchunk + count*numvaluespercubic;
@@ -1028,10 +1093,28 @@ entity LoadCluster(vector pos)
 			chunk.cubic_blockrotation[count] = cluster_data[cubicslot0+CUBICSLOT_ROTATION];
 			chunk.cubic_cullbits[count] = cluster_data[cubicslot0+CUBICSLOT_CULLBITS];
 		}
+		
+		if(!forceload)
+		{
+			numchunksloaded++;
+			
+			if(numchunksloaded == maxchunksloadedperframe)
+			if(i+1 < pow(clustersize, 3))
+			{
+				self.stagger_loadcluster_chunkid = i+1;
+				return cluster;
+			}
+		}
 	}
 	
-	fclose(file);
+/*	if(!forceload)
+	{
+		self.stagger_loadcluster_chunkid = 0;
+	//	lastloadclustercluster = __NULL__;
+	}*/
 	
+	fclose(file);
+
 	return cluster;
 }
 
@@ -1088,18 +1171,26 @@ void SetClusterOccupancyForPlayer(vector org)
 			}		
 }
 
-int LoadClusterForPlayer(vector pos)
+int LoadClusterForPlayer(vector pos, int forceload)
 {
+	entity cluster;
+	
+	if(forceload || !self.stagger_loadcluster_chunkid)
+	{
+		cluster = GetClusterForLocation(__NULL__, pos);
 
-	entity cluster = GetClusterForLocation(__NULL__, pos);
-
-	if(cluster)
-		return FALSE;
-
-	cluster = LoadCluster(pos);
+		if(cluster)
+			return FALSE;
+	}
+	
+	cluster = LoadCluster(pos, forceload);
 	
 	if(!cluster)
 		return FALSE;
+
+	if(!forceload)
+	if(self.stagger_loadcluster_chunkid)
+		return TRUE;
 	
 	cluster.occupantcount++;
 	return TRUE;
@@ -1107,10 +1198,10 @@ int LoadClusterForPlayer(vector pos)
 
 int LoadWorldForPlayer(vector org, int areasize, int areaheight, vector areacenter, int maxclustersloadedperframe, int isbackground, int subsize, int subheight, float numframesbetweenloads)
 {
-	vector dist, pos, ofs, clusterpos;
+	vector dist, pos, nextpos, lastpos, ofs, clusterpos;
 	float scaleval, scaleheightval;
-	int numloadedclustersthisframe, stop;
-	
+	int numloadedclustersthisframe, stop, getnextpos;
+
 	float loadareaedge = (areasize-subsize)*0.5;
 	float loadheightedge = (areaheight-subheight)*0.5;
 	
@@ -1121,25 +1212,52 @@ int LoadWorldForPlayer(vector org, int areasize, int areaheight, vector areacent
 		return TRUE;
 	
 	if(!isbackground)
-		LoadClusterForPlayer(org);
+		LoadClusterForPlayer(org, TRUE);	// immediately loads a cluster around the player
 	
 	if(self.loadingbackgroundchunks == 1)
 		pos = self.lastbackgroundqueuepos;
 	else
 	if(self.loadingbackgroundchunks == 2)
 		pos = self.lastdistantbackgroundqueuepos;
+	else
+		pos = '0 0 0';
 	
-	for(pos_x = 0; pos_x < areasize && !stop; pos_x++)
+	for(; pos_x < areasize && !stop; pos_x++)
 	{
-		for(pos_y = 0; pos_y < areasize && !stop; pos_y++)
+		if(getnextpos)
 		{
-			for(pos_z = 0; pos_z < areaheight && !stop; pos_z++)
+			nextpos = pos;
+			stop = TRUE;
+			break;
+		}		
+		
+		for(; pos_y < areasize && !stop; pos_y++)
+		{
+			if(getnextpos)
+			{
+				nextpos = pos;
+				stop = TRUE;
+				break;
+			}
+			
+			for(; pos_z < areaheight && !stop; pos_z++)
 			{
 				if(isbackground)
 				if(pos_x >= loadareaedge && pos_x < loadareaedge+subsize
 				&& pos_y >= loadareaedge && pos_y < loadareaedge+subsize
 				&& pos_z == loadheightedge)
-					pos_z += subheight;				
+				{
+					pos_z += subheight;
+					if(pos_z >= areaheight)
+						break;
+				}
+				
+				if(getnextpos)
+				{
+					nextpos = pos;
+					stop = TRUE;
+					break;
+				}
 				
 				if(loadradiusarea)
 				{
@@ -1164,26 +1282,47 @@ int LoadWorldForPlayer(vector org, int areasize, int areaheight, vector areacent
 				|| clusterpos_z < worlddim_z*-0.5 || clusterpos_z > worlddim_z*0.5)
 					continue;
 
-				if(LoadClusterForPlayer(clusterpos))
+				if(LoadClusterForPlayer(clusterpos, !isbackground))
+				if(isbackground)
 				{
 					numloadedclustersthisframe++;
-					if(numloadedclustersthisframe >= maxclustersloadedperframe)
+					
+					if(self.stagger_loadcluster_chunkid)
+					{
+						lastpos = pos;
 						stop = TRUE;
+						break;
+					}
+					else
+					if(numloadedclustersthisframe == maxclustersloadedperframe)
+						getnextpos = TRUE;
 				}
-			}	
+			}
+			
+			pos_z = 0;
 		}
 		
-		if(isbackground)
-		if(pos == '1 1 0'*(areasize-1) + '1 1 0'*(areaheight-1))
-			pos = '0 0 0';
+		pos_y = 0;
 	}
-			
-	if(self.loadingbackgroundchunks == 1)
-		self.lastbackgroundqueuepos = pos;
-	else
-	if(self.loadingbackgroundchunks == 2)
-		self.lastdistantbackgroundqueuepos = pos;
-			
+	
+	self.lastbackgroundqueuepos = '0 0 0';
+	self.lastdistantbackgroundqueuepos = '0 0 0';
+
+	if(isbackground)
+	if(stop)
+	{
+		if(getnextpos)			
+			pos = nextpos;
+		else
+			pos = lastpos;
+		
+		if(self.loadingbackgroundchunks == 1)
+			self.lastbackgroundqueuepos = pos;
+		else
+		if(self.loadingbackgroundchunks == 2)
+			self.lastdistantbackgroundqueuepos = pos;
+	}
+	
 	return stop;
 }
 
@@ -1202,13 +1341,14 @@ void Player_WorldInterface()
 	float loadwidth = clustersize*chunksize*cubicradius*1.2;
 	float loadheight = clustersize*chunksize*cubicradius*1.2;
 	
+	if(!self.loadingchunks)
+	if(!self.loadingbackgroundchunks)
 	if(self.origin_x > self.playerclusterorg_x + loadwidth || self.origin_x < self.playerclusterorg_x - loadwidth
 	|| self.origin_y > self.playerclusterorg_y + loadwidth || self.origin_y < self.playerclusterorg_y - loadwidth
 	|| self.origin_z > self.playerclusterorg_z + loadheight || self.origin_z < self.playerclusterorg_z - loadheight
 	|| !self.worldloaded)
 	{
-		if(!(self.loadingchunks || self.loadingbackgroundchunks))
-			numplayersloadingfiles++;
+		numplayersloadingfiles++;
 		
 		self.loadingchunks = TRUE;
 		self.loadingbackgroundchunks = TRUE;
@@ -1233,7 +1373,10 @@ void Player_WorldInterface()
 	if(self.loadingbackgroundchunks == 1)
 	{
 		if(!LoadWorldForPlayer(self.playerclusterorg, viewsize, viewheight, viewcenter, 1, TRUE, loadsize, loadsize, 1))
+		{
 			self.loadingbackgroundchunks = 2;
+			self.lastbackgroundqueuepos = '0 0 0';
+		}
 	}
 	else
 	if(self.loadingbackgroundchunks == 2)
@@ -1241,6 +1384,7 @@ void Player_WorldInterface()
 		if(!LoadWorldForPlayer(self.playerclusterorg, viewsize_distant, viewheight_distant, viewcenter_distant, 1, TRUE, viewsize, viewheight, 1))
 		{
 			self.loadingbackgroundchunks = FALSE;
+			self.lastdistantbackgroundqueuepos = '0 0 0';
 			numplayersloadingfiles -= 1;
 		}
 	}
@@ -1381,6 +1525,9 @@ void Player_CubiQuakeControls()
 			self.editor_blockrotation = (BLOCKROTATION_BW_S+1) + self.editor_blockrotation;
 	}
 	else
+	if(self.impulse == CLIENT_TOGGLELIGHT)
+		stuffcmd(self, "toggleclientlight\n");
+	else	
 	if(self.impulse)	// this turns off edit mode if any impulses not related to it are used
 		self.tool = 0;
 	
@@ -1403,66 +1550,69 @@ void Player_CubiQuakeControls()
 	
 	if(self.tool >= TOOL_EDITOR_REMOVE && self.tool <= TOOL_EDITOR_PASTE)	
 	if(self.button0_down == 1)
-	if(!self.loadingchunks)
-	if(!self.loadingbackgroundchunks)
 	{
-		int getinside = FALSE;
-		
-		if(self.tool == TOOL_EDITOR_REMOVE || self.tool == TOOL_EDITOR_COPY)
-			getinside = TRUE;
-		
-		makevectors(self.v_angle);
-		targetpos = self.origin+self.view_ofs+v_forward*cubicradius*2*20;
-		vector tracepos = TraceCubic(self.origin+self.view_ofs, targetpos, getinside);
-
-		switch(self.toolsize)
+		if(self.loadingchunks || self.loadingbackgroundchunks)
+			centerprint(self, "Slow down.\nChunks are loading.\nYou can't use tools yet.\nI'll fix this later.");
+		else
 		{
-			case TOOLSIZE_EDITOR_CUBIC:		org = GetNearestCubicOrigin(tracepos, chunksize_iseven);	break;
-			case TOOLSIZE_EDITOR_CHUNK:		org = GetNearChunkOrg(tracepos);							break;
-			case TOOLSIZE_EDITOR_CLUSTER:	org = GetNearClusterOrg(tracepos);							break;
-		}
+			int getinside = FALSE;
+			
+			if(self.tool == TOOL_EDITOR_REMOVE || self.tool == TOOL_EDITOR_COPY)
+				getinside = TRUE;
+			
+			makevectors(self.v_angle);
+			targetpos = self.origin+self.view_ofs+v_forward*cubicradius*2*20;
+			vector tracepos = TraceCubic(self.origin+self.view_ofs, targetpos, getinside);
 
-		if(!ToolIsOnEdge(self.playerclusterorg, org))
-		if(self.tool == TOOL_EDITOR_ADD)
-		{
 			switch(self.toolsize)
 			{
-				case TOOLSIZE_EDITOR_CUBIC:		AddCubic(GetNearestCubicOrigin(tracepos, chunksize_iseven), self.editor_blocktype, self.editor_blockshape, self.editor_blockrotation);	break;
-				case TOOLSIZE_EDITOR_CHUNK:		AddChunk(GetNearChunkOrg(tracepos), self.editor_blocktype);							break;
-				case TOOLSIZE_EDITOR_CLUSTER:	AddCluster(GetNearClusterOrg(tracepos), self.editor_blocktype);						break;
+				case TOOLSIZE_EDITOR_CUBIC:		org = GetNearestCubicOrigin(tracepos, chunksize_iseven);	break;
+				case TOOLSIZE_EDITOR_CHUNK:		org = GetNearChunkOrg(tracepos);							break;
+				case TOOLSIZE_EDITOR_CLUSTER:	org = GetNearClusterOrg(tracepos);							break;
 			}
-		}
-		else
-		if(self.tool == TOOL_EDITOR_REMOVE)
-		{
-			switch(self.toolsize)
+
+			if(!ToolIsOnEdge(self.playerclusterorg, org))
+			if(self.tool == TOOL_EDITOR_ADD)
 			{
-				case TOOLSIZE_EDITOR_CUBIC:		entity chunk = GetChunkForLocation(__NULL__, GetNearChunkOrg(tracepos));
-												vector cubicorg = GetNearestCubicOrigin(tracepos, chunksize_iseven);
-												RemoveCubic(chunk, cubicorg);												break;
-				case TOOLSIZE_EDITOR_CHUNK:		RemoveChunk(GetNearChunkOrg(tracepos));											break;
-				case TOOLSIZE_EDITOR_CLUSTER:	RemoveCluster(GetNearClusterOrg(tracepos));										break;
-			}		
-		}
-		else
-		if(self.tool == TOOL_EDITOR_COPY)
-		{
-			switch(self.toolsize)
+				switch(self.toolsize)
+				{
+					case TOOLSIZE_EDITOR_CUBIC:		AddCubic(GetNearestCubicOrigin(tracepos, chunksize_iseven), self.editor_blocktype, self.editor_blockshape, self.editor_blockrotation);	break;
+					case TOOLSIZE_EDITOR_CHUNK:		AddChunk(GetNearChunkOrg(tracepos), self.editor_blocktype, self.editor_blockshape, self.editor_blockrotation);							break;
+					case TOOLSIZE_EDITOR_CLUSTER:	AddCluster(GetNearClusterOrg(tracepos), self.editor_blocktype, self.editor_blockshape, self.editor_blockrotation);						break;
+				}
+			}
+			else
+			if(self.tool == TOOL_EDITOR_REMOVE)
 			{
-				case TOOLSIZE_EDITOR_CUBIC:																						break;
-				case TOOLSIZE_EDITOR_CHUNK:		SavePrefab_Chunk(GetNearChunkOrg(tracepos));									break;
-				case TOOLSIZE_EDITOR_CLUSTER:	SavePrefab_Cluster(GetNearClusterOrg(tracepos));								break;
-			}		
-		}
-		else
-		if(self.tool == TOOL_EDITOR_PASTE)
-		{
-			switch(self.toolsize)
+				switch(self.toolsize)
+				{
+					case TOOLSIZE_EDITOR_CUBIC:		entity chunk = GetChunkForLocation(__NULL__, GetNearChunkOrg(tracepos));
+													vector cubicorg = GetNearestCubicOrigin(tracepos, chunksize_iseven);
+													RemoveCubic(chunk, cubicorg);													break;
+					case TOOLSIZE_EDITOR_CHUNK:		RemoveChunk(GetNearChunkOrg(tracepos));											break;
+					case TOOLSIZE_EDITOR_CLUSTER:	RemoveCluster(GetNearClusterOrg(tracepos));										break;
+				}		
+			}
+			else
+			if(self.tool == TOOL_EDITOR_COPY)
 			{
-				case TOOLSIZE_EDITOR_CUBIC:																						break;
-				case TOOLSIZE_EDITOR_CHUNK:		LoadPrefab_Chunk(GetNearChunkOrg(tracepos));									break;
-				case TOOLSIZE_EDITOR_CLUSTER:	LoadPrefab_Cluster(GetNearClusterOrg(tracepos));								break;
-			}		
+				switch(self.toolsize)
+				{
+					case TOOLSIZE_EDITOR_CUBIC:																						break;
+					case TOOLSIZE_EDITOR_CHUNK:		SavePrefab_Chunk(GetNearChunkOrg(tracepos));									break;
+					case TOOLSIZE_EDITOR_CLUSTER:	SavePrefab_Cluster(GetNearClusterOrg(tracepos));								break;
+				}		
+			}
+			else
+			if(self.tool == TOOL_EDITOR_PASTE)
+			{
+				switch(self.toolsize)
+				{
+					case TOOLSIZE_EDITOR_CUBIC:																						break;
+					case TOOLSIZE_EDITOR_CHUNK:		LoadPrefab_Chunk(GetNearChunkOrg(tracepos));									break;
+					case TOOLSIZE_EDITOR_CLUSTER:	LoadPrefab_Cluster(GetNearClusterOrg(tracepos));								break;
+				}		
+			}
 		}
 	}	
 }
@@ -1471,6 +1621,13 @@ void InitServerCubics()
 {
 //	testbox = spawn();
 //	setmodel(testbox, "models/editor/cubeselector.mdl");
+
+	clientstat(STAT_TOOL, EV_INTEGER, tool);
+	clientstat(STAT_TOOLSIZE, EV_INTEGER, toolsize);
+	clientstat(STAT_EDITOR_BLOCKTYPE, EV_INTEGER, editor_blocktype);
+	clientstat(STAT_EDITOR_BLOCKSHAPE, EV_INTEGER, editor_blockshape);
+	clientstat(STAT_EDITOR_BLOCKROTATION, EV_INTEGER, editor_blockrotation);
+	clientstat(STAT_PLAYERCLUSTERID, EV_INTEGER, playerclusterid);	
 	
 	int *world_data;	
 	worldpath = strcat("worlds/", cvar_string("worldname"), "/");
@@ -1499,18 +1656,13 @@ void InitServerCubics()
 		fclose(file);
 	}
 	
+//	forceinfokey(world, "worldsize", itos(worldsize));
+	
 //	world_ent = spawn();
 //	world_ent.cluster_ent = memalloc(sizeof(entity)*worldsize*worldsize*worldheight);
 	
 	InitGameVariables();
 	SharedPrecaches();
-
-	clientstat(STAT_TOOL, EV_INTEGER, tool);
-	clientstat(STAT_TOOLSIZE, EV_INTEGER, toolsize);
-	clientstat(STAT_EDITOR_BLOCKTYPE, EV_INTEGER, editor_blocktype);
-	clientstat(STAT_EDITOR_BLOCKSHAPE, EV_INTEGER, editor_blockshape);
-	clientstat(STAT_EDITOR_BLOCKROTATION, EV_INTEGER, editor_blockrotation);
-	clientstat(STAT_PLAYERCLUSTERID, EV_INTEGER, playerclusterid);
 }
 
 void StartFrame_Cubics()

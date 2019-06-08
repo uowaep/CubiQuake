@@ -1,23 +1,14 @@
 // CSQC_Init : Called every time the CSQC code is initialized (essentially at map load)
 void CSQC_Init(float apilevel, string enginename, float engineversion)
 {
-/*	entity e = spawn();
-	setorigin(e, '0 0 0');
-	e.cubic_blocktype = memalloc(sizeof(int)*pow(chunksize, 3));
-
+	registercommand("worlds");	
+	registercommand("resetlights");
 	
-	memfill8(e.cubic_blocktype, 1, sizeof(int)*pow(chunksize, 3));
-
-			
-
-
-	eprint(e);*/
-
 	SharedPrecaches();
-//	shaderforname("brick_side");
-//	chunkents = memalloc(sizeof(entity)*pow(worldsize, 3)*pow(clustersize, 3));
-
 	InitializeCubicInterface();	
+	InitializeClientLight();
+	
+//	worldsize = stoi(serverkey("worldsize"));
 }
 
 // CSQC_Shutdown : Called every time the CSQC code is shutdown (changing maps, quitting, etc)
@@ -41,9 +32,11 @@ float CSQC_ConsoleCommand(string strMessage)
 	
 	switch(strCmd)
 	{
-		default:
-			nReturn = FALSE;
-			break;
+		case "worlds":				nReturn = FALSE;	ListWorlds();					break;
+		case "toggleclientlight":	nReturn = FALSE;	ClientToggleLight();			break;	// is this supposed to work if called from server w/o using registercommand() ?
+		case "resetlights":			nReturn = FALSE;	ResetAmbientLight();			break;	// for debugging
+
+		default:					nReturn = FALSE;	break;
 	}
 	
 	return nReturn;
@@ -53,8 +46,8 @@ float CSQC_ConsoleCommand(string strMessage)
 // Return value should be 1 if CSQC handled the key press, otherwise return 0 to have the key passed to the engine.
 float CSQC_InputEvent(float evtype, float scanx, float chary, float devid)
 {
-	local float bSkipKey;
-		bSkipKey = FALSE;
+	float bSkipKey = FALSE;
+//	print(ftos(evtype), ", ", ftos(scanx), ", ", ftos(chary), ", ", ftos(devid), "\n");
 	return bSkipKey;
 }
 
@@ -109,7 +102,10 @@ void CSQC_Ent_Remove()
 // CSQC_Parse_StuffCmd : Provides the stuffcmd string in the first parameter that the server provided.  To execute standard behavior, simply execute localcmd with the string.
 void CSQC_Parse_StuffCmd(string strMessage)
 {	
-	localcmd(strMessage);
+	int nReturn = TRUE;
+
+	if(nReturn)
+		localcmd(strMessage);
 }
 
 // CSQC_Parse_Print : Provides the print string in the first parameter that the server provided.  To execute standard behavior, simply execute print with the string.

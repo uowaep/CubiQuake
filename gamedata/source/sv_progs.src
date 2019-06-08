@@ -10,6 +10,7 @@
 #include "shared_server_client/sh_sv_cs_chains.qc"
 #include "shared_server_client/sh_sv_cs_cubics.qc"
 
+#include "server/sv_cubicdefs.qc"
 #include "server/sv_chains.qc"
 #include "server/sv_subs.qc"
 #include "server/sv_cubiccollision.qc"

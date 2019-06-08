@@ -1,16 +1,3 @@
-.*trisoup_simple_vert_t 	verts;
-.*int 	vertex_indexes;
-.int	numvertexes;
-.int	numtrisets;
-.string	texturename;
-.int	blocktype;
-.int	faces;
-int		client_initialized;
-
-int FACE_TOP	= 1;
-int	FACE_SIDE	= 30; // FACE_SIDE is multiple bits containing the WEST, SOUTH, EAST. and NORTH bits. (2+4+8+16) These correspond with the CULLBITS_ bits.
-int	FACE_BOTTOM	= 32;
-
 string GetTextureForTypeFace(float type, float facebit)
 {
 	string tex;
@@ -87,14 +74,20 @@ void SetFaceValues(vector cubicpos, vector vertofs, entity typegroup, int facebi
 		facegroup = spawn();
 		facegroup.verts = memalloc(sizeof(trisoup_simple_vert_t)*(facegroupsize*vertspercubic)); // vertexes
 		facegroup.vertex_indexes = memalloc(sizeof(int)*(facegroupsize*trianglevertsspercubic)); // triangles
+		facegroup.verts_staticrgb = memalloc(sizeof(vector)*(facegroupsize*vertspercubic)); // vertex static lighting/basergb
 		facegroup.faces = facebit;
 		facegroup.texturename = GetTextureForTypeFace(typegroup.blocktype, facebit);
 		FaceGroupChain_Add(typegroup, facegroup);
 	}
 	
+	float facealpha = typegroup.alpha;
+	if(!facealpha)
+		facealpha = 1;
+	
+	facegroup.verts_staticrgb[facegroup.numvertexes] = typegroup.lightcolor;
 	facegroup.verts[facegroup.numvertexes].xyz	= (vec3) {vertpos_x, vertpos_y, vertpos_z};	// vert coords
 	facegroup.verts[facegroup.numvertexes].st	= (vec2) {texturecoords_x, texturecoords_y};	// texture coords
-	facegroup.verts[facegroup.numvertexes].rgba	= (vec4) {1, 1, 1, 1};	// color and alpha
+	facegroup.verts[facegroup.numvertexes].rgba	= (vec4) {typegroup.lightcolor_x, typegroup.lightcolor_y, typegroup.lightcolor_z, facealpha};	// color and alpha
 
 	facegroup.numvertexes++;	
 }
@@ -208,35 +201,27 @@ void RemoveFaceGroup(entity typegroup, entity facegroup)
 {
 	memfree(facegroup.verts);
 	memfree(facegroup.vertex_indexes);
+	memfree(facegroup.verts_staticrgb);
 
 	FaceGroupChain_Remove(typegroup, facegroup);
+	StaticLitFaceGroupChain_Remove(facegroup);
+	LitFaceGroupChain_Remove(facegroup);
 	Remove(facegroup);
 }
 
 void RemoveTypeGroup(entity chunk, entity typegroup)
 {
-//	entity nexte;
-	
 	while(typegroup.list_facegroupchain)
 		RemoveFaceGroup(typegroup, typegroup.list_facegroupchain);
-	
-/*	for(entity facegroup = typegroup.list_facegroupchain; facegroup; facegroup = nexte)
-	{
-		nexte = facegroup.facegroupchain;
-		RemoveFaceGroup(typegroup, facegroup);
-	}*/
 
 	TypeGroupChain_Remove(chunk, typegroup);	
 	Remove(typegroup);
 }
 
-void DrawFaceGroup(entity facegroup)
+void DrawFaceGroup(entity facegroup, vector grouppos)
 {
 	if(!facegroup)
-	{
-	//	print("no facegroup\n");
 		return;
-	}
 	
-	addtrisoup_simple(facegroup.texturename, 0, facegroup.verts, facegroup.vertex_indexes, facegroup.numvertexindexes);
+	addtrisoup_simple(facegroup.texturename, 0, facegroup.verts, facegroup.vertex_indexes, facegroup.numvertexindexes);	
 }

@@ -1,5 +1,5 @@
 // VERSION
-int		cubic_revision	= 83;
+int		cubic_revision	= 96;
 
 // WORLD SETTINGS
 
@@ -16,11 +16,14 @@ int 	chunk_sharerange;
 int		loadsize;
 int		loadsize_iseven;
 int		viewsize;
-int		viewsize_distant;
 int		viewheight;
+int		viewsize_distant;
 int		viewheight_distant;
 int		loadradiusarea;
 
+int		maxchunksloadedperframe;
+int		maxchunksghostedperframe;
+	
 int		maxclusters;
 int		maxchunks;
 int		numslotsforchunkincluster;
@@ -33,6 +36,15 @@ int		maxviewsize;
 int		maxviewheight;
 vector	maxviewcenter;
 int		clustertablesize;
+
+#ifdef CSQC
+int		maxlightradius;
+var vector autocvar_ambientlight = '0 0 0';
+vector	ambientlight;
+float	lightupdatedelay_static;
+float	lightupdatedelay_dynamic;
+#endif
+
 
 //		if you modify game logic relating to chunk information, you might want to edit these
 
@@ -76,10 +88,13 @@ int		CULLBITS_PARTIAL_D		= 2048;
 int		CULLBITS_PARTIAL_ALL	= 4032;	// (64+128+256+512+1024+2048)
 
 .*int	cubic_blocktype;
-int		numblocktypes = 3;
-int		BLOCKTYPE_DIRT		= 1;
+int		numblocktypes = 4;
+int		BLOCKTYPE_DIRT		= 1;	// block types should be listed first
 int		BLOCKTYPE_BRICK		= 2;
 int		BLOCKTYPE_BLOCK		= 3;
+
+int		numobjectblocktypes	= 1;	// non-block object cubic types should be listed last
+int		BLOCKTYPE_TORCH		= 4;
 
 .*int	cubic_blockshape;
 int		numblockshapes	= 4;
@@ -118,31 +133,41 @@ void InitGameVariables()
 {
 //	WORLD SETTINGS
 
-	// changing the following values will break a generated world (re-generate afterward)
-// 	worldsize = 11;							// must be odd
- 	worldheight = worldsize;				// must be odd (not working, must set to worldsize to not break stuff)
-	clustersize = 3;						// must be odd
-	chunksize = 6;							// even and ood both work here
-	chunksize_iseven = TRUE;				// set to reflect chunksize
+	// changing the following values will break a generated world (re-generate afterward. FIXME: save all unchangeable values to the world.)
+// 	worldsize = 11;							// width in clusters. (must be odd. this is set via cvar or by the existing world)
+ 	worldheight = worldsize;				// height in clusters. (must be odd. - not working, must set to worldsize to not break stuff)
+	clustersize = 3;						// width/height in chunks. (must be odd)
+	chunksize = 6;							// width/height in cubics. (even and ood both work here)
 
 	// changing these values won't break the world, but might affect performance
 	cubicradius = 16;						// quake units of center of cubic to edge (this will scale the world)
-	physicssize = 3;						// even and odd both work here. (needs to increase if cubic size shrinks if player size doesn't also change)
-	physicssize_iseven = FALSE;				// set to reflect physicssize
+	physicssize = 3;						// width of area in cubics to create bbox/bsp ents around player (even and odd both work here. needs to increase if cubic size shrinks and if player size isn't also reduced and vise verca.)
 	chunk_sharerange	= 500;				// doesn't do anything yet
-	loadsize = 3;							// must be odd
-	loadsize_iseven = FALSE;				// must be FALSE, even values don't work yet
-	viewsize = 5;							// must be odd/even if loadsize is odd/even
-	viewsize_distant = 3;					// must be odd/even if loadsize is odd/even
-	viewheight = 3;							// must be odd/even if loadsize is odd/even
-	viewheight_distant = 5;					// must be odd/even if loadsize is odd/even
-	loadradiusarea = FALSE;					// broken because of layered loading using cube shaped logic (could try an oval type sphere)
+	loadsize = 3;							// width of area loaded immediately upon player movement. usually only happens during spawn. (must be odd. even values don't work ...yet...)
+	viewsize = 5;							// width of 1st stage of background cluster loading (must be odd/even if loadsize is odd/even)
+	viewheight = 3;							// height of 1st stage of background cluster loading (must be odd/even if loadsize is odd/even)
+	
+	// the distant values are being used to load extended elevations at the 2nd background stage rather than trying to draw further out toward the horizon (better up/down view distance)
+	viewsize_distant = 3;					// width of 2nd stage of background cluster loading (must be odd/even if loadsize is odd/even)
+	viewheight_distant = 5;					// height of 2nd stage of background cluster loading (must be odd/even if loadsize is odd/even)
+	loadradiusarea = FALSE;					// the cluster load area is a sphere instead of rectangle shape (broken because of layered loading using current rectangle shaped logic)
 
+	// these values are for regulating how many times certain large/heavy loops are allowed to iterate per frame
+	maxchunksloadedperframe = 9;			// the chunk loading loop in LoadWorldForPlayer
+	maxchunksghostedperframe = 9;			// the chunk ghosting loop in RemoveUnoccupiedClusters
+	
 	// set these to match the highest values
 	maxviewsize = viewsize;		
 	maxviewheight = viewheight_distant;
 
-	
+#ifdef CSQC
+	// client
+	maxlightradius = chunksize*cubicradius*2;	// maximum light radius. this can be any value, but this is recommended for performance. (this value is 192 with default world settings)
+	ambientlight = autocvar_ambientlight;		// base light color
+	lightupdatedelay_static = 0.5;				//
+	lightupdatedelay_dynamic = 0.02;
+#endif
+
 	// do not edit these
 	maxclusters = worldsize*worldsize*worldheight;
 	maxchunks = pow(worldsize*clustersize, 2)*(worldheight*clustersize);
@@ -154,22 +179,32 @@ void InitGameVariables()
 	viewcenter_distant = ('1 1 0'*(viewsize_distant-1)+'0 0 1'*(viewheight_distant-1))*0.5;
 	maxviewcenter = ('1 1 0'*(maxviewsize-1)+'0 0 1'*(maxviewheight-1))*0.5;
 	clustertablesize = maxviewsize*maxviewsize*maxviewheight;
+	
+	if(chunksize*0.5 == floor(chunksize*0.5))
+		chunksize_iseven = TRUE;
+	
+	if(physicssize*0.5 == floor(physicssize*0.5))
+		physicssize_iseven = TRUE;
+	
+	if(loadsize*0.5 == floor(loadsize*0.5))
+		loadsize_iseven = TRUE;
 }
 
 int		SFL_ISNEW		= 1;
 int		SFL_BUILD		= 2;
+int		SFL_INITIALIZE	= 4;
 
 .int	enttype;
-int		ENT_CLUSTER			= 1;
-int		ENT_CHUNK			= 2;
-int		ENT_CUBICBBOX		= 3;
+int		ENT_CLUSTER				= 1;
+int		ENT_CHUNK				= 2;
+int		ENT_CUBICBBOX			= 3;
 
-int		STAT_TOOL					= 32;
-int		STAT_TOOLSIZE				= 33;
-int		STAT_PLAYERCLUSTERID		= 34;
-int		STAT_EDITOR_BLOCKTYPE		= 35;
-int		STAT_EDITOR_BLOCKSHAPE		= 36;
-int		STAT_EDITOR_BLOCKROTATION	= 37;
+int		STAT_TOOL					= 33;
+int		STAT_TOOLSIZE				= 34;
+int		STAT_PLAYERCLUSTERID		= 35;
+int		STAT_EDITOR_BLOCKTYPE		= 36;
+int		STAT_EDITOR_BLOCKSHAPE		= 37;
+int		STAT_EDITOR_BLOCKROTATION	= 38;
 
 .int	numvertexindexes;
 .entity	parentchunk;
@@ -223,9 +258,25 @@ int		EDITOR_BLOCKROTATION_Y_DECREASE		= 125;
 int		EDITOR_BLOCKROTATION_XZ_INCREASE	= 126;
 int		EDITOR_BLOCKROTATION_XZ_DECREASE	= 127;
 
+int		CLIENT_TOGGLELIGHT	= 150;
+
+.int	cubicmemslot;
+
 int			clusters_allocated;
 entity		*cluster_ent;
 .*entity	chunk_ent;
+
+.float	lightradius;
+.float	lightbrightness;
+.vector	lightcolor;
+
+int	NonSolidType(int type)
+{
+	if(type == BLOCKTYPE_TORCH)
+		return TRUE;
+
+	return FALSE;
+}
 
 int GetClusterOccupancyRef(vector ofs)
 {
@@ -316,14 +367,16 @@ vector GetCubicOffset(float refid)
 	return ofs;
 }
 
-int	GetCubicStatus(entity chunk, vector cubicorg)
+int	GetCubicStatus(entity chunk, vector cubicorg, int ignorenonsolids) // status of solid blocks
 {
 	if(!chunk)
 		return -1;
 	
 	int memslot = GetCubicRef(cubicorg-chunk.origin);
+	int type = chunk.cubic_blocktype[memslot];
 
-	if(chunk.cubic_blocktype[memslot] > 0)
+	if(type > 0)
+	if(!(ignorenonsolids && NonSolidType(type)))
 		return memslot;
 
 	return -1;
@@ -472,7 +525,7 @@ int	CubicSharesSide(entity chunk, vector cubicorg)
 		if(!nearchunk)
 			continue;
 		
-		cubicslot = GetCubicStatus(nearchunk, nearcubicorg);
+		cubicslot = GetCubicStatus(nearchunk, nearcubicorg, FALSE);
 		
 		if(cubicslot != -1)
 			return TRUE;		
@@ -509,7 +562,7 @@ int CubicSharesCulledSide(entity chunk, vector cubicorg)
 		if(!nearchunk)
 			continue;
 		
-		cubicslot = GetCubicStatus(nearchunk, nearcubicorg);
+		cubicslot = GetCubicStatus(nearchunk, nearcubicorg, FALSE);
 		
 		if(cubicslot == -1)
 			continue;
@@ -552,7 +605,7 @@ int CubicSharesEdges(vector cubicorg, vector start)
 		if((ofs_z >= 0 && forwardvec_z >= 0) || (ofs_z <= 0 && forwardvec_z <= 0))
 		{
 			nearcubicorg = GetNearestCubicOrigin(cubicorg+ofs*cubicradius*2, chunksize_iseven);
-			if(GetCubicStatus(GetChunkForLocation(__NULL__, GetNearChunkOrg(nearcubicorg)), nearcubicorg) != -1)
+			if(GetCubicStatus(GetChunkForLocation(__NULL__, GetNearChunkOrg(nearcubicorg)), nearcubicorg, FALSE) != -1)
 			{
 				foundsharededges++;
 			
@@ -625,7 +678,7 @@ vector TraceCubic(vector start, vector end, int getinside)
 				}
 				#endif
 				
-				if(GetCubicStatus(chunk, cubicorg) != -1)
+				if(GetCubicStatus(chunk, cubicorg, FALSE) != -1)
 				{
 					if(getinside)
 						return cubicorg;
@@ -637,7 +690,7 @@ vector TraceCubic(vector start, vector end, int getinside)
 						{
 							cubicorg = NearestNearCubicOrg(cubicorg, start);	// closest cubic from the first solid cubic found
 
-							if(GetCubicStatus(GetChunkForLocation(chunk, GetNearChunkOrg(cubicorg)), cubicorg) == -1)	// check if nearest is located at an empty, 
+							if(GetCubicStatus(GetChunkForLocation(chunk, GetNearChunkOrg(cubicorg)), cubicorg, FALSE) == -1)	// check if nearest is located at an empty cubic 
 								return cubicorg;	// cubic was empty so trace ends there
 							else
 								return NearestNearCubicOrg(cubicorg, start);	// cubic was not empty so set trace 1 cubic closer

@@ -27,24 +27,21 @@ void CSQC_UpdateView(float vwidth, float vheight, float notmenu)
 	view_org = getproperty(VF_ORIGIN);
 	view_ang = getproperty(VF_ANGLES);
 	
-	UpdateCubicInterface();	
+	setorigin(clientlight, view_org);	// client light entity origin update
+	AddLights();
+
+	UpdateCubicInterface();
 	
-		DrawChunks();
+	DrawChunks();
 		
-	// Assign Standard Viewflags
-		// Draw the World (and sky)
-		setproperty(VF_DRAWWORLD, 1);
-		// Draw the Crosshair
-		setproperty(VF_DRAWCROSSHAIR, 0);
-		// Draw the Engine Status Bar (the default Quake HUD)
-		setproperty(VF_DRAWENGINESBAR, 0);
+	// Draw the Crosshair
+	setproperty(VF_DRAWCROSSHAIR, 1);
+	// Draw the Engine Status Bar (the default Quake HUD)
+//	setproperty(VF_DRAWENGINESBAR, 0);
 
 	// Setup Entities to be Rendered (include all base types; normal, engine and viewmodels)
 	addentities(MASK_NORMAL | MASK_ENGINE);
-	
-//	makevectors(view_ang);
-//		dynamiclight_add(view_org+v_forward*50, 200, '1 1 1', 0, "", 128);	
-	
+
 	renderscene();
 	
 	string s = strcat("cubiquake r", itos(cubic_revision));

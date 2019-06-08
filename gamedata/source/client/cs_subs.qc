@@ -13,7 +13,7 @@ void Remove(entity e)
 	
 	if(e.enttype == ENT_CHUNK)
 	{
-		ClearChunkValues(e);
+		ClearChunkValues(e, FALSE);
 		FreeChunkAllocations(e);
 
 		entity cluster = GetClusterForLocation(__NULL__, GetNearClusterOrg(e.origin));
@@ -23,6 +23,7 @@ void Remove(entity e)
 			cluster.numchunks -= 1;
 			
 			if(!cluster.numchunks)
+			if(!cluster.islit)
 			{
 				cluster_ent[GetClusterRef(cluster.origin)] = __NULL__;
 			//	memfree(cluster.chunk_ent);
@@ -49,4 +50,22 @@ void Remove(entity e)
 	
 	// remove this entity
 	remove(e);
+}
+
+void ListWorlds()
+{
+	string s;
+	
+	float h = search_begin("data/worlds/*", FALSE, FALSE);
+	float n = search_getsize(h);
+
+	print("Worlds:\n");
+
+	for(int count = 0; count < n; count++)
+	{
+		s = search_getfilename(h, count);
+		print(substring(s, 12, strlen(s)-12-1), "\n");
+	}
+	
+	search_end(h);
 }

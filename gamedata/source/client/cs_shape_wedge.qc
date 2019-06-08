@@ -366,32 +366,32 @@ void BuildFaces_Wedge_BW(entity typegroup, int rotation, int cullbits, vector cu
 
 			if(facecount == 5 && count == 0)
 			{
-				if(rotation == BLOCKROTATION_FW_E)
+				if(rotation == BLOCKROTATION_BW_E)
 					texturecoords = '0.5 0 0';
 				else
-				if(rotation == BLOCKROTATION_FW_N)
-					texturecoords = '0 0.5 0';
+				if(rotation == BLOCKROTATION_BW_N)
+					texturecoords = '1 0.5 0';
 				else
-				if(rotation == BLOCKROTATION_FW_W)
+				if(rotation == BLOCKROTATION_BW_W)
 					texturecoords = '0.5 1 0';			
 				else
-				if(rotation == BLOCKROTATION_FW_S)
-					texturecoords = '1 0.5 0';
+				if(rotation == BLOCKROTATION_BW_S)
+					texturecoords = '0 0.5 0';
 			}
 			else
 			if(facecount == 5 && count == 2)
 			{
-				if(rotation == BLOCKROTATION_FW_E)
+				if(rotation == BLOCKROTATION_BW_E)
 					texturecoords = '0.5 1 0';
 				else
-				if(rotation == BLOCKROTATION_FW_N)
-					texturecoords = '1 0.5 0';
+				if(rotation == BLOCKROTATION_BW_N)
+					texturecoords = '0 0.5 0';
 				else
-				if(rotation == BLOCKROTATION_FW_W)
+				if(rotation == BLOCKROTATION_BW_W)
 					texturecoords = '0.5 0 0';			
 				else
-				if(rotation == BLOCKROTATION_FW_S)
-					texturecoords = '0 0.5 0';
+				if(rotation == BLOCKROTATION_BW_S)
+					texturecoords = '1 0.5 0';
 			}
 			else
 			if(facecount == 2 && count == 2)

@@ -40,7 +40,7 @@ void BuildFacesForShape(entity typegroup, int blockshape, int blockrotation, int
 	}
 }
 
-void BuildChunkFaces(entity chunk)
+void BuildChunkFaces(entity chunk, int isnew)
 {
 	entity typegroup;
 	int blockshape, blockrotation, cullbits, cubiccount, numchunkcubics;
@@ -66,34 +66,34 @@ void BuildChunkFaces(entity chunk)
 		
 		builtcount++;
 	}
+	
+	if(!isnew)
+		ResetStaticLights(TRUE);	// cubics were added or removed so chunk faces need to be relit
 }
 
-void GhostCluster(entity cluster)
+void ClearChunkValues(entity chunk, int clearstaticlighttriggers)
 {
-//	setorigin(cluster, '0 0 0');
-	memfill8(cluster.chunk_ent, __NULL__, sizeof(entity)*pow(clustersize, 3));
-	GhostClusterChain_Add(cluster);
-}
-
-void ClearChunkValues(entity chunk)
-{
-//	entity nexte;
-
-//	FreeChunkAllocations(chunk);
+	entity light;
 	
 	while(chunk.list_typegroupchain)
 		RemoveTypeGroup(chunk, chunk.list_typegroupchain);
 	
-	
-	
-/*	for(entity typegroup = chunk.list_typegroupchain; typegroup; typegroup = nexte)
+	while(chunk.list_chunklightchain)
 	{
-		nexte = typegroup.typegroupchain;
-		RemoveTypeGroup(chunk, typegroup);
-	}	*/
+		light = chunk.list_chunklightchain;
+		
+		if(clearstaticlighttriggers)
+			ClearStaticLightResetTriggersForLight(light);		
+		
+		StaticLightChain_Remove(light);
+		DynamicLightChain_Remove(light);
+		ChunkLightChain_Remove(chunk, light);
+		ChunkEntChain_Remove(chunk, light);
+		ClearChunkEntChain_Remove(light);
+		Remove(light);
+	}
 }
 
-.int	numchunks;
 void UpdateChunk()
 {
 /*	if(self == world)
@@ -110,17 +110,21 @@ void UpdateChunk()
 	float sendflags = readlong();
 	int i, memslot, type;
 	vector org;
-	entity typegroup;
+	entity typegroup, light;
+
+	if(sendflags & SFL_INITIALIZE)
+	{
+		worldsize = readlong();
+		if(!client_initialized) // this is here instead of in CSQC_Init() to make sure the server has loaded worldsize and any other variables before running InitGameVariables().
+		{	
+			InitGameVariables();
+			client_initialized = TRUE;
+			localcmd("cmd initialized\n");
+		}
+	}
 	
 	if(sendflags & SFL_ISNEW)
 	{
-		if(!client_initialized)
-		{
-			worldsize = readlong();
-			InitGameVariables();
-			client_initialized = TRUE;
-		}
-		
 		self.cubic_blocktype = memalloc(sizeof(int)*pow(chunksize, 3));
 		self.cubic_blockshape = memalloc(sizeof(int)*pow(chunksize, 3));
 		self.cubic_blockrotation = memalloc(sizeof(int)*pow(chunksize, 3));		
@@ -143,29 +147,17 @@ void UpdateChunk()
 		int clusterid = GetClusterRef(GetNearClusterOrg(org));
 		entity cluster = cluster_ent[clusterid];
 		if(!cluster)
-		{
-			if(list_ghostclusterchain)
-			{
-				cluster = list_ghostclusterchain;
-				GhostClusterChain_Remove(cluster);
-			}
-			else
-			{
-				cluster = spawn();
-				cluster.chunk_ent = memalloc(sizeof(entity)*pow(clustersize, 3));
-			}
-			
-			setorigin(cluster, GetClusterOffset(clusterid));
-			cluster_ent[clusterid] = cluster;
-		}
+			cluster = SpawnCluster(clusterid);
 		
 		cluster.chunk_ent[GetChunkRef(self.origin-cluster.origin)] = self;
 		cluster.numchunks++;
+		
+		TriggerStaticLightReset(org);
 	}
 
 	if(sendflags & SFL_BUILD)
 	{
-		ClearChunkValues(self);
+		ClearChunkValues(self, TRUE);
 		
 		self.numvisiblecubics = readshort();
 		
@@ -182,25 +174,40 @@ void UpdateChunk()
 			memslot = readshort();
 			type = readbyte();
 			self.cubic_blocktype[memslot] = type;
-			self.cubic_blockshape[memslot] = readbyte();
-			self.cubic_blockrotation[memslot] = readbyte();
-			self.cubic_cullbits[memslot] = readbyte();
 			
-			for(typegroup = self.list_typegroupchain; typegroup; typegroup = typegroup.typegroupchain)
-				if(typegroup.blocktype == type)
-					break;
+			switch(type)
+			{
+				// EXAMPLE CUBIC OBJECT : Light
+				case BLOCKTYPE_TORCH:	light = SetChunkLight(self, memslot, type);	 // adds a light to the chunk of specified type (BLOCKTYPE_TORCH in this case)
+										light.lightcolor = '1 0.9 0.7';				// overrides default value set in SetChunkLight()
+										SetAnimation(light, 0, 6, 0.1, TRUE, FALSE, TRUE);	// You may want to use your own animation code. This is just a hacky example.
+										light.predraw = Predraw_Torch;	// set predraw func if necessary
+										break;
 				
-			if(!typegroup)
-				CreateTypeGroup(self, type);
+				// default trisoup_simple cubic
+				default:				self.cubic_blockshape[memslot] = readbyte();			
+										self.cubic_blockrotation[memslot] = readbyte();
+										self.cubic_cullbits[memslot] = readbyte();
+										for(typegroup = self.list_typegroupchain; typegroup; typegroup = typegroup.typegroupchain)
+											if(typegroup.blocktype == type)
+												break;
+										if(!typegroup)	// texture set group for chunk
+										{
+											CreateTypeGroup(self, type);
+											self.list_typegroupchain.lightcolor = ambientlight;		// NOTE: the .list_ chain entity is always the last added to the list (but this should only be trusted if it was just added)
+										}
+										
+										break;
+			}
 		}
 		
-		BuildChunkFaces(self);
+		BuildChunkFaces(self, sendflags & SFL_ISNEW);
 	}
 }
 
 void DrawFaceGroupForChunkGrid(vector pos)
 {
-	entity typegroup, facegroup;
+	entity typegroup, facegroup, chunkent;
 	
 	vector nearchunkorg = GetNearChunkOrg(view_org);
 	
@@ -214,23 +221,52 @@ void DrawFaceGroupForChunkGrid(vector pos)
 
 	entity e = GetChunkForLocation(__NULL__, pos);
 	if(e)
-	for(typegroup = e.list_typegroupchain; typegroup; typegroup = typegroup.typegroupchain)
-		for(facegroup = typegroup.list_facegroupchain; facegroup; facegroup = facegroup.facegroupchain)
-			DrawFaceGroup(facegroup);	
+	{
+		for(typegroup = e.list_typegroupchain; typegroup; typegroup = typegroup.typegroupchain)
+			for(facegroup = typegroup.list_facegroupchain; facegroup; facegroup = facegroup.facegroupchain)
+				DrawFaceGroup(facegroup, pos);
+			
+		for(chunkent = e.list_chunkentchain; chunkent; chunkent = chunkent.chunkentchain)
+		{
+			chunkent.drawmask = MASK_NORMAL;
+			ClearChunkEntChain_Add(chunkent);
+		}
+	}
 }
 
 void DrawChunks()
 {
-//	entity typegroup, facegroup;
-	vector pos, dist;
-	int drawplane = 0;
+	entity typegroup, facegroup;
+//	vector pos, dist;
+
+	vector nearchunkorg = GetNearChunkOrg(view_org);
+
+	if(nearchunkorg != playerchunkorg)
+	{
+		if(!setchunkloadofs)	// leaves chunkloadofs null until there is movement so player can spawn away from '0 0 0'
+			setchunkloadofs = TRUE;
+		else
+		{
+			client_hasmoved = TRUE;
+			chunkloadofs = (playerchunkorg - nearchunkorg);///(chunksize*cubicradius*2);
+		}
+		playerchunkorg = nearchunkorg;
+	}
 	
-/*	for(entity e = list_chunkchain; e; e = e.chunkchain)
+	while(list_clearchunkentchain)
+	{
+		list_clearchunkentchain.drawmask = 0;
+		ClearChunkEntChain_Remove(list_clearchunkentchain);
+	}
+
+//	int drawplane = 0;
+	
+	for(entity e = list_chunkchain; e; e = e.chunkchain)
 		for(typegroup = e.list_typegroupchain; typegroup; typegroup = typegroup.typegroupchain)
 			for(facegroup = typegroup.list_facegroupchain; facegroup; facegroup = facegroup.facegroupchain)
-				DrawFaceGroup(facegroup);*/
+				DrawFaceGroup(facegroup, e.origin);
 			
-	int viewrange = ((max(maxviewsize, maxviewheight)-1)*clustersize)*0.5;		
+/*	int viewrange = ((max(maxviewsize, maxviewheight)*clustersize)+(1))*0.5;		
 	
 	makevectors(view_ang);
 	vector draw_ofs = [rint(v_forward_x), rint(v_forward_y), rint(v_forward_z)];
@@ -270,5 +306,5 @@ void DrawChunks()
 				for(pos_y = -viewrange; pos_y <= viewrange; pos_y++)
 					DrawFaceGroupForChunkGrid(pos);
 		}
-	}
+	}*/
 }

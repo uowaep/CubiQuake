@@ -94,7 +94,7 @@ void CallPhysicsFunctionForCubic(vector org, void(entity, entity, vector) func)
 				if(!chunk)
 					continue;
 				
-				if(GetCubicStatus(chunk, cubicorg) == -1)
+				if(GetCubicStatus(chunk, cubicorg, TRUE) == -1)
 					continue;
 								
 				for(e = chunk.list_cubicbboxchain; e; e = e.cubicbboxchain)

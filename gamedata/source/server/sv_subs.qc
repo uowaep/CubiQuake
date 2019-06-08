@@ -12,3 +12,18 @@ void Remove(entity e)
 		
 	remove(e);
 }
+
+void SV_ParseClientCommand (string s) =
+{
+	local string c;
+	
+	tokenize(s);
+	c = argv(0);
+
+// GAME COMMANDS
+
+	if(c == "initialized")
+		self.client_initialized = TRUE;
+	else
+		clientcommand(self, s);
+}

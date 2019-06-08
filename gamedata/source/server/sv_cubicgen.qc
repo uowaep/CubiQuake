@@ -97,7 +97,7 @@ void GenChunk_Surface(vector chunkpos, int *cdata)
 				if( (pos_z == zheight && !rint(random()) ) || pos_z > zheight)
 					type = 0;
 				else
-					type = max(1, ceil(random()*numblocktypes));
+					type = max(1, ceil(random()*(numblocktypes-numobjectblocktypes)));
 				
 				cubicslot0 = ChunkGen_SetCubic(cdata, type, cubicslot0);
 			}
@@ -112,7 +112,7 @@ void GenChunk_Solid(vector chunkpos, int *cdata)
 	for(pos_x = 0; pos_x < chunksize; pos_x++)
 		for(pos_y = 0; pos_y < chunksize; pos_y++)
 			for(pos_z = 0; pos_z < chunksize; pos_z++)
-				cubicslot0 = ChunkGen_SetCubic(cdata, max(1, ceil(random()*numblocktypes)), cubicslot0);
+				cubicslot0 = ChunkGen_SetCubic(cdata, max(1, ceil(random()*(numblocktypes-numobjectblocktypes))), cubicslot0);
 }
 
 int GenSpawnChunk(vector chunkpos)

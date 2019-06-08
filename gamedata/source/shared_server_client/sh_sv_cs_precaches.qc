@@ -3,6 +3,7 @@ void SharedPrecaches()
 //	precache_model("null");
 	#ifdef CSQC
 	precache_model("models/editor/cubeselector.mdl");
+	precache_model("models/objects/torch.mdl");
 	#endif
 	
 	precache_model("models/player/player.mdl");
