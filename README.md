@@ -2,18 +2,41 @@
 
 Cubic Game Framework for the FTEQW Engine __(Requires FTEQW revision 5424 or higher.)__
 
+It's always good idea to start from scratch when updating, but you shouldn't need to. If anything is broken try clearing the data dir first. If that doesn't help, start from a clean install. If that doesn't help run debug mode in FTEQCC and get some screenshots.
+
 ### Recent Changes
-r83 (clear data dir if anything is broken)
-- added wedge and wedgetip shapes
-- added more angles of rotation to shapes (All angles are possible now with non-symmetrical shapes.)
-- chunks are now drawn from closest to furthest for 25% ish FPS increase
-- greatly improved chunk and cluster lookup speed by using entity references rather than findradius()
-- chunk and cluster entities are re-used where possible to reduce allocations and memfree usage
-- moved face rendering functions to their own file in csqc
-- moved shape functions to their own files in csqc
-- no longer using dpcompat_findradiusarealinks cvar
-- changed some instances of world to NULL
-- removed some unused variables
+r96
+- added ambient, static, and dynamic light
+- added a torch cubic object, using the torch model from Quake
+- T toggles a dynamic light around the client (impulse 150)
+- cvar ambientlight takes a vector ('0.2 0.2 0.6' in default.cfg)
+- [ and ] keys for cubic Y rotation are swapped in default.cfg
+- added console command "worlds" to list existing worlds
+- added console command "resetlights" for debugging (don't need it anymore, but don't need to remove it)
+- removed fog from the world.hmp map file
+- added a very basic shader to allow csqc to light/color polygons drawn with trisoup_simple
+- hacked in some animation code for the torch
+- added chunk entities that can use models/lights or any custom code
+- added cs_cubicobjects.qc for defining custom objects
+- removed some draw sorting code. wasn't helping as much as perceived ;)
+- added cluster matrix on client that is created as needed for chunks
+- moved most csqc defs to cs_cubicdefs.qc
+- moved most svqc defs to sv_cubicsdefs.qc
+- the cubic tool can now place custom entity type cubics along with normal trisoup_simple polygon cubics
+- added an arg to DrawFaceGroup() that is unnecessary. FIXME
+- worldsize is sent with the first set of chunk csqc/svqc entities before running InitGameVariables()
+- fixed a texture bug in wedge shape
+- now drawing engine crosshair
+- fixed a bug where chunks arriving out of order would arrive before worldsize is set on the client
+- added maxchunksloadedperframe and maxchunksghostedperframe to smooth out cluster/chunk load in/out
+- added maxlightradius setting. can be any value, but default is recommended for performance. (192 with default world settings)
+- added ambientlight setting using autocvar_ambientlight acting as the base light color
+- added lightupdatedelay_static settting. 0.5s default
+- added lightupdatedelay_dynamic setting. 0.02s default
+-  iseven settings are now automatic
+- .lightradius .lightbrightness .lightcolor for lighting
+- fixed some bugs with placing chunks and clusters
+- added centerprint warning when trying to edit while chunks are loading
 
 ### Installation
 - Download CubiQuake https://github.com/uowaep/CubiQuake/archive/master.zip and extract the entire contents of the zip file anywhere.
@@ -53,6 +76,7 @@ impulse 125 | Tool: Cubic Rotation Y- | \[ |
 impulse 126 | Tool: Cubic Rotation X/Z+ | = |
 impulse 127 | Tool: Cubic Rotation X/Z- | - |
 impulse 11 | Exit Edit Mode | X | Any impulse will work.
+impulse 150 | Toggle Player Light| T |
 
 ### CVAR prefabname
 The Copy and Paste tools use a file as a clipboard. This tool works with the Chunk and Cluster size options, and saves to different directories per size. The filename can be set in the **cvar prefabname**. This tool is intended to save several different prefabs for world generation. The generator is not yet coded to take advantage of these files.
@@ -80,6 +104,39 @@ It hasn't been tested yet, but CubiQuake is designed to be multiplayer.
 - update world generator to use cluster/chunk prefabs
 
 ### ChangeLog
+r96
+- added ambient, static, and dynamic light
+- added a torch cubic object, using the torch model from Quake
+- T toggles a dynamic light around the client (impulse 150)
+- cvar ambientlight takes a vector ('0.2 0.2 0.6' in default.cfg)
+- [ and ] keys for cubic Y rotation are swapped in default.cfg
+- added console command "worlds" to list existing worlds
+- added console command "resetlights" for debugging (don't need it anymore, but don't need to remove it)
+- removed fog from the world.hmp map file
+- added a very basic shader to allow csqc to light/color polygons drawn with trisoup_simple
+- hacked in some animation code for the torch
+- added chunk entities that can use models/lights or any custom code
+- added cs_cubicobjects.qc for defining custom objects
+- removed some draw sorting code. wasn't helping as much as perceived ;)
+- added cluster matrix on client that is created as needed for chunks
+- moved most csqc defs to cs_cubicdefs.qc
+- moved most svqc defs to sv_cubicsdefs.qc
+- the cubic tool can now place custom entity type cubics along with normal trisoup_simple polygon cubics
+- added an arg to DrawFaceGroup() that is unnecessary. FIXME
+- worldsize is sent with the first set of chunk csqc/svqc entities before running InitGameVariables()
+- fixed a texture bug in wedge shape
+- now drawing engine crosshair
+- fixed a bug where chunks arriving out of order would arrive before worldsize is set on the client
+- added maxchunksloadedperframe and maxchunksghostedperframe to smooth out cluster/chunk load in/out
+- added maxlightradius setting. can be any value, but default is recommended for performance. (192 with default world settings)
+- added ambientlight setting using autocvar_ambientlight acting as the base light color
+- added lightupdatedelay_static settting. 0.5s default
+- added lightupdatedelay_dynamic setting. 0.02s default
+-  iseven settings are now automatic
+- .lightradius .lightbrightness .lightcolor for lighting
+- fixed some bugs with placing chunks and clusters
+- added centerprint warning when trying to edit while chunks are loading
+
 r83
 - added wedge and wedgetip shapes
 - added more angles of rotation to shapes (All angles are possible now with non-symmetrical shapes.)
