@@ -71,11 +71,11 @@ impulse 120 | Tool: Cubic Type/Texture Next | mwheelup |
 impulse 121 | Tool: Cubic Type/Texture Prev | mwheeldown |
 impulse 122 | Tool: Cubic Shape Next | . |
 impulse 123 | Tool: Cubic Shape Prev | , |
-impulse 124 | Tool: Cubic Rotation Y+ | ] |
-impulse 125 | Tool: Cubic Rotation Y- | \[ |
+impulse 124 | Tool: Cubic Rotation Y+ | \[ |
+impulse 125 | Tool: Cubic Rotation Y- | ] |
 impulse 126 | Tool: Cubic Rotation X/Z+ | = |
 impulse 127 | Tool: Cubic Rotation X/Z- | - |
-impulse 11 | Exit Edit Mode | X | Any impulse will work.
+impulse 11 | Exit Edit Mode | X | Any non-cubiquake impulse will work as well.
 impulse 150 | Toggle Player Light| T |
 
 ### CVAR prefabname
@@ -99,7 +99,6 @@ It hasn't been tested yet, but CubiQuake is designed to be multiplayer.
 - minor collision hull weirdness
 
 ### ToDo
-- lighting shaders
 - test multiplayer
 - update world generator to use cluster/chunk prefabs
 
