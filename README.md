@@ -78,8 +78,19 @@ impulse 127 | Tool: Cubic Rotation X/Z- | - |
 impulse 11 | Exit Edit Mode | X | Any non-cubiquake impulse will work as well.
 impulse 150 | Toggle Player Light| T |
 
-### CVAR prefabname
-The Copy and Paste tools use a file as a clipboard. This tool works with the Chunk and Cluster size options, and saves to different directories per size. The filename can be set in the **cvar prefabname**. This tool is intended to save several different prefabs for world generation. The generator is not yet coded to take advantage of these files.
+### Console Commands
+Command | Description
+--- | ---
+worlds | Lists existing worlds.
+resetlights | For debugging lights if still necessary. Clears face light data and re-applies lighting values.
+
+### CVARs
+CVAR | Description
+--- | ---
+ambientlight | Sets the base light color applied to textures with a red green blue vector. '0 0 0' is black, '1 1 1' is full color.  ('0.2 0.2 0.6' in default.cfg)
+prefabname | The Copy and Paste tools use a file as a clipboard. This tool works with the Chunk and Cluster size options, and saves to different directories per size. The filename can be set in the **cvar prefabname**. This tool is intended to save several different prefabs for world generation. Note: The generator is not yet coded to take advantage of these files, but you can still place them manually.
+worldname | Sets the world name, which is also the directory where the files are stored within data/worlds/. (default: world1)
+worldsize | Sets the world size in clusters. (default: 9 - There is no max, but beware of long generation times.)
 
 ### Files of Interest
 File | Description
@@ -91,16 +102,19 @@ server/sv_attacks.qc | projectile collision handling and example code for adding
 client/cs_cubics.qc | client cubic handling
 client/cs_cubicinterface.qc | hud / clientside tool drawing and positioning is handled here
 shared_server_client/sh_sv_cs_cubics.qc | tools for working with the cubic framework, and general world settings
+client/cs_cubicobjects.qc | for defining custom cubic objects, being cubics that are represented with models rather than trisoup_simple polygons
 
 ### Multiplayer
 It hasn't been tested yet, but CubiQuake is designed to be multiplayer.
 
 ### Known Issues
 - minor collision hull weirdness
+- animation code is temporary. (need to re-learn animation. been doing it wrong for too long.)
 
 ### ToDo
 - test multiplayer
 - update world generator to use cluster/chunk prefabs
+- add alpha handling to the texture shader
 
 ### ChangeLog
 r96
