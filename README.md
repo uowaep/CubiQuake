@@ -2,7 +2,7 @@
 
 Cubic Game Framework for the FTEQW Engine __(Requires FTEQW revision 5424 or higher.)__
 
-It's always good idea to start from scratch when updating, but you shouldn't need to. If anything is broken try clearing the data dir first. If that doesn't help, start from a clean install. If that doesn't help run debug mode in FTEQCC and get some screenshots.
+Cubiquake is a framework for quake mod developers to build cubic style (mistakenly referred to as voxel by some) games in the FTEQW engine. Cubiquake uses trisoup_simple to draw most surfaces, and dynamically spawns collision surfaces and calculates lighting as the player moves through the world. Multiple shapes are supported, currently cube, ramp, wedge, and wedge tip. Cubics types can also be set to designate the texture, or alternatively models for cubic spaces held by objects, currently using a torch as an example. Ambient, static, and dynamic light all work. You do not need to be a modder to use CubiQuake as is. Just follow the installation and playing/generation instructions.
 
 ### Recent Changes
 r96
@@ -43,6 +43,9 @@ r96
 - Download the appropriate client from FTEQW http://fte.triptohell.info/downloads and place it in your main CubiQuake directory.
 
 Note: If sharing the same FTE install with other mods, the default.fmf file should not be installed.
+
+### Updating
+Extract the new files into your install directory. It's always good idea to start from scratch when updating, but you shouldn't need to. If anything is broken try clearing the data dir first. If that doesn't help, start from a clean install. If that doesn't help run debug mode in FTEQCC and get some screenshots.
 
 ### Playing/Generation
 - Start FTEQW.
