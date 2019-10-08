@@ -5,7 +5,7 @@ Cubic Game Framework for the FTEQW Engine __(Requires FTEQW revision 5424 or hig
 Cubiquake is a framework for quake mod developers to build cubic style (mistakenly referred to as voxel by some) games in the FTEQW engine. Cubiquake uses trisoup_simple to draw most surfaces, and dynamically spawns collision surfaces and calculates lighting as the player moves through the world. Multiple shapes are supported, currently cube, ramp, wedge, and wedge tip. Cubics types can also be set to designate the texture, or alternatively models for cubic spaces held by objects, currently using a torch as an example. Ambient, static, and dynamic light all work. You do not need to be a modder to use CubiQuake as is. Just follow the installation and playing/generation instructions.
 
 ### Recent Changes
-r96
+r101
 - view distances can now be set in the console and modified during gameplay (they are server dependent though)
 - added console commands to modify view ranges: viewdist1, viewheight1, viewdist2, viewheight2, resetview
 - added some comments to default.cfg
