@@ -1,5 +1,5 @@
 // VERSION
-int		cubic_revision	= 96;
+int		cubic_revision	= 101;
 
 // WORLD SETTINGS
 
@@ -35,7 +35,7 @@ vector	viewcenter_distant;
 int		maxviewsize;
 int		maxviewheight;
 vector	maxviewcenter;
-int		clustertablesize;
+//int		clustertablesize;
 
 #ifdef CSQC
 int		maxlightradius;
@@ -144,12 +144,12 @@ void InitGameVariables()
 	physicssize = 3;						// width of area in cubics to create bbox/bsp ents around player (even and odd both work here. needs to increase if cubic size shrinks and if player size isn't also reduced and vise verca.)
 	chunk_sharerange	= 500;				// doesn't do anything yet
 	loadsize = 3;							// width of area loaded immediately upon player movement. usually only happens during spawn. (must be odd. even values don't work ...yet...)
-	viewsize = 5;							// width of 1st stage of background cluster loading (must be odd/even if loadsize is odd/even)
-	viewheight = 3;							// height of 1st stage of background cluster loading (must be odd/even if loadsize is odd/even)
+//	viewsize = 7;							// width of 1st stage of background cluster loading (must be odd/even if loadsize is odd/even)
+//	viewheight = 3;							// height of 1st stage of background cluster loading (must be odd/even if loadsize is odd/even)
 	
 	// the distant values are being used to load extended elevations at the 2nd background stage rather than trying to draw further out toward the horizon (better up/down view distance)
-	viewsize_distant = 3;					// width of 2nd stage of background cluster loading (must be odd/even if loadsize is odd/even)
-	viewheight_distant = 5;					// height of 2nd stage of background cluster loading (must be odd/even if loadsize is odd/even)
+//	viewsize_distant = 3;					// width of 2nd stage of background cluster loading (must be odd/even if loadsize is odd/even)
+//	viewheight_distant = 5;					// height of 2nd stage of background cluster loading (must be odd/even if loadsize is odd/even)
 	loadradiusarea = FALSE;					// the cluster load area is a sphere instead of rectangle shape (broken because of layered loading using current rectangle shaped logic)
 
 	// these values are for regulating how many times certain large/heavy loops are allowed to iterate per frame
@@ -157,8 +157,8 @@ void InitGameVariables()
 	maxchunksghostedperframe = 9;			// the chunk ghosting loop in RemoveUnoccupiedClusters
 	
 	// set these to match the highest values
-	maxviewsize = viewsize;		
-	maxviewheight = viewheight_distant;
+//	maxviewsize = max(viewsize, viewsize_distant);		
+//	maxviewheight = max(viewheight, viewheight_distant);
 
 #ifdef CSQC
 	// client
@@ -175,10 +175,11 @@ void InitGameVariables()
 	clusterdataslots = numprechunkvaluesincluster+pow(clustersize, 3)*numslotsforchunkincluster;
 	worlddim = [worldsize, worldsize, worldheight]*clustersize*chunksize*cubicradius*2;
 	loadcenter = '1 1 1'*(loadsize-1)*0.5;
-	viewcenter = ('1 1 0'*(viewsize-1)+'0 0 1'*(viewheight-1))*0.5;
-	viewcenter_distant = ('1 1 0'*(viewsize_distant-1)+'0 0 1'*(viewheight_distant-1))*0.5;
-	maxviewcenter = ('1 1 0'*(maxviewsize-1)+'0 0 1'*(maxviewheight-1))*0.5;
-	clustertablesize = maxviewsize*maxviewsize*maxviewheight;
+
+//	viewcenter = ('1 1 0'*(viewsize-1)+'0 0 1'*(viewheight-1))*0.5;
+//	viewcenter_distant = ('1 1 0'*(viewsize_distant-1)+'0 0 1'*(viewheight_distant-1))*0.5;
+//	maxviewcenter = ('1 1 0'*(maxviewsize-1)+'0 0 1'*(maxviewheight-1))*0.5;
+//	clustertablesize = maxviewsize*maxviewsize*maxviewheight;
 	
 	if(chunksize*0.5 == floor(chunksize*0.5))
 		chunksize_iseven = TRUE;
@@ -188,6 +189,15 @@ void InitGameVariables()
 	
 	if(loadsize*0.5 == floor(loadsize*0.5))
 		loadsize_iseven = TRUE;
+}
+
+void SetDependentViewValues()
+{
+	maxviewsize = max(viewsize, viewsize_distant);		
+	maxviewheight = max(viewheight, viewheight_distant);
+	viewcenter = ('1 1 0'*(viewsize-1)+'0 0 1'*(viewheight-1))*0.5;
+	viewcenter_distant = ('1 1 0'*(viewsize_distant-1)+'0 0 1'*(viewheight_distant-1))*0.5;
+	maxviewcenter = ('1 1 0'*(maxviewsize-1)+'0 0 1'*(maxviewheight-1))*0.5;	
 }
 
 int		SFL_ISNEW		= 1;

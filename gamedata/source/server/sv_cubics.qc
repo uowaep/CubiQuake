@@ -18,7 +18,13 @@ float SendChunk(entity viewer, float sendflags)
 	WriteLong(MSG_ENTITY, sendflags);
 	
 	if(sendflags & SFL_INITIALIZE)
+	{
 		WriteLong(MSG_ENTITY, worldsize);
+		WriteLong(MSG_ENTITY, viewsize);
+		WriteLong(MSG_ENTITY, viewheight);
+		WriteLong(MSG_ENTITY, viewsize_distant);
+		WriteLong(MSG_ENTITY, viewheight_distant);
+	}
 	
 	if(sendflags & SFL_ISNEW)
 		WriteLong(MSG_ENTITY, GetChunkOriginRef(self.origin));
@@ -943,20 +949,35 @@ void UnloadWorldForPlayer(vector org)
 {
 	vector dist, pos, clusterpos;
 	entity cluster;
+
+	int _maxviewsize = maxviewsize;
+	int _maxviewheight = maxviewheight;
+	vector _maxviewcenter = maxviewcenter;
 	
-	for(pos_x = 0; pos_x < maxviewsize; pos_x++)
-		for(pos_y = 0; pos_y < maxviewsize; pos_y++)
-			for(pos_z = 0; pos_z < maxviewheight; pos_z++)
+	if(self.maxviewsize_prev)
+	{
+		_maxviewsize = self.maxviewsize_prev;
+		_maxviewheight = self.maxviewheight_prev;
+		_maxviewcenter = self.maxviewcenter_prev;
+	}
+	
+	self.maxviewsize_prev = maxviewsize;
+	self.maxviewheight_prev = maxviewheight;
+	self.maxviewcenter_prev = maxviewcenter;
+	
+	for(pos_x = 0; pos_x < _maxviewsize; pos_x++)
+		for(pos_y = 0; pos_y < _maxviewsize; pos_y++)
+			for(pos_z = 0; pos_z < _maxviewheight; pos_z++)
 			{
 				if(loadradiusarea)
 				{
-					dist = pos - maxviewcenter;
-					if(dist*dist > (maxviewsize*0.5)*(maxviewsize*0.5))
+					dist = pos - _maxviewcenter;
+					if(dist*dist > (_maxviewsize*0.5)*(_maxviewsize*0.5))
 						continue;
 				}
 				
-				clusterpos = pos - ('1 1 0'*((maxviewsize - !loadsize_iseven)*0.5 - 0.5*loadsize_iseven));
-				clusterpos -= '0 0 1'*((maxviewheight - !loadsize_iseven)*0.5 - 0.5*loadsize_iseven);
+				clusterpos = pos - ('1 1 0'*((_maxviewsize - !loadsize_iseven)*0.5 - 0.5*loadsize_iseven));
+				clusterpos -= '0 0 1'*((_maxviewheight - !loadsize_iseven)*0.5 - 0.5*loadsize_iseven);
 				clusterpos = clusterpos*clustersize*chunksize*cubicradius*2;
 				clusterpos += org;
 				
@@ -1346,7 +1367,8 @@ void Player_WorldInterface()
 	if(self.origin_x > self.playerclusterorg_x + loadwidth || self.origin_x < self.playerclusterorg_x - loadwidth
 	|| self.origin_y > self.playerclusterorg_y + loadwidth || self.origin_y < self.playerclusterorg_y - loadwidth
 	|| self.origin_z > self.playerclusterorg_z + loadheight || self.origin_z < self.playerclusterorg_z - loadheight
-	|| !self.worldloaded)
+	|| !self.worldloaded
+	|| self.viewreset)
 	{
 		numplayersloadingfiles++;
 		
@@ -1360,6 +1382,7 @@ void Player_WorldInterface()
 		SetClusterOccupancyForPlayer(newclusterorg);
 		self.playerclusterorg = newclusterorg;
 		self.playerclusterid = GetClusterRef(self.playerclusterorg);
+		self.viewreset = FALSE;
 	}
 
 	RemoveUnoccupiedClusters(1);
@@ -1552,7 +1575,7 @@ void Player_CubiQuakeControls()
 	if(self.button0_down == 1)
 	{
 		if(self.loadingchunks || self.loadingbackgroundchunks)
-			centerprint(self, "Slow down.\nChunks are loading.\nYou can't use tools yet.\nI'll fix this later.");
+			centerprint(self, "Slow down.\nChunks are loading.\nYou can't use tools yet.");
 		else
 		{
 			int getinside = FALSE;
@@ -1617,6 +1640,24 @@ void Player_CubiQuakeControls()
 	}	
 }
 
+void UninitializePlayers()
+{
+	for(entity e = list_playerchain; e; e = e.playerchain)
+	{
+		e.client_initialized = FALSE;
+		e.viewreset = TRUE;
+	}
+}
+
+void SetLoadDistanceValues()
+{
+	viewsize = max(1, cvar("viewdist1"))*2 + 1;
+	viewheight = max(1, cvar("viewheight1"))*2 + 1;
+	viewsize_distant = max(1, cvar("viewdist2"))*2 + 1;
+	viewheight_distant = max(1, cvar("viewheight2"))*2 + 1;
+	SetDependentViewValues();
+}
+
 void InitServerCubics()
 {
 //	testbox = spawn();
@@ -1660,6 +1701,8 @@ void InitServerCubics()
 	
 //	world_ent = spawn();
 //	world_ent.cluster_ent = memalloc(sizeof(entity)*worldsize*worldsize*worldheight);
+	
+	SetLoadDistanceValues();
 	
 	InitGameVariables();
 	SharedPrecaches();

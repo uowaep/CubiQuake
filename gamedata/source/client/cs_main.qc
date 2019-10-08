@@ -3,6 +3,7 @@ void CSQC_Init(float apilevel, string enginename, float engineversion)
 {
 	registercommand("worlds");	
 	registercommand("resetlights");
+	registercommand("resetview");
 	
 	SharedPrecaches();
 	InitializeCubicInterface();	
@@ -35,6 +36,7 @@ float CSQC_ConsoleCommand(string strMessage)
 		case "worlds":				nReturn = FALSE;	ListWorlds();					break;
 		case "toggleclientlight":	nReturn = FALSE;	ClientToggleLight();			break;	// is this supposed to work if called from server w/o using registercommand() ?
 		case "resetlights":			nReturn = FALSE;	ResetAmbientLight();			break;	// for debugging
+		case "resetview":			nReturn = FALSE;	localcmd("cmd resetview\n");	break;
 
 		default:					nReturn = FALSE;	break;
 	}

@@ -13,6 +13,9 @@ void Remove(entity e)
 	remove(e);
 }
 
+void SetLoadDistanceValues();
+void UninitializePlayers();
+
 void SV_ParseClientCommand (string s) =
 {
 	local string c;
@@ -24,6 +27,12 @@ void SV_ParseClientCommand (string s) =
 
 	if(c == "initialized")
 		self.client_initialized = TRUE;
+	else
+	if(c == "resetview")
+	{
+		SetLoadDistanceValues();
+		UninitializePlayers();
+	}
 	else
 		clientcommand(self, s);
 }

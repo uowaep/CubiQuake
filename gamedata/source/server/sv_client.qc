@@ -3,7 +3,7 @@ void ClientConnect(optional float csqcactive) {}
 	
 void ClientDisconnect()
 {
-	// code here (or wherever)
+	// code here
 	
 	// end code
 	

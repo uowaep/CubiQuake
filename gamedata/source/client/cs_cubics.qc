@@ -115,6 +115,12 @@ void UpdateChunk()
 	if(sendflags & SFL_INITIALIZE)
 	{
 		worldsize = readlong();
+		viewsize = readlong();
+		viewheight = readlong();
+		viewsize_distant = readlong();
+		viewheight_distant = readlong();
+		SetDependentViewValues();
+
 		if(!client_initialized) // this is here instead of in CSQC_Init() to make sure the server has loaded worldsize and any other variables before running InitGameVariables().
 		{	
 			InitGameVariables();
