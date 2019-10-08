@@ -9,6 +9,7 @@ r101
 - view distances can now be set in the console and modified during gameplay (they are server dependent though)
 - added console commands to modify view ranges: viewdist1, viewheight1, viewdist2, viewheight2, resetview
 - added some comments to default.cfg
+- fixed: nqplayerphysics was preventing proper world collision
 
 ### Installation
 - Download CubiQuake https://github.com/uowaep/CubiQuake/archive/master.zip and extract the entire contents of the zip file anywhere.
