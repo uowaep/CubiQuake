@@ -6,37 +6,9 @@ Cubiquake is a framework for quake mod developers to build cubic style (mistaken
 
 ### Recent Changes
 r96
-- added ambient, static, and dynamic light
-- added a torch cubic object, using the torch model from Quake
-- T toggles a dynamic light around the client (impulse 150)
-- cvar ambientlight takes a vector ('0.2 0.2 0.6' in default.cfg)
-- [ and ] keys for cubic Y rotation are swapped in default.cfg
-- added console command "worlds" to list existing worlds
-- added console command "resetlights" for debugging (don't need it anymore, but don't need to remove it)
-- removed fog from the world.hmp map file
-- added a very basic shader to allow csqc to light/color polygons drawn with trisoup_simple
-- hacked in some animation code for the torch
-- added chunk entities that can use models/lights or any custom code
-- added cs_cubicobjects.qc for defining custom objects
-- removed some draw sorting code. wasn't helping as much as perceived ;)
-- added cluster matrix on client that is created as needed for chunks
-- moved most csqc defs to cs_cubicdefs.qc
-- moved most svqc defs to sv_cubicsdefs.qc
-- the cubic tool can now place custom entity type cubics along with normal trisoup_simple polygon cubics
-- added an arg to DrawFaceGroup() that is unnecessary. FIXME
-- worldsize is sent with the first set of chunk csqc/svqc entities before running InitGameVariables()
-- fixed a texture bug in wedge shape
-- now drawing engine crosshair
-- fixed a bug where chunks arriving out of order would arrive before worldsize is set on the client
-- added maxchunksloadedperframe and maxchunksghostedperframe to smooth out cluster/chunk load in/out
-- added maxlightradius setting. can be any value, but default is recommended for performance. (192 with default world settings)
-- added ambientlight setting using autocvar_ambientlight acting as the base light color
-- added lightupdatedelay_static settting. 0.5s default
-- added lightupdatedelay_dynamic setting. 0.02s default
--  iseven settings are now automatic
-- .lightradius .lightbrightness .lightcolor for lighting
-- fixed some bugs with placing chunks and clusters
-- added centerprint warning when trying to edit while chunks are loading
+- view distances can now be set in the console and modified during gameplay (they are server dependent though)
+- added console commands to modify view ranges: viewdist1, viewheight1, viewdist2, viewheight2, resetview
+- added some comments to default.cfg
 
 ### Installation
 - Download CubiQuake https://github.com/uowaep/CubiQuake/archive/master.zip and extract the entire contents of the zip file anywhere.
@@ -86,6 +58,7 @@ Command | Description
 --- | ---
 worlds | Lists existing worlds.
 resetlights | For debugging lights if still necessary. Clears face light data and re-applies lighting values.
+resetview | Resets the view to use new view distance settings. (cvars: viewdist1, viewheight1, viewdist2, viewheight2)
 
 ### CVARs
 CVAR | Description
@@ -94,6 +67,10 @@ ambientlight | Sets the base light color applied to textures with a red green bl
 prefabname | The Copy and Paste tools use a file as a clipboard. This tool works with the Chunk and Cluster size options, and saves to different directories per size. The filename can be set in the **cvar prefabname**. This tool is intended to save several different prefabs for world generation. Note: The generator is not yet coded to take advantage of these files, but you can still place them manually.
 worldname | Sets the world name, which is also the directory where the files are stored within data/worlds/. (default: world1)
 worldsize | Sets the world size in clusters. (default: 9 - There is no max, but beware of long generation times.)
+viewdist1 | Number of clusters out horizontally from the player to draw on first pass.
+viewheight1 | Number of clusters out vertically to draw on first pass.
+viewdist2 | Number of clusters out horizontally from the player to draw on second pass.
+viewheight2 | Number of clusters out vertically to draw on second pass.
 
 ### Files of Interest
 File | Description
@@ -120,6 +97,11 @@ It hasn't been tested yet, but CubiQuake is designed to be multiplayer.
 - add alpha handling to the texture shader
 
 ### ChangeLog
+r101
+- view distances can now be set in the console and modified during gameplay (they are server dependent though)
+- added console commands to modify view ranges: viewdist1, viewheight1, viewdist2, viewheight2, resetview
+- added some comments to default.cfg
+
 r96
 - added ambient, static, and dynamic light
 - added a torch cubic object, using the torch model from Quake
