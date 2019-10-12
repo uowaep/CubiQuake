@@ -69,7 +69,7 @@ Command | Description
 filename | Sets/displays the filename to use in the current game instance for saving/loading prefabs.
 worlds | Lists existing worlds.
 resetlights | For debugging lights if still necessary. Clears face light data and re-applies lighting values.
-resetview | Resets the view to use new view distance settings. (cvars: viewdist1, viewheight1, viewdist2, viewheight2)
+resetview | Resets all player's rendering to use new values from server cvars: viewdist1, viewheight1, viewdist2, viewheight2, ambientlight.
 
 ### CVARs
 CVAR | Description
