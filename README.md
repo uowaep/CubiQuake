@@ -100,7 +100,7 @@ client/cs_cubicobjects.qc | for defining custom cubic objects, being cubics that
 Multiplayer seems to be working. Other player's cubcs load in your view, but that was expected. Fixing that is on the ToDo. Get the server from (). Use the cubiquakeserver.bat file or check the command line inside to run a dedicated server.
 
 ### Known Issues
-- hull shape inconsistencies on x and z rotated cubics.
+- hull shape inconsistencies on x and z rotated cubics
 - other player's cubics are networked/drawn
 - cubics/chunks/clusters can be placed on players
 
