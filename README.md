@@ -99,7 +99,7 @@ shared_server_client/sh_sv_cs_cubics.qc | tools for working with the cubic frame
 client/cs_cubicobjects.qc | for defining custom cubic objects, being cubics that are represented with models rather than trisoup_simple polygons
 
 ### Multiplayer
-Multiplayer seems to be working. Other player's cubcs load in your view, but that was expected. Fixing that is on the ToDo. Get the server from (). Use the cubiquakeserver.bat file or check the command line inside to run a dedicated server.
+Multiplayer seems to be working. Other player's cubcs load in your view, but that was expected. Fixing that is on the ToDo. Get the server from http://fte.triptohell.info/downloads. Use the cubiquakeserver.bat file or check the command line inside to run a dedicated server.
 
 ### Known Issues
 - hull shape inconsistencies on x and z rotated cubics
