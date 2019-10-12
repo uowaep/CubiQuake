@@ -24,6 +24,9 @@ float SendChunk(entity viewer, float sendflags)
 		WriteLong(MSG_ENTITY, viewheight);
 		WriteLong(MSG_ENTITY, viewsize_distant);
 		WriteLong(MSG_ENTITY, viewheight_distant);
+		WriteCoord(MSG_ENTITY, ambientlight_x);
+		WriteCoord(MSG_ENTITY, ambientlight_y);
+		WriteCoord(MSG_ENTITY, ambientlight_z);
 	}
 	
 	if(sendflags & SFL_ISNEW)
@@ -192,7 +195,7 @@ float InitializeCluster(entity cluster, vector org, int forceload)
 		chunk = cluster.list_chunkchain;
 	
 	for(; chunk; chunk = nextchunk)	// FIXME STAGGER could stagger this?
-	{print("wut?\n");
+	{
 		nextchunk = chunk.chunkchain;
 		GhostChunk(cluster, chunk);
 	//	FreeChunkAllocations(chunk);
@@ -203,7 +206,7 @@ float InitializeCluster(entity cluster, vector org, int forceload)
 		if(!forceload)
 		if(numchunksghosted == maxchunksghostedperframe)
 		if(nextchunk)
-		{print("test\n");
+		{
 			self.stagger_initializecluster_ghostchunk = nextchunk;
 			return FALSE;
 		}
@@ -536,15 +539,15 @@ void LoadPrefab_Cluster(vector clusterorg)
 	int *cluster_data;
 	vector org, pos;
 	
-	string prefabname = cvar_string("prefabname");
+	string prefabname = self.prefabfilename;//cvar_string("prefabname");
 	
 	if(strlen(prefabname) < 1)
 	{
-		print("Invalid filename.\n");
+		sprint(self, "Invalid filename.\n");
 		return;
 	}
 	
-	string filename = strcat("prefabs/clusters/", prefabname);
+	string filename = strcat("prefabs/", self.netname, "/clusters/", prefabname);
 	float file = fopen(filename, FILE_MMAP_READ, sizeof(*cluster_data)*clusterdataslots);
 	cluster_data = (int*)fgets(file);
 	
@@ -581,7 +584,7 @@ void LoadPrefab_Cluster(vector clusterorg)
 	
 	UpdateClusterAreaVisibility_OuterEdge(cluster);
 
-	print(filename, " loaded.\n");
+	sprint(self, filename, " loaded.\n");
 }
 
 void SavePrefab_Cluster(vector clusterorg)
@@ -596,14 +599,14 @@ void SavePrefab_Cluster(vector clusterorg)
 	int *cluster_data;	
 	vector org, pos;
 	
-	string prefabname = cvar_string("prefabname");
+	string prefabname = self.prefabfilename;//cvar_string("prefabname");
 	if(strlen(prefabname) < 1)
 	{
-		print("Invalid filename.\n");
+		sprint(self, "Invalid filename.\n");
 		return;
 	}
 	
-	string filename = strcat("prefabs/clusters/", prefabname);
+	string filename = strcat("prefabs/", self.netname, "/clusters/", prefabname);
 	float file = fopen(filename, FILE_MMAP_RW, sizeof(*cluster_data)*clusterdataslots);
 	cluster_data = (int*)fgets(file);
 	
@@ -638,7 +641,7 @@ void SavePrefab_Cluster(vector clusterorg)
 	
 	fclose(file);
 	
-	print(filename, " saved.\n");
+	sprint(self, filename, " saved.\n");
 }
 
 void AddCluster(vector clusterorg, int type, int shape, int rotation)
@@ -728,15 +731,15 @@ void LoadPrefab_Chunk(vector chunkorg)
 
 	int *chunk_data;
 
-	string prefabname = cvar_string("prefabname");
+	string prefabname = self.prefabfilename;//cvar_string("prefabname");
 	
 	if(strlen(prefabname) < 1)
 	{
-		print("Invalid filename.\n");
+		sprint(self, "Invalid filename.\n");
 		return;
 	}
 	
-	string filename = strcat("prefabs/chunks/", prefabname);
+	string filename = strcat("prefabs/", self.netname, "/chunks/", prefabname);
 	float file = fopen(filename, FILE_MMAP_READ, sizeof(*chunk_data)*numslotsforchunkincluster);
 	chunk_data = (int*)fgets(file);
 	
@@ -757,7 +760,7 @@ void LoadPrefab_Chunk(vector chunkorg)
 	UpdateChunkAreaVisibility_OuterEdge(chunk);
 	SetChunkAsModified(chunk);
 	
-	print(filename, " loaded.\n");
+	sprint(self, filename, " loaded.\n");
 }
 
 void SavePrefab_Chunk(vector chunkorg)
@@ -770,14 +773,14 @@ void SavePrefab_Chunk(vector chunkorg)
 	int cubicslot0;
 	int *chunk_data;	
 	
-	string prefabname = cvar_string("prefabname");
+	string prefabname = self.prefabfilename;//cvar_string("prefabname");
 	if(strlen(prefabname) < 1)
 	{
-		print("Invalid filename.\n");
+		sprint(self, "Invalid filename.\n");
 		return;
 	}
 	
-	string filename = strcat("prefabs/chunks/", prefabname);
+	string filename = strcat("prefabs/", self.netname, "/chunks/", prefabname);
 	float file = fopen(filename, FILE_MMAP_RW, sizeof(*chunk_data)*numslotsforchunkincluster);
 	chunk_data = (int*)fgets(file);
 	
@@ -796,7 +799,7 @@ void SavePrefab_Chunk(vector chunkorg)
 	
 	fclose(file);
 	
-	print(filename, " saved.\n");
+	sprint(self, filename, " saved.\n");
 }
 
 void AddChunk(vector chunkorg, int type, int shape, int rotation)
@@ -1014,7 +1017,7 @@ entity LoadCluster(vector pos, int forceload)
 		cluster = cluster_ent[GetClusterRef(pos)];
 		if(!cluster)
 		{
-			print("no cluster\n");
+			print("Warning: no cluster\n");
 			return __NULL__;
 		}
 		
@@ -1036,7 +1039,7 @@ entity LoadCluster(vector pos, int forceload)
 			
 			if(file == -1)
 			{
-				print("no file found\n");
+				print("Warning: no file found\n");
 				return __NULL__;
 			}
 
@@ -1658,6 +1661,11 @@ void SetLoadDistanceValues()
 	SetDependentViewValues();
 }
 
+void SetAmbientLight()
+{
+	ambientlight = stov(cvar_string("ambientlight"));	
+}
+
 void InitServerCubics()
 {
 //	testbox = spawn();
@@ -1703,6 +1711,7 @@ void InitServerCubics()
 //	world_ent.cluster_ent = memalloc(sizeof(entity)*worldsize*worldsize*worldheight);
 	
 	SetLoadDistanceValues();
+	SetAmbientLight();
 	
 	InitGameVariables();
 	SharedPrecaches();

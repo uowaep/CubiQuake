@@ -14,11 +14,12 @@ void Remove(entity e)
 }
 
 void SetLoadDistanceValues();
+void SetAmbientLight();
 void UninitializePlayers();
 
 void SV_ParseClientCommand (string s) =
 {
-	local string c;
+	local string c, t;
 	
 	tokenize(s);
 	c = argv(0);
@@ -30,8 +31,27 @@ void SV_ParseClientCommand (string s) =
 	else
 	if(c == "resetview")
 	{
-		SetLoadDistanceValues();
-		UninitializePlayers();
+		if(argv(1) == cvar_string("adminpass"))
+		{
+			SetLoadDistanceValues();
+			SetAmbientLight();
+			UninitializePlayers();
+		}
+		else
+			sprint(self, "Wrong adminpass.\n");
+	}
+	else
+	if(c == "filename")
+	{
+		t = argv(1);
+		
+		if(t)
+		{
+			self.prefabfilename = t;
+			sprint(self, "Filename set to: \"", self.prefabfilename, "\"\n");
+		}
+		else
+			sprint(self, "Filename is currently set to: \"", self.prefabfilename, "\"\n");
 	}
 	else
 		clientcommand(self, s);

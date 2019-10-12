@@ -251,7 +251,7 @@ float reverse_bitshift(float bit)
 	return floor(log(bit + 0.5) / log(2.0)) + 1;
 }
 
-#ifndef CODE_MENU
+#ifndef MENU
 vector EntCenter(entity e)
 {
 	local vector org;

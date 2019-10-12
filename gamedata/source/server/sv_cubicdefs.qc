@@ -16,18 +16,22 @@ int			numplayersloadingfiles;
 .vector		client_initialized;
 .int		viewreset;
 
-.*int	loadcluster_cluster_data;
-.float	loadcluster_file;
-.int	stagger_loadcluster_chunkid;
-.entity	stagger_removeunoccupiedclusters_ghostchunk;
+.*int		loadcluster_cluster_data;
+.float		loadcluster_file;
+.int		stagger_loadcluster_chunkid;
+.entity		stagger_removeunoccupiedclusters_ghostchunk;
 
 
-.int	maxviewsize_prev;
-.int	maxviewheight_prev;
-.vector	maxviewcenter_prev;
+.int		maxviewsize_prev;
+.int		maxviewheight_prev;
+.vector		maxviewcenter_prev;
 
 .int		tool;
 .int		toolsize;
 .int		editor_blocktype;
 .int		editor_blockshape;
 .int		editor_blockrotation;
+
+.string		prefabfilename;
+
+vector		ambientlight;

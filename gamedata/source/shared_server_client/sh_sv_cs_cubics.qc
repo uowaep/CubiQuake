@@ -1,5 +1,5 @@
 // VERSION
-int		cubic_revision	= 101;
+int		cubic_revision	= 107;
 
 // WORLD SETTINGS
 
@@ -39,7 +39,7 @@ vector	maxviewcenter;
 
 #ifdef CSQC
 int		maxlightradius;
-var vector autocvar_ambientlight = '0 0 0';
+//var vector autocvar_ambientlight = '0 0 0';
 vector	ambientlight;
 float	lightupdatedelay_static;
 float	lightupdatedelay_dynamic;
@@ -163,7 +163,7 @@ void InitGameVariables()
 #ifdef CSQC
 	// client
 	maxlightradius = chunksize*cubicradius*2;	// maximum light radius. this can be any value, but this is recommended for performance. (this value is 192 with default world settings)
-	ambientlight = autocvar_ambientlight;		// base light color
+//	ambientlight = autocvar_ambientlight;		// base light color
 	lightupdatedelay_static = 0.5;				//
 	lightupdatedelay_dynamic = 0.02;
 #endif
@@ -484,10 +484,7 @@ entity GetChunkForLocation(entity chunk, vector cubicchunkorg)
 	chunk = cluster.chunk_ent[GetChunkRef(cubicchunkorg-cluster.origin)];	
 	
 	if(!chunk)
-	{
-	//	print("no chunk\n");
 		return __NULL__;
-	}
 	
 	return chunk;
 }

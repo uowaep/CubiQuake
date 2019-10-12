@@ -4,12 +4,11 @@ void CSQC_Init(float apilevel, string enginename, float engineversion)
 	registercommand("worlds");	
 	registercommand("resetlights");
 	registercommand("resetview");
+	registercommand("filename");
 	
 	SharedPrecaches();
 	InitializeCubicInterface();	
 	InitializeClientLight();
-	
-//	worldsize = stoi(serverkey("worldsize"));
 }
 
 // CSQC_Shutdown : Called every time the CSQC code is shutdown (changing maps, quitting, etc)
@@ -21,23 +20,22 @@ void CSQC_Shutdown()
 // Return value should be 1 if CSQC handled the command, otherwise return 0 to have the engine handle it.
 float CSQC_ConsoleCommand(string strMessage)
 {
-	local float nReturn;
+	float nReturn;
 		nReturn = TRUE;
 		
 	// Tokenize String
 	tokenize(strMessage);
 	
 	// Acquire Command
-	local string strCmd;
+	string strCmd;
 		strCmd = argv(0);
 	
 	switch(strCmd)
 	{
-		case "worlds":				nReturn = FALSE;	ListWorlds();					break;
-		case "toggleclientlight":	nReturn = FALSE;	ClientToggleLight();			break;	// is this supposed to work if called from server w/o using registercommand() ?
-		case "resetlights":			nReturn = FALSE;	ResetAmbientLight();			break;	// for debugging
-		case "resetview":			nReturn = FALSE;	localcmd("cmd resetview\n");	break;
-
+		case "worlds":				nReturn = FALSE;	ListWorlds();					break;	// this would be better if it worked while not already in a world (menuqc)
+		case "toggleclientlight":	nReturn = FALSE;	ClientToggleLight();			break;
+		case "resetview":			nReturn = FALSE;	localcmd(strcat("cmd resetview ", cvar_string("adminpass"), "\n"));	break;
+		case "filename":			nReturn = FALSE;	localcmd(strcat("cmd filename ", argv(1), "\n"));	break;
 		default:					nReturn = FALSE;	break;
 	}
 	

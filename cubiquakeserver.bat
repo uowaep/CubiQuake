@@ -1,0 +1,1 @@
+fteqwsv64 -dedicated +map world.map

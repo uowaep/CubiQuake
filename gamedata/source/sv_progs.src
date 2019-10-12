@@ -1,5 +1,5 @@
 #pragma target fte
-#pragma		progs_dat	"../progs.dat"
+#pragma	progs_dat	"../progs.dat"
 
 #define SSQC
 #include "shared_all/fteextensions.qc"

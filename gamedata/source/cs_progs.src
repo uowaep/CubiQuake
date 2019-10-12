@@ -1,7 +1,7 @@
 //../csprogs.dat
 
 #pragma target fte
-#pragma		progs_dat	"../csprogs.dat"
+#pragma	progs_dat	"../csprogs.dat"
 
 #define CSQC
 #include "shared_all/fteextensions.qc"

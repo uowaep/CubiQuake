@@ -119,14 +119,19 @@ void UpdateChunk()
 		viewheight = readlong();
 		viewsize_distant = readlong();
 		viewheight_distant = readlong();
+		ambientlight_x = readcoord();
+		ambientlight_y = readcoord();
+		ambientlight_z = readcoord();
 		SetDependentViewValues();
+		ambientlightset = FALSE;
 
 		if(!client_initialized) // this is here instead of in CSQC_Init() to make sure the server has loaded worldsize and any other variables before running InitGameVariables().
 		{	
 			InitGameVariables();
 			client_initialized = TRUE;
-			localcmd("cmd initialized\n");
 		}
+		
+		localcmd("cmd initialized\n");	// tell the server to stop sending so much info
 	}
 	
 	if(sendflags & SFL_ISNEW)

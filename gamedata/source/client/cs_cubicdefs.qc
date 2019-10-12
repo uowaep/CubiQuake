@@ -35,6 +35,7 @@ int		client_hasmoved;
 entity	clientlight;
 int		clientlight_state;
 
+int		ambientlightset;
 int		relightstatic;
 int		relightdynamic;
 float	static_relighttime;

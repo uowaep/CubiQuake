@@ -33,7 +33,7 @@ void ResetAmbientLight()
 {
 	entity chunk, typegroup, facegroup;
 	int count;
-	ambientlight = autocvar_ambientlight;
+//	ambientlight = autocvar_ambientlight;
 	for(chunk = list_chunkchain; chunk; chunk = chunk.chunkchain)
 		for(typegroup = chunk.list_typegroupchain; typegroup; typegroup = typegroup.typegroupchain)
 			for(facegroup = typegroup.list_facegroupchain; facegroup; facegroup = facegroup.facegroupchain)
@@ -46,7 +46,8 @@ void ResetAmbientLight()
 					facegroup.verts[count].rgba[2] = ambientlight_z;
 				}	
 			}
-			
+
+	ambientlightset = TRUE;			
 	ResetStaticLights(TRUE);
 }
 
@@ -241,7 +242,7 @@ void AddLights()
 	int count;
 	vector rgb;
 
-	if(ambientlight != autocvar_ambientlight)	// checks if ambientlight cvar has changed. for building prefabs. FIXME: let server/world force this value.
+	if(!ambientlightset)//ambientlight != autocvar_ambientlight)	// checks if ambientlight cvar has changed. for building prefabs. FIXME: let server/world force this value.
 		ResetAmbientLight();
 
 	if((static_relighttime && time >= static_relighttime) || time >= dynamic_relighttime)
