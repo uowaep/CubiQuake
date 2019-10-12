@@ -1,6 +1,6 @@
 ![alt text](https://raw.githubusercontent.com/uowaep/CubiQuake/master/cubiquake.png "CubiQuake")
 
-Cubic Game Framework for the FTEQW Engine __(Requires [FTEQW](http://fte.triptohell.info/downloads) revision 5424 or higher. 64bit is strongly recommended.)__
+Cubic Game Framework for the FTEQW Engine __(Requires [FTEQW](http://fte.triptohell.info/downloads) revision 5424 or higher. 64bit strongly recommended.)__
 
 Cubiquake is a Quake modification. It can be played as is in creative mode to build worlds, but it is also a framework for Quake mod developers to build cubic style (mistakenly referred to as voxel by some) games in the FTEQW engine. Cubiquake uses trisoup_simple to draw most surfaces, and dynamically spawns collision surfaces and calculates lighting as the player moves through the world. Multiple shapes are supported, currently cube, ramp, wedge, and wedge tip. Cubics types can also be set to designate the texture, or alternatively models for cubic spaces held by objects, currently using a torch as an example. Ambient, static, and dynamic light all work. You do not need to be a modder to use CubiQuake as is. Just follow the installation and playing/generation instructions.
 
@@ -22,7 +22,7 @@ r107
 
 ### Installation
 - Download CubiQuake https://github.com/uowaep/CubiQuake/archive/master.zip and extract the entire contents of the zip file anywhere.
-- Download the appropriate client from FTEQW http://fte.triptohell.info/downloads and place it in your main CubiQuake directory.
+- Download the appropriate client from FTEQW http://fte.triptohell.info/downloads and place it in your main CubiQuake directory. (64bit strongly recommended.)
 
 Note: If sharing the same FTE install with other mods, the default.fmf file should not be installed.
 
@@ -70,20 +70,20 @@ impulse 150 | Toggle Player Light| T |
 Command | Description
 --- | ---
 filename | Sets/displays the filename to use in the current game instance for saving/loading prefabs.
-worlds | Lists existing worlds.
 resetview | Resets all player's rendering to use new values from server cvars: viewdist1, viewheight1, viewdist2, viewheight2, ambientlight.
+worlds | Lists existing worlds.
 
 ### CVARs
 CVAR | Description
 --- | ---
 adminpass | Password required to access certain commands on the server.
 ambientlight | Sets the base light color applied to textures with a red green blue vector. '0 0 0' is black, '1 1 1' is full color.  ('0.2 0.2 0.6' in default.cfg)
-worldname | Sets the world name, which is also the directory where the files are stored within /gamedata/data/worlds/. (default: world1)
-worldsize | Sets the world size in clusters. (default: 9 - There is no max, but beware of long generation times.)
 viewdist1 | Number of clusters out horizontally from the player to draw on first pass.
 viewheight1 | Number of clusters out vertically to draw on first pass.
 viewdist2 | Number of clusters out horizontally from the player to draw on second pass.
 viewheight2 | Number of clusters out vertically to draw on second pass.
+worldname | Sets the world name, which is also the directory where the files are stored within /gamedata/data/worlds/. (default: world1)
+worldsize | Sets the world size in clusters. (default: 9 - There is no max, but beware of long generation times.)
 
 ### Files of Interest (modders)
 File | Description
