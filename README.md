@@ -18,6 +18,7 @@ r107
 - resetview now also resets ambient light levels (and draw ranges) across all clients
 - fixed a bug that was causing the server to try to initialize the client endlessly after using resetview
 - fixed some text prints to no longer broadcast to every player
+- removed resetlights command
 
 ### Installation
 - Download CubiQuake https://github.com/uowaep/CubiQuake/archive/master.zip and extract the entire contents of the zip file anywhere.
@@ -70,12 +71,12 @@ Command | Description
 --- | ---
 filename | Sets/displays the filename to use in the current game instance for saving/loading prefabs.
 worlds | Lists existing worlds.
-resetlights | For debugging lights if still necessary. Clears face light data and re-applies lighting values.
 resetview | Resets all player's rendering to use new values from server cvars: viewdist1, viewheight1, viewdist2, viewheight2, ambientlight.
 
 ### CVARs
 CVAR | Description
 --- | ---
+adminpass | Password required to access certain commands on the server.
 ambientlight | Sets the base light color applied to textures with a red green blue vector. '0 0 0' is black, '1 1 1' is full color.  ('0.2 0.2 0.6' in default.cfg)
 worldname | Sets the world name, which is also the directory where the files are stored within /gamedata/data/worlds/. (default: world1)
 worldsize | Sets the world size in clusters. (default: 9 - There is no max, but beware of long generation times.)
@@ -128,6 +129,7 @@ r107
 - resetview now also resets ambient light levels (and draw ranges) across all clients
 - fixed a bug that was causing the server to try to initialize the client endlessly after using resetview
 - fixed some text prints to no longer broadcast to every player
+- removed resetlights command
 
 r101
 - view distances can now be set in the console and modified during gameplay (they are server dependent though)
