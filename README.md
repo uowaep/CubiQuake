@@ -31,12 +31,13 @@ Extract the new files into your install directory. It's always good idea to star
 ### Playing/Generation
 - Start FTEQW.
 - Open the console. (SHIFT-ESC)
-- Quick Start - Run '**map world**' and use default settings.
+- Quick Start:
+- - Type "start" and use current settings.
 >
-- Custom Start - Run the following:
-- - 'worldname name' (default: world1)
-- - 'worldsize size' (default: 9 - There is no max, but beware of long generation times.)
-- - 'map world'
+- Custom Start:
+- - Set 'worldname name'. (default: world1)
+- - Set 'worldsize size'. (default: 9 - There is no max, but beware of long generation times.)
+- - Type 'start' or 'map world.map'.
 
 If the world files don't exist they will generate into /gamedata/data/worlds/worldname and the world will spawn after generation.
 
