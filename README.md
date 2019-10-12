@@ -32,6 +32,7 @@ Extract the new files into your install directory. It's always good idea to star
 ### Playing/Generation
 - Start FTEQW.
 - Open the console. (SHIFT-ESC)
+>
 - Quick Start:
 - - Type "start" and use current settings.
 >
