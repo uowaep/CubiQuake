@@ -43,6 +43,9 @@ Extract the new files into your install directory. It's always good idea to star
 
 If the world files don't exist they will generate into /gamedata/data/worlds/worldname and the world will spawn after generation.
 
+### Multiplayer
+Multiplayer seems to be working. Other player's cubcs load in your view, but that was expected. Fixing that is on the ToDo. Get the server from http://fte.triptohell.info/downloads. Use the cubiquakeserver.bat file or check the command line inside to run a dedicated server.
+
 ### Controls
 Bind | Description | Default Key | Notes
 --- | --- | --- | ---
@@ -97,9 +100,6 @@ client/cs_cubics.qc | client cubic handling
 client/cs_cubicinterface.qc | hud / clientside tool drawing and positioning is handled here
 shared_server_client/sh_sv_cs_cubics.qc | tools for working with the cubic framework, and general world settings
 client/cs_cubicobjects.qc | for defining custom cubic objects, being cubics that are represented with models rather than trisoup_simple polygons
-
-### Multiplayer
-Multiplayer seems to be working. Other player's cubcs load in your view, but that was expected. Fixing that is on the ToDo. Get the server from http://fte.triptohell.info/downloads. Use the cubiquakeserver.bat file or check the command line inside to run a dedicated server.
 
 ### Known Issues
 - hull shape inconsistencies on x and z rotated cubics
