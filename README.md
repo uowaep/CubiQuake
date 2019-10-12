@@ -1,15 +1,23 @@
 ![alt text](https://raw.githubusercontent.com/uowaep/CubiQuake/master/cubiquake.png "CubiQuake")
 
-Cubic Game Framework for the FTEQW Engine __(Requires FTEQW revision 5424 or higher.)__
+Cubic Game Framework for the FTEQW Engine __(Requires [FTEQW](http://fte.triptohell.info/downloads) revision 5424 or higher. 64bit is strongly recommended.)__
 
-Cubiquake is a framework for quake mod developers to build cubic style (mistakenly referred to as voxel by some) games in the FTEQW engine. Cubiquake uses trisoup_simple to draw most surfaces, and dynamically spawns collision surfaces and calculates lighting as the player moves through the world. Multiple shapes are supported, currently cube, ramp, wedge, and wedge tip. Cubics types can also be set to designate the texture, or alternatively models for cubic spaces held by objects, currently using a torch as an example. Ambient, static, and dynamic light all work. You do not need to be a modder to use CubiQuake as is. Just follow the installation and playing/generation instructions.
+Cubiquake is a Quake modification. It can be played as is in creative mode to build worlds, but it is also a framework for Quake mod developers to build cubic style (mistakenly referred to as voxel by some) games in the FTEQW engine. Cubiquake uses trisoup_simple to draw most surfaces, and dynamically spawns collision surfaces and calculates lighting as the player moves through the world. Multiple shapes are supported, currently cube, ramp, wedge, and wedge tip. Cubics types can also be set to designate the texture, or alternatively models for cubic spaces held by objects, currently using a torch as an example. Ambient, static, and dynamic light all work. You do not need to be a modder to use CubiQuake as is. Just follow the installation and playing/generation instructions.
 
 ### Recent Changes
-r101
-- view distances can now be set in the console and modified during gameplay (they are server dependent though)
-- added console commands to modify view ranges: viewdist1, viewheight1, viewdist2, viewheight2, resetview
-- added some comments to default.cfg
-- fixed: nqplayerphysics was preventing proper world collision
+r107
+- tested multiplayer. it works. (still needs to not send/draw out of range cubics loaded by other players)
+- added cubiquakeserver.bat to the main engine directory to run dedicated servers easily
+- added support for individual clients to save prefab files into their own directories on the server (be sure to set your "name" field)
+- use the "filename" cvar to set the desired prefab filename. it is set blank by default each game. use the cvar without any value to show the current filename
+- the "prefabname" cvar is no longer used
+- cvar "adminpass" added to prevent clients from calling commands such as resetview without permission
+- the map file is now a .map instead of a .hmp
+- added "start" command/alias to the console to avoid having to type out the map command
+- ambient light is now controlled on the server.
+- resetview now also resets ambient light levels (and draw ranges) across all clients
+- fixed a bug that was causing the server to try to initialize the client endlessly after using resetview
+- fixed some text prints to no longer broadcast to every player
 
 ### Installation
 - Download CubiQuake https://github.com/uowaep/CubiQuake/archive/master.zip and extract the entire contents of the zip file anywhere.
@@ -57,6 +65,7 @@ impulse 150 | Toggle Player Light| T |
 ### Console Commands
 Command | Description
 --- | ---
+filename | Sets/displays the filename to use in the current game instance for saving/loading prefabs.
 worlds | Lists existing worlds.
 resetlights | For debugging lights if still necessary. Clears face light data and re-applies lighting values.
 resetview | Resets the view to use new view distance settings. (cvars: viewdist1, viewheight1, viewdist2, viewheight2)
@@ -65,7 +74,6 @@ resetview | Resets the view to use new view distance settings. (cvars: viewdist1
 CVAR | Description
 --- | ---
 ambientlight | Sets the base light color applied to textures with a red green blue vector. '0 0 0' is black, '1 1 1' is full color.  ('0.2 0.2 0.6' in default.cfg)
-prefabname | The Copy and Paste tools use a file as a clipboard. This tool works with the Chunk and Cluster size options, and saves to different directories per size. The filename can be set in the **cvar prefabname**. This tool is intended to save several different prefabs for world generation. Note: The generator is not yet coded to take advantage of these files, but you can still place them manually.
 worldname | Sets the world name, which is also the directory where the files are stored within data/worlds/. (default: world1)
 worldsize | Sets the world size in clusters. (default: 9 - There is no max, but beware of long generation times.)
 viewdist1 | Number of clusters out horizontally from the player to draw on first pass.
@@ -73,7 +81,7 @@ viewheight1 | Number of clusters out vertically to draw on first pass.
 viewdist2 | Number of clusters out horizontally from the player to draw on second pass.
 viewheight2 | Number of clusters out vertically to draw on second pass.
 
-### Files of Interest
+### Files of Interest (modders)
 File | Description
 --- | ---
 server/sv_cubics.qc | the major portion of cubic handling on the server
@@ -86,18 +94,35 @@ shared_server_client/sh_sv_cs_cubics.qc | tools for working with the cubic frame
 client/cs_cubicobjects.qc | for defining custom cubic objects, being cubics that are represented with models rather than trisoup_simple polygons
 
 ### Multiplayer
-It hasn't been tested yet, but CubiQuake is designed to be multiplayer.
+Multiplayer seems to be working. Other player's cubcs load in your view, but that was expected. Fixing that is on the ToDo. Get the server from (). Use the cubiquakeserver.bat file or check the command line inside to run a dedicated server.
 
 ### Known Issues
-- minor collision hull weirdness
+- hull shape inconsistencies on x and z rotated cubics.
 - animation code is temporary. (need to re-learn animation. been doing it wrong for too long.)
 
 ### ToDo
-- test multiplayer
+- copy/paste single cubics
+- cull other player's cubics from networking/view
 - update world generator to use cluster/chunk prefabs
 - add alpha handling to the texture shader
+- make collision hulls for x and z rotation orientations to fix hull issues
+- make player light visible to other players
 
 ### ChangeLog
+r107
+- tested multiplayer. it works. (still needs to not send/draw out of range cubics loaded by other players)
+- added cubiquakeserver.bat to the main engine directory to run dedicated servers easily
+- added support for individual clients to save prefab files into their own directories on the server (be sure to set your "name" field)
+- use the "filename" cvar to set the desired prefab filename. it is set blank by default each game. use the cvar without any value to show the current filename
+- the "prefabname" cvar is no longer used
+- cvar "adminpass" added to prevent clients from calling commands such as resetview without permission
+- the map file is now a .map instead of a .hmp
+- added "start" command/alias to the console to avoid having to type out the map command
+- ambient light is now controlled on the server.
+- resetview now also resets ambient light levels (and draw ranges) across all clients
+- fixed a bug that was causing the server to try to initialize the client endlessly after using resetview
+- fixed some text prints to no longer broadcast to every player
+
 r101
 - view distances can now be set in the console and modified during gameplay (they are server dependent though)
 - added console commands to modify view ranges: viewdist1, viewheight1, viewdist2, viewheight2, resetview
