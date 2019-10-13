@@ -21,7 +21,7 @@ r107
 - removed resetlights command
 
 ### Installation
-- Download CubiQuake https://github.com/uowaep/CubiQuake/archive/master.zip and extract the entire contents of the zip file anywhere.
+- Download CubiQuake https://github.com/uowaep/CubiQuake/archive/master.zip and extract the entire contents of the zip file into any directory. The directory you choose will be your main CubiQuake directory.
 - Download the appropriate client from FTEQW http://fte.triptohell.info/downloads and place it in your main CubiQuake directory. (64bit strongly recommended.)
 
 Note: If sharing the same FTE install with other mods, the default.fmf file should not be installed.
