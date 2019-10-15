@@ -39,7 +39,7 @@ Extract the new files into your install directory. It's always good idea to star
 - Custom Start:
 - - Set 'worldname name'. (default: world1)
 - - Set 'worldsize size'. (default: 9 - There is no max, but beware of long generation times.)
-- - Type 'start' or 'map world.map'.
+- - Type "start" or "map world.map".
 
 If the world files don't exist they will generate into /gamedata/data/worlds/worldname and the world will spawn after generation.
 
@@ -75,12 +75,13 @@ Command | Description
 --- | ---
 filename | Sets/displays the filename to use in the current game instance for saving/loading prefabs.
 resetview | Resets all player's rendering to use new values from server cvars: viewdist1, viewheight1, viewdist2, viewheight2, ambientlight.
+start | Starts world.map, using the current worldname and worldsize settings.
 worlds | Lists existing worlds.
 
 ### CVARs
 CVAR | Description
 --- | ---
-adminpass | Password required to access certain commands on the server.
+adminpass | Password required to access certain commands on the server. (resetview)
 ambientlight | Sets the base light color applied to textures with a red green blue vector. '0 0 0' is black, '1 1 1' is full color.  ('0.2 0.2 0.6' in default.cfg)
 viewdist1 | Number of clusters out horizontally from the player to draw on first pass.
 viewheight1 | Number of clusters out vertically to draw on first pass.
