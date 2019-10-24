@@ -22,6 +22,7 @@ entity SpawnCluster(int clusterid)
 
 void GhostCluster(entity cluster)
 {
+	cluster_ent[GetClusterRef(cluster.origin)] = __NULL__;
 	memfill8(cluster.chunk_ent, __NULL__, sizeof(entity)*pow(clustersize, 3));
 	memfill8(cluster.chunk_flags, 0, sizeof(int)*pow(clustersize, 3));
 	GhostClusterChain_Add(cluster);

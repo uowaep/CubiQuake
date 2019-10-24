@@ -37,7 +37,6 @@ void ResetAmbientLight()
 	for(chunk = list_chunkchain; chunk; chunk = chunk.chunkchain)
 		for(typegroup = chunk.list_typegroupchain; typegroup; typegroup = typegroup.typegroupchain)
 			for(facegroup = typegroup.list_facegroupchain; facegroup; facegroup = facegroup.facegroupchain)
-			{
 				for(count = 0; count < facegroup.numvertexes; count++)
 				{
 					facegroup.verts_staticrgb[count] = ambientlight;
@@ -45,8 +44,7 @@ void ResetAmbientLight()
 					facegroup.verts[count].rgba[1] = ambientlight_y;
 					facegroup.verts[count].rgba[2] = ambientlight_z;
 				}	
-			}
-
+			
 	ambientlightset = TRUE;			
 	ResetStaticLights(TRUE);
 }

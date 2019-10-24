@@ -1,11 +1,14 @@
 void Remove(entity e)
 {
+	if(!e)
+	{
+		print("Warning: Trying to remove null entity.\n");
+		return;
+	}
+	
 	ProjectileChain_Remove(e);
 	UnusedCubicBBoxChain_Remove(e);
 	UnoccupiedClusterChain_Remove(e);
-	
-	while(e.list_cubicbboxchain)
-		Remove(e.list_cubicbboxchain);
 	
 	if(e.parentchunk)
 		CubicBBoxChain_Remove(e.parentchunk, e);
@@ -19,7 +22,7 @@ void UninitializePlayers();
 
 void SV_ParseClientCommand (string s) =
 {
-	local string c, t;
+	string c, t;
 	
 	tokenize(s);
 	c = argv(0);

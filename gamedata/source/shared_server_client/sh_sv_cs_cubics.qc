@@ -1,5 +1,5 @@
 // VERSION
-int		cubic_revision	= 107;
+int		cubic_revision	= 123;
 
 // WORLD SETTINGS
 
@@ -43,6 +43,7 @@ int		maxlightradius;
 vector	ambientlight;
 float	lightupdatedelay_static;
 float	lightupdatedelay_dynamic;
+.int	hidden;
 #endif
 
 
@@ -203,6 +204,9 @@ void SetDependentViewValues()
 int		SFL_ISNEW		= 1;
 int		SFL_BUILD		= 2;
 int		SFL_INITIALIZE	= 4;
+int		SFL_HIDE		= 8;
+int		SFL_UPDATE		= 16;
+int		SFL_TEST		= 32;
 
 .int	enttype;
 int		ENT_CLUSTER				= 1;
@@ -466,6 +470,13 @@ entity GetClusterForLocation(entity cluster, vector clusterorg)
 	if(!clusters_allocated)
 		return __NULL__;
 
+	entity e = cluster_ent[GetClusterRef(clusterorg)];
+	
+	#ifdef DEBUG
+	if(wasfreed(e))
+			print("GetClusterForLocation A wasfreed.\n");
+	#endif
+	
 	return cluster_ent[GetClusterRef(clusterorg)];
 }
 //#endif
@@ -478,13 +489,28 @@ entity GetChunkForLocation(entity chunk, vector cubicchunkorg)
 	
 	entity cluster = cluster_ent[GetClusterRef(GetNearClusterOrg(cubicchunkorg))];
 	
+	#ifdef DEBUG
+	if(wasfreed(cluster))
+		print("GetChunkForLocation A wasfreed.\n");	
+	#endif
+	
 	if(!cluster)
 		return __NULL__;
 	
 	chunk = cluster.chunk_ent[GetChunkRef(cubicchunkorg-cluster.origin)];	
 	
+	#ifdef DEBUG
+	if(wasfreed(chunk))
+		print("GetChunkForLocation B wasfreed.\n");	
+	#endif
+	
 	if(!chunk)
 		return __NULL__;
+	
+	#ifdef CSQC
+	if(chunk.hidden)
+		return __NULL__;
+	#endif
 	
 	return chunk;
 }

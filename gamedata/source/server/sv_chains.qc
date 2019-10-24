@@ -28,6 +28,30 @@ entity		list_unoccupiedclusterchain;
 void UnoccupiedClusterChain_Add(entity e)		{	list_unoccupiedclusterchain = LinkedList_Add(e, list_unoccupiedclusterchain, unoccupiedclusterchain, unoccupiedclusterchain_prev);	}
 void UnoccupiedClusterChain_Remove(entity e)	{	list_unoccupiedclusterchain = LinkedList_Remove(e, list_unoccupiedclusterchain, unoccupiedclusterchain, unoccupiedclusterchain_prev);	}
 
+entity		list_removeclusterforclientchain;
+.entity		removeclusterforclientchain;
+.entity		removeclusterforclientchain_prev;
+void RemoveClusterForClientChain_Add(entity e)		{	list_removeclusterforclientchain = LinkedList_Add(e, list_removeclusterforclientchain, removeclusterforclientchain, removeclusterforclientchain_prev);	}
+void RemoveClusterForClientChain_Remove(entity e)	{	list_removeclusterforclientchain = LinkedList_Remove(e, list_removeclusterforclientchain, removeclusterforclientchain, removeclusterforclientchain_prev);	}
+
+entity		list_removeclusterforallclientschain;
+.entity		removeclusterforallclientschain;
+.entity		removeclusterforallclientschain_prev;
+void RemoveClusterForAllClientsChain_Add(entity e)		{	list_removeclusterforallclientschain = LinkedList_Add(e, list_removeclusterforallclientschain, removeclusterforallclientschain, removeclusterforallclientschain_prev);	}
+void RemoveClusterForAllClientsChain_Remove(entity e)	{	list_removeclusterforallclientschain = LinkedList_Remove(e, list_removeclusterforallclientschain, removeclusterforallclientschain, removeclusterforallclientschain_prev);	}
+
+entity		list_staggeredchunkupdatechain;
+.entity		staggeredchunkupdatechain;
+.entity		staggeredchunkupdatechain_prev;
+void StaggeredChunkUpdateChain_Add(entity e)		{	list_staggeredchunkupdatechain = LinkedList_Add(e, list_staggeredchunkupdatechain, staggeredchunkupdatechain, staggeredchunkupdatechain_prev);	}
+void StaggeredChunkUpdateChain_Remove(entity e)	{	list_staggeredchunkupdatechain = LinkedList_Remove(e, list_staggeredchunkupdatechain, staggeredchunkupdatechain, staggeredchunkupdatechain_prev);	}
+
+/*entity		list_hidingfromplayerchain;
+.entity		hidingfromplayerchain;
+.entity		hidingfromplayerchain_prev;
+void HidingFromPlayerChain_Add(entity e)		{	list_hidingfromplayerchain = LinkedList_Add(e, list_hidingfromplayerchain, hidingfromplayerchain, hidingfromplayerchain_prev);	}
+void HidingFromPlayerChain_Remove(entity e)	{	list_hidingfromplayerchain = LinkedList_Remove(e, list_hidingfromplayerchain, hidingfromplayerchain, hidingfromplayerchain_prev);	}
+*/
 entity		list_saveclusterqueuechain;
 .entity		saveclusterqueuechain;
 .entity		saveclusterqueuechain_prev;

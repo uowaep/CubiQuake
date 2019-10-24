@@ -1,12 +1,14 @@
 .int		cs_worldsize;
 
 .int		averagetype;
+.*entity	cluster_playerlist;
+
 .int		occupantcount;
 .int		worldloaded;
 .int		loadingchunks;
 .int		loadingbackgroundchunks;
 .int		backgroundloadtime;
-.int		backgroundunloadtime;
+int		backgroundunloadtime;
 .int		visingchunks;
 .vector		lastbackgroundqueuepos;
 .vector		lastdistantbackgroundqueuepos;
@@ -19,7 +21,7 @@ int			numplayersloadingfiles;
 .*int		loadcluster_cluster_data;
 .float		loadcluster_file;
 .int		stagger_loadcluster_chunkid;
-.entity		stagger_removeunoccupiedclusters_ghostchunk;
+entity		stagger_removeunoccupiedclusters_ghostchunk;
 
 
 .int		maxviewsize_prev;
@@ -35,3 +37,7 @@ int			numplayersloadingfiles;
 .string		prefabfilename;
 
 vector		ambientlight;
+
+int			maxplayers;
+
+.int		button0_down;

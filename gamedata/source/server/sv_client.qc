@@ -7,15 +7,24 @@ void ClientDisconnect()
 	
 	// end code
 	
+	if(self.loadingbackgroundchunks)
+		numplayersloadingfiles-=1;
+	
+	if(self.worldloaded)
+		UnloadWorldForPlayer(self, self.playerclusterorg, TRUE);
+	
 	PlayerChain_Remove(self);				// removes player from linked list
 }
 
 void PlayerPreThink()
 {
-	Player_WorldInterface();
 	Player_CubiQuakeControls();
 	
 	// code here
+	
+	
+//	sprint(self, vtos(GetNearChunkOrg(self.origin)), "\n");
+	
 	
 	// end code
 	
@@ -29,7 +38,7 @@ void PutClientInServer()
 	// code here
 	
 	self.health = self.max_health = 100;
-	self.solid = SOLID_SLIDEBOX;
+	self.solid = SOLID_SLIDEBOX;	// FIXME: player should be nonsolid until free of collision objects
 	self.flags = FL_CLIENT;
 	self.view_ofs = '0 0 22';
 	setmodel(self, "models/player/player.mdl");

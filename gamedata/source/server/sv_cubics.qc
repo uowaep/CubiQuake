@@ -1,18 +1,46 @@
+int	PlayerIsInClusterList(entity player, entity cluster)
+{
+	entity e;
+	
+	for(int i = 0; i < maxplayers; i++)
+	{
+		e = cluster.cluster_playerlist[i];
+		if(e == player)
+			return TRUE;
+		
+		if(!e)
+			return FALSE;
+	}
+	
+	return FALSE;
+}
+
 float SendChunk(entity viewer, float sendflags)
 {
 	int type, cullbits, sentcount;
 
+	int i = GetChunkOriginRef(self.origin);
+	
 	if(!self.numvisiblecubics)
+		return FALSE; 
+
+	entity cluster = cluster_ent[GetClusterRef(GetNearClusterOrg(self.origin))];
+
+	#ifdef DEBUG
+	if(wasfreed(cluster))
+		print("SendChunk A wasfreed.\n");
+	#endif
+	
+	if(!PlayerIsInClusterList(viewer, cluster))
 		return FALSE;
-	
-//	vector dist = self.origin - viewer.origin;
-//	if(dist*dist > chunk_sharerange*chunk_sharerange)
-//		return FALSE;
-	
-	// this is a hack to ensure worldsize is sent prior to chunks needing to reference it. this continues to send until the client sends "cmd initialized" to stop it.
+
+	// never send these flags unless told to here
 	sendflags = sendflags - (sendflags & SFL_INITIALIZE);
+
+	// this is a hack to ensure worldsize is sent prior to chunks needing to reference it. this continues to send until the client responds "cmd initialized" to stop it.
+	// (should use serverkeys instead or something)
 	if(!viewer.client_initialized)
-		sendflags = sendflags | SFL_INITIALIZE;
+		sendflags = (sendflags | SFL_INITIALIZE);
 	
 	WriteByte(MSG_ENTITY, ENT_CHUNK);	
 	WriteLong(MSG_ENTITY, sendflags);
@@ -36,7 +64,6 @@ float SendChunk(entity viewer, float sendflags)
 	{
 		WriteShort(MSG_ENTITY, self.numvisiblecubics);
 
-		if(self.numvisiblecubics > 0)
 		for(int count = 0; sentcount < self.numvisiblecubics; count++)
 		{
 			type = self.cubic_blocktype[count];
@@ -57,6 +84,9 @@ float SendChunk(entity viewer, float sendflags)
 			}
 		}
 	}	
+	
+	
+//	sprint(viewer, "sent: ", ftos(GetChunkOriginRef(self.origin)), "\n");
 	
 	return TRUE;
 }
@@ -142,14 +172,21 @@ void GhostChunk(entity cluster, entity chunk)
 	cluster.chunk_ent[GetChunkRef(chunk.origin-cluster.origin)] = __NULL__;
 	
 	while(chunk.list_cubicbboxchain)
+	{
+		#ifdef DEBUG
+		if(wasfreed(chunk.list_cubicbboxchain))
+			print("GhostChunk A wasfreed.\n");	
+		#endif
+		
 		Remove(chunk.list_cubicbboxchain);
+	}
 	
 	chunk.chunkbits = __NULL__;
 	chunk.numvisiblecubics = 0;
 	chunk.flags = 0;
 	chunk.enttype = 0;	
 	setorigin(chunk, '0 0 0');
-	chunk.SendEntity = __NULL__;
+	chunk.SendEntity = __NULL__;	// this is most likely the reason ghosting chunks doesn't work
 	chunk.SendFlags = 0;
 	
 	memfill8(chunk.cubic_blocktype, 0, sizeof(int)*pow(chunksize, 3));
@@ -172,8 +209,10 @@ void GhostCluster(entity cluster)
 	setorigin(cluster, '0 0 0');
 	
 	memfill8(cluster.chunk_ent, __NULL__, sizeof(entity)*pow(clustersize, 3));
+	memfill8(cluster.cluster_playerlist, __NULL__, sizeof(entity)*maxplayers);	// this line shouldn't be necessary.
 	
 	UnoccupiedClusterChain_Remove(cluster);
+	RemoveClusterForAllClientsChain_Remove(cluster);
 	GhostClusterChain_Add(cluster);
 }
 
@@ -225,12 +264,13 @@ void InitializeChunk(entity cluster, entity chunk, vector org)
 		chunk.flags = FL_FINDABLE_NONSOLID;
 		chunk.enttype = ENT_CHUNK;
 		setorigin(chunk, org);
-		
+	
 		if(chunk.numvisiblecubics)
 		{
 			chunk.SendEntity = SendChunk;
 			chunk.SendFlags = chunk.SendFlags | SFL_ISNEW | SFL_BUILD;
 		}
+		
 		ChunkChain_Add(cluster, chunk);
 	}
 }
@@ -248,6 +288,11 @@ void SaveModifiedClusterFiles()
 	
 	for(cluster = list_saveclusterqueuechain; cluster; cluster = nextcluster)
 	{
+		#ifdef DEBUG
+		if(wasfreed(cluster))
+			print("SaveModifiedClusterFiles A wasfreed.\n");	
+		#endif
+		
 		nextcluster = cluster.saveclusterqueuechain;
 		
 		filename = strcat(worldpath, itos(GetClusterRef(cluster.origin)));
@@ -256,6 +301,11 @@ void SaveModifiedClusterFiles()
 		
 		for(chunk = cluster.list_savechunkqueuechain; chunk; chunk = nextchunk)
 		{
+			#ifdef DEBUG
+			if(wasfreed(chunk))
+				print("SaveModifiedClusterFiles B wasfreed.\n");	
+			#endif
+			
 			nextchunk = chunk.savechunkqueuechain;
 			
 			clusterchunkid = GetChunkRef(chunk.origin-cluster.origin);
@@ -334,7 +384,7 @@ void SetCubicVisibility(entity chunk, int memslot)
 
 void SetChunkAsModified(entity chunk)
 {
-	if(!chunk.SendEntity)
+	if(!chunk.SendEntity) // if chunk was previously empty, set it up for networking
 	{
 		chunk.SendEntity = SendChunk;
 		chunk.SendFlags = chunk.SendFlags | SFL_ISNEW;
@@ -681,7 +731,7 @@ void AddCluster(vector clusterorg, int type, int shape, int rotation)
 	UpdateClusterAreaVisibility_OuterEdge(cluster);
 }
 
-void RemoveCluster(vector clusterorg)
+void ClearCluster(vector clusterorg)
 {
 	entity cluster = GetClusterForLocation(__NULL__, clusterorg);
 	
@@ -823,7 +873,7 @@ void AddChunk(vector chunkorg, int type, int shape, int rotation)
 	SetChunkAsModified(chunk);
 }
 
-void RemoveChunk(vector chunkorg)
+void ClearChunk(vector chunkorg)
 {
 	entity chunk = GetChunkForLocation(__NULL__, chunkorg);
 	
@@ -875,7 +925,7 @@ void AddCubic(vector org, int type, int shape, int rotation)
 	UpdateChunkAreaVisibility(chunk, org, TRUE);
 }
 
-void RemoveCubic(entity chunk, vector cubicorg)
+void ClearCubic(entity chunk, vector cubicorg)
 {
 	if(!chunk)
 		return;
@@ -901,54 +951,201 @@ void RemoveCubic(entity chunk, vector cubicorg)
 	UpdateChunkAreaVisibility(chunk, cubicorg, TRUE);
 }
 
+// this uses so many seemingly unnecessary chains so that it can be put in last priority for removal.
+// this allows clusters to be removed or ghosted first so less clusters need to be triggered for networking removal
+void RemoveClustersForPlayerClients()
+{
+	entity chunk, cluster;//, nextcluster;
+//	for(cluster = list_removeclusterforallclientschain; cluster; cluster = nextcluster)
+//	{
+		cluster = list_removeclusterforallclientschain;
+		
+		#ifdef DEBUG
+		if(wasfreed(cluster))
+			print("RemoveClustersForPlayerClients A wasfreed.\n");	
+		#endif
+		
+//		nextcluster = cluster.removeclusterforallclientschain;
+		if(cluster)
+		{
+			for(chunk = cluster.list_chunkchain; chunk; chunk = chunk.chunkchain)
+			{
+				#ifdef DEBUG
+				if(wasfreed(chunk))
+					print("RemoveClustersForPlayerClients B wasfreed.\n");		
+				#endif
+				
+				chunk.SendFlags = chunk.SendFlags | SFL_UPDATE; // this triggers a hide
+			}
+			
+			RemoveClusterForAllClientsChain_Remove(cluster);
+		}
+//	}
+}
+
+void RemoveChunkEnt(entity chunk, entity cluster)
+{
+	FreeChunkAllocations(chunk);
+	cluster.chunk_ent[GetChunkRef(chunk.origin-cluster.origin)] = __NULL__;
+	
+	while(chunk.list_cubicbboxchain)
+	{
+		#ifdef DEBUG
+		if(wasfreed(chunk.list_cubicbboxchain))
+			print("RemoveChunkEnt A wasfreed.\n");
+		#endif
+		
+		Remove(chunk.list_cubicbboxchain);
+	}
+	ChunkChain_Remove(cluster, chunk);
+	Remove(chunk);	
+}
+
+
 void RemoveUnoccupiedClusters(int numframesbetweenunloads)
 {
 	entity cluster, chunk, nextchunk;
-	int	numchunksghosted;
+//	int	numchunksghosted;
 	
 	if(!list_unoccupiedclusterchain)
+	if(!list_removeclusterforallclientschain)
 		return;
 	
-	if(time >= self.backgroundunloadtime)	
-		self.backgroundunloadtime = time+frametime*numframesbetweenunloads;
+	if(time >= backgroundunloadtime)	
+		backgroundunloadtime = time+frametime*numframesbetweenunloads;
 	else
 		return;	
 	
+	if(!list_unoccupiedclusterchain)
+	{
+		RemoveClustersForPlayerClients();	// triggers chunks SendFlags and SendEntity to stop networking
+		return;
+	}
+	
 	cluster = list_unoccupiedclusterchain;
+	
+	#ifdef DEBUG
+	if(wasfreed(cluster))
+		print("RemoveUnoccupiedClusters A wasfreed.\n");	
+	#endif
 	
 	if(cluster)
 	{
-		if(self.stagger_removeunoccupiedclusters_ghostchunk)
+		if(stagger_removeunoccupiedclusters_ghostchunk) // this is disabled
 		{
-			chunk = self.stagger_removeunoccupiedclusters_ghostchunk;
-			self.stagger_removeunoccupiedclusters_ghostchunk = __NULL__;
+			chunk = stagger_removeunoccupiedclusters_ghostchunk;
+			
+			#ifdef DEBUG
+			if(wasfreed(chunk))
+				print("RemoveUnoccupiedClusters B wasfreed.\n");
+			#endif
+			
+			stagger_removeunoccupiedclusters_ghostchunk = __NULL__;
 		}
 		else
-			chunk = cluster.list_chunkchain;		
+		{
+			RemoveClusterForAllClientsChain_Remove(cluster);
+			chunk = cluster.list_chunkchain;
+			
+			#ifdef DEBUG
+			if(wasfreed(chunk))
+				print("RemoveUnoccupiedClusters C wasfreed.\n");
+			#endif
+		}			
 		
-		
-		for(; chunk; chunk = nextchunk)	// FIXME STAGGER THIS
+		for(; chunk; chunk = nextchunk) // ghost/remove the whole cluster now
 		{
 			nextchunk = chunk.chunkchain;
-			GhostChunk(cluster, chunk);
-//			FreeChunkAllocations(chunk);
-//			Remove(chunk);
+			
+//			GhostChunk(cluster, chunk);
+			RemoveChunkEnt(chunk, cluster);
 
-			numchunksghosted++;
+//			numchunksghosted++;
 
-			if(numchunksghosted == maxchunksghostedperframe)
+/*			if(numchunksghosted == maxchunksghostedperframe)
 			if(nextchunk)
 			{
-				self.stagger_removeunoccupiedclusters_ghostchunk = nextchunk;
+				stagger_removeunoccupiedclusters_ghostchunk = nextchunk;
 				return;
-			}
+			}*/
 		}
 		GhostCluster(cluster);
 //		Remove(cluster);
 	}
 }
 
-void UnloadWorldForPlayer(vector org)
+void AddPlayerToCluster(entity player, entity cluster)
+{
+	entity e, chunk;
+	
+	if(player.viewreset)
+		for(chunk = cluster.list_chunkchain; chunk; chunk = chunk.chunkchain)
+			chunk.SendFlags = chunk.SendFlags | SFL_BUILD;
+	
+	for(int i = 0; i < maxplayers; i++)
+	{
+		e = cluster.cluster_playerlist[i];
+		
+		#ifdef DEBUG
+		if(wasfreed(e))
+			print("AddPlayerToCluster A wasfreed.\n");
+		#endif
+		
+		if(!e)
+		{
+			cluster.cluster_playerlist[i] = player;
+			return;
+		}
+		
+		if(e == player)
+			return;		
+	}
+}
+
+int RemovePlayerFromCluster(entity player, entity cluster)
+{
+	entity e;
+	int shiftslots = FALSE;
+	
+	for(int i = 0; i < maxplayers; i++)
+	{
+		e = cluster.cluster_playerlist[i];
+		
+		#ifdef DEBUG
+		if(wasfreed(e))
+			print("RemovePlayerFromCluster A wasfreed.\n");
+		#endif
+		
+		if(!e)
+			break;
+		
+		if(!shiftslots)
+		if(e == player)
+			shiftslots = TRUE;
+
+		if(!shiftslots)
+			continue;
+			
+		if(i+1 == maxplayers)
+			e = __NULL__;
+		else
+			e = cluster.cluster_playerlist[i+1];
+		
+		#ifdef DEBUG
+		if(wasfreed(e))
+			print("RemovePlayerFromCluster B wasfreed.\n");
+		#endif
+		
+		cluster.cluster_playerlist[i] = e;
+		
+		if(!e)
+			break;
+	}
+	
+	return shiftslots;
+}
+
+void UnloadWorldForPlayer(entity player, vector org, int disconnect)
 {
 	vector dist, pos, clusterpos;
 	entity cluster;
@@ -957,16 +1154,16 @@ void UnloadWorldForPlayer(vector org)
 	int _maxviewheight = maxviewheight;
 	vector _maxviewcenter = maxviewcenter;
 	
-	if(self.maxviewsize_prev)
+	if(player.maxviewsize_prev)
 	{
-		_maxviewsize = self.maxviewsize_prev;
-		_maxviewheight = self.maxviewheight_prev;
-		_maxviewcenter = self.maxviewcenter_prev;
+		_maxviewsize = player.maxviewsize_prev;
+		_maxviewheight = player.maxviewheight_prev;
+		_maxviewcenter = player.maxviewcenter_prev;
 	}
 	
-	self.maxviewsize_prev = maxviewsize;
-	self.maxviewheight_prev = maxviewheight;
-	self.maxviewcenter_prev = maxviewcenter;
+	player.maxviewsize_prev = maxviewsize;
+	player.maxviewheight_prev = maxviewheight;
+	player.maxviewcenter_prev = maxviewcenter;
 	
 	for(pos_x = 0; pos_x < _maxviewsize; pos_x++)
 		for(pos_y = 0; pos_y < _maxviewsize; pos_y++)
@@ -994,6 +1191,12 @@ void UnloadWorldForPlayer(vector org)
 				if(!cluster)
 					continue;
 
+				if(!RemovePlayerFromCluster(player, cluster))
+					continue;
+				
+				if(!disconnect)
+					RemoveClusterForClientChain_Add(cluster);	// makes sure chunks update over time if they need to be removed on the client still
+				
 				cluster.occupantcount-=1;
 				
 				if(cluster.occupantcount < 1)
@@ -1001,7 +1204,7 @@ void UnloadWorldForPlayer(vector org)
 			}
 }
 
-entity LoadCluster(vector pos, int forceload)
+entity LoadCluster(entity player, vector pos, int forceload)
 {
 	int chunkslot0, cubicslot0, count, numchunksloaded;
 	entity cluster;
@@ -1009,28 +1212,34 @@ entity LoadCluster(vector pos, int forceload)
 	float file;
 	int i = 0;
 
-	if(!forceload && self.stagger_loadcluster_chunkid)
+	if(!forceload && player.stagger_loadcluster_chunkid)
 	{
-		i = self.stagger_loadcluster_chunkid;
-		self.stagger_loadcluster_chunkid =  0;
+		i = player.stagger_loadcluster_chunkid;
+		player.stagger_loadcluster_chunkid =  0;
 		
 		cluster = cluster_ent[GetClusterRef(pos)];
+		
+		#ifdef DEBUG
+		if(wasfreed(cluster))
+			print("LoadCluster A wasfreed.\n");
+		#endif
+		
 		if(!cluster)
 		{
 			print("Warning: no cluster\n");
 			return __NULL__;
 		}
 		
-		file = self.loadcluster_file;
-		cluster_data = self.loadcluster_cluster_data;
+		file = player.loadcluster_file;
+		cluster_data = player.loadcluster_cluster_data;
 	}
 	else
 	{
-	/*	if(!forceload && self.stagger_initializecluster_ghostchunk)
+	/*	if(!forceload && player.stagger_initializecluster_ghostchunk)
 		{
 			cluster = cluster_ent[GetClusterRef(pos)];
-			file = self.loadcluster_file;
-			cluster_data = self.loadcluster_cluster_data;
+			file = player.loadcluster_file;
+			cluster_data = player.loadcluster_cluster_data;
 		}
 		else
 		{*/
@@ -1047,20 +1256,27 @@ entity LoadCluster(vector pos, int forceload)
 
 			if(!forceload)
 			{
-				self.loadcluster_file = file;
-				self.loadcluster_cluster_data = cluster_data;	
+				player.loadcluster_file = file;
+				player.loadcluster_cluster_data = cluster_data;	
 			}
 			
 			
 			if(list_ghostclusterchain)
 			{
 				cluster = list_ghostclusterchain;
+				
+				#ifdef DEBUG
+				if(wasfreed(cluster))
+					print("LoadCluster B wasfreed.\n");	
+				#endif
+				
 				GhostClusterChain_Remove(cluster);
 			}
 			else
 			{
 				cluster = spawn();
 				cluster.chunk_ent = memalloc(sizeof(entity)*pow(clustersize, 3));
+				cluster.cluster_playerlist = memalloc(sizeof(entity)*maxplayers);
 			}
 			
 			if(!clusters_allocated)
@@ -1072,9 +1288,7 @@ entity LoadCluster(vector pos, int forceload)
 			
 			cluster_ent[GetClusterRef(pos)] = cluster;
 			
-			
-			
-			cluster.averagetype = cluster_data[CLUSTERSLOT_AVERAGETYPE];
+			cluster.averagetype = cluster_data[CLUSTERSLOT_AVERAGETYPE];	// not used
 			cluster.numvisiblecubics = cluster_data[CLUSTERSLOT_NUMVISIBLECUBICS];
 	//	}
 		
@@ -1091,6 +1305,12 @@ entity LoadCluster(vector pos, int forceload)
 		if(list_ghostchunkchain)
 		{
 			chunk = list_ghostchunkchain;
+			
+			#ifdef DEBUG
+			if(wasfreed(chunk))
+				print("LoadCluster C wasfreed.\n");	
+			#endif
+			
 			GhostChunkChain_Remove(chunk);
 		}
 		else
@@ -1103,6 +1323,11 @@ entity LoadCluster(vector pos, int forceload)
 		}
 
 		cluster.chunk_ent[i] = chunk;
+		
+		#ifdef DEBUG
+		if(wasfreed(chunk))
+			print("Loadcluster D wasfreed.\n");
+		#endif
 		
 		chunk.chunkbits = cluster_data[chunkslot0+CHUNKSLOT_CHUNKBITS];
 		chunk.numvisiblecubics = cluster_data[chunkslot0+CHUNKSLOT_NUMVISIBLECUBICS];
@@ -1125,7 +1350,7 @@ entity LoadCluster(vector pos, int forceload)
 			if(numchunksloaded == maxchunksloadedperframe)
 			if(i+1 < pow(clustersize, 3))
 			{
-				self.stagger_loadcluster_chunkid = i+1;
+				player.stagger_loadcluster_chunkid = i+1;
 				return cluster;
 			}
 		}
@@ -1133,7 +1358,7 @@ entity LoadCluster(vector pos, int forceload)
 	
 /*	if(!forceload)
 	{
-		self.stagger_loadcluster_chunkid = 0;
+		player.stagger_loadcluster_chunkid = 0;
 	//	lastloadclustercluster = __NULL__;
 	}*/
 	
@@ -1142,7 +1367,7 @@ entity LoadCluster(vector pos, int forceload)
 	return cluster;
 }
 
-void SetClusterOccupancyForPlayer(vector org)
+void SetClusterOccupancyForPlayer(entity player, vector org)
 {
 	vector dist, pos, clusterpos;
 	entity cluster;
@@ -1189,17 +1414,20 @@ void SetClusterOccupancyForPlayer(vector org)
 
 				if(cluster)
 				{
+					AddPlayerToCluster(player, cluster);
 					cluster.occupantcount++;
+					
+					RemoveClusterForClientChain_Remove(cluster);
 					UnoccupiedClusterChain_Remove(cluster);
 				}
 			}		
 }
 
-int LoadClusterForPlayer(vector pos, int forceload)
+int LoadClusterForPlayer(entity player, vector pos, int forceload)
 {
 	entity cluster;
 	
-	if(forceload || !self.stagger_loadcluster_chunkid)
+	if(forceload || !player.stagger_loadcluster_chunkid)
 	{
 		cluster = GetClusterForLocation(__NULL__, pos);
 
@@ -1207,20 +1435,23 @@ int LoadClusterForPlayer(vector pos, int forceload)
 			return FALSE;
 	}
 	
-	cluster = LoadCluster(pos, forceload);
+	cluster = LoadCluster(player, pos, forceload);
 	
 	if(!cluster)
 		return FALSE;
 
 	if(!forceload)
-	if(self.stagger_loadcluster_chunkid)
+	if(player.stagger_loadcluster_chunkid)
 		return TRUE;
 	
+	AddPlayerToCluster(player, cluster);
 	cluster.occupantcount++;
+	UnoccupiedClusterChain_Remove(cluster);
+
 	return TRUE;
 }
 
-int LoadWorldForPlayer(vector org, int areasize, int areaheight, vector areacenter, int maxclustersloadedperframe, int isbackground, int subsize, int subheight, float numframesbetweenloads)
+int LoadWorldForPlayer(entity player, vector org, int areasize, int areaheight, vector areacenter, int maxclustersloadedperframe, int isbackground, int subsize, int subheight, float numframesbetweenloads)
 {
 	vector dist, pos, nextpos, lastpos, ofs, clusterpos;
 	float scaleval, scaleheightval;
@@ -1230,19 +1461,19 @@ int LoadWorldForPlayer(vector org, int areasize, int areaheight, vector areacent
 	float loadheightedge = (areaheight-subheight)*0.5;
 	
 	if(isbackground)
-	if(time >= self.backgroundloadtime)	
-		self.backgroundloadtime = time+frametime*numframesbetweenloads;
+	if(time >= player.backgroundloadtime)	
+		player.backgroundloadtime = time+frametime*numframesbetweenloads;
 	else
 		return TRUE;
 	
 	if(!isbackground)
-		LoadClusterForPlayer(org, TRUE);	// immediately loads a cluster around the player
+		LoadClusterForPlayer(player, org, TRUE);	// immediately loads a cluster around the player
 	
-	if(self.loadingbackgroundchunks == 1)
-		pos = self.lastbackgroundqueuepos;
+	if(player.loadingbackgroundchunks == 1)
+		pos = player.lastbackgroundqueuepos;
 	else
-	if(self.loadingbackgroundchunks == 2)
-		pos = self.lastdistantbackgroundqueuepos;
+	if(player.loadingbackgroundchunks == 2)
+		pos = player.lastdistantbackgroundqueuepos;
 	else
 		pos = '0 0 0';
 	
@@ -1306,12 +1537,12 @@ int LoadWorldForPlayer(vector org, int areasize, int areaheight, vector areacent
 				|| clusterpos_z < worlddim_z*-0.5 || clusterpos_z > worlddim_z*0.5)
 					continue;
 
-				if(LoadClusterForPlayer(clusterpos, !isbackground))
+				if(LoadClusterForPlayer(player, clusterpos, !isbackground))
 				if(isbackground)
 				{
 					numloadedclustersthisframe++;
 					
-					if(self.stagger_loadcluster_chunkid)
+					if(player.stagger_loadcluster_chunkid)
 					{
 						lastpos = pos;
 						stop = TRUE;
@@ -1329,8 +1560,8 @@ int LoadWorldForPlayer(vector org, int areasize, int areaheight, vector areacent
 		pos_y = 0;
 	}
 	
-	self.lastbackgroundqueuepos = '0 0 0';
-	self.lastdistantbackgroundqueuepos = '0 0 0';
+	player.lastbackgroundqueuepos = '0 0 0';
+	player.lastdistantbackgroundqueuepos = '0 0 0';
 
 	if(isbackground)
 	if(stop)
@@ -1340,85 +1571,124 @@ int LoadWorldForPlayer(vector org, int areasize, int areaheight, vector areacent
 		else
 			pos = lastpos;
 		
-		if(self.loadingbackgroundchunks == 1)
-			self.lastbackgroundqueuepos = pos;
+		if(player.loadingbackgroundchunks == 1)
+			player.lastbackgroundqueuepos = pos;
 		else
-		if(self.loadingbackgroundchunks == 2)
-			self.lastdistantbackgroundqueuepos = pos;
+		if(player.loadingbackgroundchunks == 2)
+			player.lastdistantbackgroundqueuepos = pos;
 	}
 	
 	return stop;
 }
 
-.int		button0_down;
 void Player_WorldInterface()
 {
 	if(world_initialized < 3)
 		return;
 
-	// CHECK WORLD BOUNDS
-	if(self.origin_x >= worlddim_x*0.5 || self.origin_x <= worlddim_x*-0.5
-	|| self.origin_y >= worlddim_y*0.5 || self.origin_y <= worlddim_y*-0.5
-	|| self.origin_z >= worlddim_z*0.5 || self.origin_z <= worlddim_z*-0.5)
-		return;		
+	entity player, e, nexte;
+	int updatecount = 0;
 	
 	float loadwidth = clustersize*chunksize*cubicradius*1.2;
 	float loadheight = clustersize*chunksize*cubicradius*1.2;
-	
-	if(!self.loadingchunks)
-	if(!self.loadingbackgroundchunks)
-	if(self.origin_x > self.playerclusterorg_x + loadwidth || self.origin_x < self.playerclusterorg_x - loadwidth
-	|| self.origin_y > self.playerclusterorg_y + loadwidth || self.origin_y < self.playerclusterorg_y - loadwidth
-	|| self.origin_z > self.playerclusterorg_z + loadheight || self.origin_z < self.playerclusterorg_z - loadheight
-	|| !self.worldloaded
-	|| self.viewreset)
+
+	for(player = list_playerchain; player; player = player.playerchain)
 	{
-		numplayersloadingfiles++;
+		#ifdef DEBUG
+		if(wasfreed(player))
+			print("Player_WorldInterface A wasfreed.\n");	
+		#endif
 		
-		self.loadingchunks = TRUE;
-		self.loadingbackgroundchunks = TRUE;
+		// CHECK WORLD BOUNDS
+		if(player.origin_x >= worlddim_x*0.5 || player.origin_x <= worlddim_x*-0.5
+		|| player.origin_y >= worlddim_y*0.5 || player.origin_y <= worlddim_y*-0.5
+		|| player.origin_z >= worlddim_z*0.5 || player.origin_z <= worlddim_z*-0.5)
+			continue;		
+			
+		if(player.movetype != MOVETYPE_WALK)
+			continue;
 		
-		if(self.worldloaded)
-			UnloadWorldForPlayer(self.playerclusterorg);
-		
-		vector newclusterorg = GetNearClusterOrg(self.origin);
-		SetClusterOccupancyForPlayer(newclusterorg);
-		self.playerclusterorg = newclusterorg;
-		self.playerclusterid = GetClusterRef(self.playerclusterorg);
-		self.viewreset = FALSE;
+		if(!player.loadingchunks)
+		if(!player.loadingbackgroundchunks)
+		if(player.origin_x > player.playerclusterorg_x + loadwidth || player.origin_x < player.playerclusterorg_x - loadwidth
+		|| player.origin_y > player.playerclusterorg_y + loadwidth || player.origin_y < player.playerclusterorg_y - loadwidth
+		|| player.origin_z > player.playerclusterorg_z + loadheight || player.origin_z < player.playerclusterorg_z - loadheight
+		|| !player.worldloaded
+		|| player.viewreset)
+		{
+			numplayersloadingfiles++;
+			
+			player.loadingchunks = TRUE;
+			player.loadingbackgroundchunks = TRUE;
+			
+			if(player.worldloaded)
+				UnloadWorldForPlayer(player, player.playerclusterorg, FALSE);
+			
+			vector newclusterorg = GetNearClusterOrg(player.origin);
+			SetClusterOccupancyForPlayer(player, newclusterorg);
+			player.playerclusterorg = newclusterorg;
+			player.playerclusterid = GetClusterRef(player.playerclusterorg);
+			player.viewreset = FALSE;
+			
+			for(e = list_removeclusterforclientchain; e; e = nexte)
+			{
+				#ifdef DEBUG
+				if(wasfreed(e))
+					print("Player_WorldInterface B wasfreed.\n");		
+				#endif
+				
+				nexte = e.removeclusterforclientchain;
+				RemoveClusterForAllClientsChain_Add(e); // adds the clusters to stop networking to this player to the master list
+				RemoveClusterForClientChain_Remove(e); // clears the temporary list for the next player to use
+			}			
+		}
 	}
 
 	RemoveUnoccupiedClusters(1);
-	
-	if(self.loadingchunks)
-	{
-		self.loadingchunks = LoadWorldForPlayer(self.playerclusterorg, loadsize, loadsize, loadcenter, pow(loadsize, 3), FALSE, 0, 0, 0);
-		self.worldloaded = TRUE;
-	}
-	else
-	if(self.loadingbackgroundchunks == 1)
-	{
-		if(!LoadWorldForPlayer(self.playerclusterorg, viewsize, viewheight, viewcenter, 1, TRUE, loadsize, loadsize, 1))
-		{
-			self.loadingbackgroundchunks = 2;
-			self.lastbackgroundqueuepos = '0 0 0';
-		}
-	}
-	else
-	if(self.loadingbackgroundchunks == 2)
-	{
-		if(!LoadWorldForPlayer(self.playerclusterorg, viewsize_distant, viewheight_distant, viewcenter_distant, 1, TRUE, viewsize, viewheight, 1))
-		{
-			self.loadingbackgroundchunks = FALSE;
-			self.lastdistantbackgroundqueuepos = '0 0 0';
-			numplayersloadingfiles -= 1;
-		}
-	}
 
-	LeaveSolidCubics(self, self.lastsolidcubicorigin);
-	SetSolidCubics(self, self.origin);
-	self.lastsolidcubicorigin = self.origin;
-	RemoveUnusedCubicBBoxes();
+	for(player = list_playerchain; player; player = player.playerchain)
+	{
+		#ifdef DEBUG
+		if(wasfreed(player))
+			print("Player_WorldInterface C wasfreed.\n");			
+		#endif
+		
+		// CHECK WORLD BOUNDS
+		if(player.origin_x >= worlddim_x*0.5 || player.origin_x <= worlddim_x*-0.5
+		|| player.origin_y >= worlddim_y*0.5 || player.origin_y <= worlddim_y*-0.5
+		|| player.origin_z >= worlddim_z*0.5 || player.origin_z <= worlddim_z*-0.5)
+			continue;
+		
+		if(player.loadingchunks)
+		{
+			player.loadingchunks = LoadWorldForPlayer(player, player.playerclusterorg, loadsize, loadsize, loadcenter, pow(loadsize, 3), FALSE, 0, 0, 0);
+			player.worldloaded = TRUE;
+		}
+		else
+		if(player.loadingbackgroundchunks == 1)
+		{
+			if(!LoadWorldForPlayer(player, player.playerclusterorg, viewsize, viewheight, viewcenter, 1, TRUE, loadsize, loadsize, 1))
+			{
+				player.loadingbackgroundchunks = 2;
+				player.lastbackgroundqueuepos = '0 0 0';
+			}
+		}
+		else
+		if(player.loadingbackgroundchunks == 2)
+		{
+			if(!LoadWorldForPlayer(player, player.playerclusterorg, viewsize_distant, viewheight_distant, viewcenter_distant, 1, TRUE, viewsize, viewheight, 1))
+			{
+				player.loadingbackgroundchunks = FALSE;
+				player.lastdistantbackgroundqueuepos = '0 0 0';
+				numplayersloadingfiles -= 1;
+			}
+		}
+
+		LeaveSolidCubics(player, player.lastsolidcubicorigin);
+		SetSolidCubics(player, player.origin);
+		player.lastsolidcubicorigin = player.origin;
+		RemoveUnusedCubicBBoxes();
+	}
 }
 
 void ClampEditorRotationForShape()
@@ -1556,7 +1826,7 @@ void Player_CubiQuakeControls()
 	else	
 	if(self.impulse)	// this turns off edit mode if any impulses not related to it are used
 		self.tool = 0;
-	
+
 	if(self.button0)
 	{
 		if(self.button0_down < 2)
@@ -1614,9 +1884,9 @@ void Player_CubiQuakeControls()
 				{
 					case TOOLSIZE_EDITOR_CUBIC:		entity chunk = GetChunkForLocation(__NULL__, GetNearChunkOrg(tracepos));
 													vector cubicorg = GetNearestCubicOrigin(tracepos, chunksize_iseven);
-													RemoveCubic(chunk, cubicorg);													break;
-					case TOOLSIZE_EDITOR_CHUNK:		RemoveChunk(GetNearChunkOrg(tracepos));											break;
-					case TOOLSIZE_EDITOR_CLUSTER:	RemoveCluster(GetNearClusterOrg(tracepos));										break;
+													ClearCubic(chunk, cubicorg);													break;
+					case TOOLSIZE_EDITOR_CHUNK:		ClearChunk(GetNearChunkOrg(tracepos));											break;
+					case TOOLSIZE_EDITOR_CLUSTER:	ClearCluster(GetNearClusterOrg(tracepos));										break;
 				}		
 			}
 			else
@@ -1647,6 +1917,11 @@ void UninitializePlayers()
 {
 	for(entity e = list_playerchain; e; e = e.playerchain)
 	{
+		#ifdef DEBUG
+		if(wasfreed(e))
+			print("UninitializePlayers A wasfreed.\n");	
+		#endif
+		
 		e.client_initialized = FALSE;
 		e.viewreset = TRUE;
 	}
@@ -1670,6 +1945,11 @@ void InitServerCubics()
 {
 //	testbox = spawn();
 //	setmodel(testbox, "models/editor/cubeselector.mdl");
+
+	maxplayers = 0;
+	for(entity p = world; (p=nextent(p)); maxplayers++) {}
+	
+//	maxplayers = bound(1, cvar("maxclients"), 255);
 
 	clientstat(STAT_TOOL, EV_INTEGER, tool);
 	clientstat(STAT_TOOLSIZE, EV_INTEGER, toolsize);
@@ -1725,5 +2005,6 @@ void StartFrame_Cubics()
 	{	
 		ProjectileUpdate();	// see sv_attacks.qc for examples
 		SaveModifiedClusterFiles();
+		Player_WorldInterface();
 	}
 }

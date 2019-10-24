@@ -1,9 +1,9 @@
 void Remove(entity e)
 {
+	#ifdef DEBUG
 	if(wasfreed(e))
-	{print("\n removing free ent?\n\n");
-		eprint(e);
-	}
+		print("CS_Remove A wasfreed.\n");
+	#endif
 	
 	// remove from global chains
 
@@ -24,12 +24,7 @@ void Remove(entity e)
 			
 			if(!cluster.numchunks)
 			if(!cluster.islit)
-			{
-				cluster_ent[GetClusterRef(cluster.origin)] = __NULL__;
-			//	memfree(cluster.chunk_ent);
 				GhostCluster(cluster);
-//				Remove(cluster);
-			}
 		}
 
 /*		e.numvisiblecubics = 0;

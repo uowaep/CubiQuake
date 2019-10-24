@@ -108,9 +108,15 @@ void UpdateChunk()
 	}*/
 	
 	float sendflags = readlong();
+
 	int i, memslot, type;
 	vector org;
 	entity typegroup, light;
+
+
+//	if(sendflags == SFL_UPDATE)
+//		readlong();
+
 
 	if(sendflags & SFL_INITIALIZE)
 	{
@@ -136,34 +142,44 @@ void UpdateChunk()
 	
 	if(sendflags & SFL_ISNEW)
 	{
-		self.cubic_blocktype = memalloc(sizeof(int)*pow(chunksize, 3));
-		self.cubic_blockshape = memalloc(sizeof(int)*pow(chunksize, 3));
-		self.cubic_blockrotation = memalloc(sizeof(int)*pow(chunksize, 3));		
-		self.cubic_cullbits = memalloc(sizeof(int)*pow(chunksize, 3));
+		i = readlong();		
 		
-		i = readlong();
-		org = GetChunkOrigin(i);
-		self.flags = FL_FINDABLE_NONSOLID;
-		setorigin(self, org);
-		self.enttype = ENT_CHUNK;
-		
-		ChunkChain_Add(self);
-		
-		if(!clusters_allocated)
+		if(!self.chunkinitialized)
 		{
-			clusters_allocated = TRUE;
-			cluster_ent = memalloc(sizeof(entity)*maxclusters);		
-		}		
+			self.chunkinitialized = TRUE;
+			
+			self.cubic_blocktype = memalloc(sizeof(int)*pow(chunksize, 3));
+			self.cubic_blockshape = memalloc(sizeof(int)*pow(chunksize, 3));
+			self.cubic_blockrotation = memalloc(sizeof(int)*pow(chunksize, 3));		
+			self.cubic_cullbits = memalloc(sizeof(int)*pow(chunksize, 3));
 		
-		int clusterid = GetClusterRef(GetNearClusterOrg(org));
-		entity cluster = cluster_ent[clusterid];
-		if(!cluster)
-			cluster = SpawnCluster(clusterid);
+			org = GetChunkOrigin(i);
+			setorigin(self, org);
+			self.enttype = ENT_CHUNK;
+			self.flags = FL_FINDABLE_NONSOLID;
+			ChunkChain_Add(self);
 		
-		cluster.chunk_ent[GetChunkRef(self.origin-cluster.origin)] = self;
-		cluster.numchunks++;
-		
-		TriggerStaticLightReset(org);
+			
+			if(!clusters_allocated)
+			{
+				clusters_allocated = TRUE;
+				cluster_ent = memalloc(sizeof(entity)*maxclusters);		
+			}		
+			
+			int clusterid = GetClusterRef(GetNearClusterOrg(org));
+			entity cluster = cluster_ent[clusterid];
+			
+			if((cluster == list_ghostclusterchain && list_ghostclusterchain) || cluster.ghostclusterchain)
+				print("Warning: Trying to use ghosted cluster on client.\n");
+			
+			if(!cluster)
+				cluster = SpawnCluster(clusterid);
+			
+			cluster.chunk_ent[GetChunkRef(self.origin-cluster.origin)] = self;
+			cluster.numchunks++;
+			
+			TriggerStaticLightReset(org);
+		}
 	}
 
 	if(sendflags & SFL_BUILD)
@@ -211,7 +227,7 @@ void UpdateChunk()
 										break;
 			}
 		}
-		
+	
 		BuildChunkFaces(self, sendflags & SFL_ISNEW);
 	}
 }
@@ -273,9 +289,14 @@ void DrawChunks()
 //	int drawplane = 0;
 	
 	for(entity e = list_chunkchain; e; e = e.chunkchain)
+	{
+		if(e.hidden)
+			continue;
+		
 		for(typegroup = e.list_typegroupchain; typegroup; typegroup = typegroup.typegroupchain)
 			for(facegroup = typegroup.list_facegroupchain; facegroup; facegroup = facegroup.facegroupchain)
 				DrawFaceGroup(facegroup, e.origin);
+	}
 			
 /*	int viewrange = ((max(maxviewsize, maxviewheight)*clustersize)+(1))*0.5;		
 	

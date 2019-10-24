@@ -32,6 +32,11 @@ void ProjectileUpdate()
 {
 	for(entity e = list_projectilechain; e; e = e.projectilechain)
 	{
+		#ifdef DEBUG
+		if(wasfreed(e))
+			print("ProjectileUpdate A wasfreed.\n");	
+		#endif
+		
 		LeaveSolidCubics(e, e.lastsolidcubicorigin);
 		SetSolidCubics(e, e.origin);
 		e.lastsolidcubicorigin = e.origin;

@@ -218,7 +218,8 @@ void RemoveTypeGroup(entity chunk, entity typegroup)
 	Remove(typegroup);
 }
 
-void DrawFaceGroup(entity facegroup, vector grouppos) // FIXME remove grouppos arg
+ // FIXME remove grouppos arg
+void DrawFaceGroup(entity facegroup, vector grouppos)
 {
 	if(!facegroup)
 		return;

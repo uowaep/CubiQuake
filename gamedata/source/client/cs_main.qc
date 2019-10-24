@@ -2,7 +2,6 @@
 void CSQC_Init(float apilevel, string enginename, float engineversion)
 {
 	registercommand("worlds");	
-	registercommand("resetlights");
 	registercommand("resetview");
 	registercommand("filename");
 	
@@ -67,6 +66,7 @@ void CSQC_Ent_Update(float bIsNewEntity)
 	
 	float i;//, spawned;
 	
+	
 /*	if(self == world)
 	if(i == ENT_CHUNK)
 	{
@@ -85,8 +85,8 @@ void CSQC_Ent_Update(float bIsNewEntity)
 	
 	i = readbyte();
 	
-//	self.isshared = TRUE;
-	
+	self.isshared = TRUE;
+
 	switch(i)
 	{
 		case ENT_CHUNK:			UpdateChunk();		break;
@@ -96,6 +96,7 @@ void CSQC_Ent_Update(float bIsNewEntity)
 // CSQC_Ent_Remove : Called when the server requests a SSQC / CSQC entity to be removed.  Essentially call remove(self) as well.
 void CSQC_Ent_Remove()
 {
+	self.isshared = TRUE;
 	Remove(self);
 }
 

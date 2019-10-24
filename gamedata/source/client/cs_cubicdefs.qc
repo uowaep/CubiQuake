@@ -15,6 +15,7 @@ int		client_initialized;
 .string	texturename;
 .int	blocktype;
 .int	faces;
+.int	chunkinitialized;
 
 // cluster fields
 .*int	chunk_flags;
@@ -41,3 +42,7 @@ int		relightdynamic;
 float	static_relighttime;
 float	dynamic_relighttime;
 .int	islit;
+
+
+.int	isshared;
+.float	oldentnum;

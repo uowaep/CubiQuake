@@ -7,6 +7,11 @@ void RemoveUnusedCubicBBoxes()
 	entity e, nexte;
 	for(e = list_unusedcubicbboxchain; e; e = nexte)
 	{
+		#ifdef DEBUG
+		if(wasfreed(e))
+			print("RemoveUnusedCubicBBoxes A wasfreed.\n");	
+		#endif
+		
 		nexte = e.unusedcubicbboxchain;
 		Remove(e);	
 	}
@@ -18,7 +23,10 @@ void LeaveSolidCubic_Func(entity chunk, entity e, vector org)
 	{
 		e.collisioncount -= 1;
 		if(!e.collisioncount)
+		{
+			CubicBBoxChain_Remove(chunk, e);
 			UnusedCubicBBoxChain_Add(e);
+		}
 	}
 }
 
@@ -88,6 +96,11 @@ void CallPhysicsFunctionForCubic(vector org, void(entity, entity, vector) func)
 			{
 				cubicorg = physicsorg + ('-1 -1 -1'*physicssize*0.5 + pos)*cubicradius*2 + '1 1 1'*cubicradius;
 
+				if(cubicorg_x >= worlddim_x*0.5 || cubicorg_x <= worlddim_x*-0.5
+				|| cubicorg_y >= worlddim_y*0.5 || cubicorg_y <= worlddim_y*-0.5
+				|| cubicorg_z >= worlddim_z*0.5 || cubicorg_z <= worlddim_z*-0.5)
+					continue;
+
 				cubicchunkorg = GetNearChunkOrg(cubicorg);
 				chunk = GetChunkForLocation(chunk, cubicchunkorg);
 				
@@ -98,8 +111,15 @@ void CallPhysicsFunctionForCubic(vector org, void(entity, entity, vector) func)
 					continue;
 								
 				for(e = chunk.list_cubicbboxchain; e; e = e.cubicbboxchain)
+				{
+					#ifdef DEBUG
+					if(wasfreed(e))
+						print("CallPhysicsFunctionForCubic A wasfreed.\n");	
+					#endif
+					
 					if(e.origin == cubicorg)
 						break;
+				}
 				
 				func(chunk, e, cubicorg);
 			}
