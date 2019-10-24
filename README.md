@@ -23,7 +23,7 @@ r123
 - fixed a bug where cubic collision bbox ents were trying to spawn outside of the world if the player gets too close to the edge
 - no longer ghosting clusters as it tends to break networking
 - renamed some functions to make more sense (Remove* to Clear* etc)
-- intervals between unloads are now global rather than per player (prevent server choking, should probably do this for loading also)
+- intervals between unloads are now global rather than per player (prevents server choking)
 - when removing clusters, chunk removal is no longer staggered as this was creating more potential bad entity references. this could be fixed, but isn't really necessary. the code is left in, just not used.
 - changed all references to self outside of self's initial function call in sv_cubics.qc to player
 
@@ -119,7 +119,6 @@ client/cs_cubicobjects.qc | for defining custom cubic objects, being cubics that
 ### ToDo
 - more testing on chunk sizes, 7 or 9 would be ideal for prefabs (center doors etc with odd sizes)
 - more testing on extended draw ranges
-- use a global interval for load in time instead of per player
 - copy/paste single cubics
 - update world generator to use cluster/chunk prefabs
 - add alpha handling to the texture shader
@@ -147,7 +146,7 @@ r123
 - fixed a bug where cubic collision bbox ents were trying to spawn outside of the world if the player gets too close to the edge
 - no longer ghosting clusters as it tends to break networking
 - renamed some functions to make more sense (Remove* to Clear* etc)
-- intervals between unloads are now global rather than per player (prevent server choking, should probably do this for loading also)
+- intervals between unloads are now global rather than per player (prevents server choking)
 - when removing clusters, chunk removal is no longer staggered as this was creating more potential bad entity references. this could be fixed, but isn't really necessary. the code is left in, just not used.
 - changed all references to self outside of self's initial function call in sv_cubics.qc to player
 
