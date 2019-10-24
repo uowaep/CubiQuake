@@ -5,20 +5,24 @@ Cubic Game Framework for the FTEQW Engine __(Requires [FTEQW](http://fte.triptoh
 CubiQuake is a Quake modification. It can be played as is in creative mode to build worlds, but it is also a framework for Quake mod developers. It is designed for building cubic worlds, which popular culture commonly misreferences as voxels, hence the name. Cubiquake uses trisoup_simple to draw most surfaces, and dynamically spawns collision surfaces and calculates lighting as the player moves through the world. Multiple rotatable shapes are supported: cube, ramp, wedge. Each cubic/shape can use any texture or instead use models for more decorative applications such as the example torches. Ambient, static, and dynamic light all work. You do not need to be a modder to use CubiQuake as is. Just follow the installation and playing/generation instructions.
 
 ### Recent Changes
-r107
-- tested multiplayer. it works. (still needs to not send/draw out of range cubics loaded by other players)
-- added cubiquakeserver.bat to the main engine directory to run dedicated servers easily
-- added support for individual clients to save prefab files into their own directories on the server (be sure to set your "name" field)
-- use the "filename" cvar to set the desired prefab filename. it is set blank by default each game. use the cvar without any value to show the current filename
-- the "prefabname" cvar is no longer used
-- cvar "adminpass" added to prevent clients from calling commands such as resetview without permission
-- the map file is now a .map instead of a .hmp
-- added "start" command/alias to the console to avoid having to type out the map command
-- ambient light is now controlled on the server.
-- resetview now also resets ambient light levels (and draw ranges) across all clients
-- fixed a bug that was causing the server to try to initialize the client endlessly after using resetview
-- fixed some text prints to no longer broadcast to every player
-- removed resetlights command
+r123
+- lots of bug fixes mostly involving stability and multiplayer
+- increased default ambient lights a little from '0.2 0.2 0.6' to '0.4 0.4 0.8'
+- disabled cl_predict_players to stop other players from jittering around
+- disabled r_fog_cullentities (just to avoid any potential interference. can test this later.)
+- chunks no longer allocate more than once during an update (potential leak fixed)
+- resetlights was still registered as a command, now removed
+- added a ton of debugging code for finding bad entity references
+- chunks are now networked correctly to the appropriate clients
+- when players disconnect they update their chunks to know they can remove if no other players are viewing them
+- the world loading loop now handles all players rather than each player using their own loop
+- fixed a bad reference to previously removed cubic collision bbox ents
+- fixed a bug where cubic collision bbox ents were trying to spawn outside of the world if the player gets too close to the edge
+- no longer ghosting clusters as it tends to break networking
+- renamed some functions to make more sense (Remove* to Clear* etc)
+- intervals between unloads are now global rather than per player (prevent server choking, should probably do this for loading also)
+- when removing clusters, chunk removal is no longer staggered as this was creating more potential bad entity references. this could be fixed, but isn't really necessary. the code is left in, just not used.
+- changed all references to self outside of self's initial function call in sv_cubics.qc to player
 
 ### Installation
 - Download CubiQuake https://github.com/uowaep/CubiQuake/archive/master.zip and extract the entire contents of the zip file into any directory. The directory you choose will be your main CubiQuake directory.
@@ -104,20 +108,41 @@ client/cs_cubicobjects.qc | for defining custom cubic objects, being cubics that
 
 ### Known Issues
 - hull shape inconsistencies on x and z rotated cubics
-- other player's cubics are networked/drawn
 - cubics/chunks/clusters can be placed on players
+- players spawn inside of eachother on server restart and don't network chunks correctly (join an existing server!)
+- players can get stuck in cubics if they move too fast for the loading speed
 
 ### ToDo
+- more testing on extended draw ranges
+- use a global interval for load in time instead of per player
 - copy/paste single cubics
-- cull other player's cubics from networking/view
 - update world generator to use cluster/chunk prefabs
 - add alpha handling to the texture shader
 - make collision hulls for x and z rotation orientations to fix hull issues
 - make player light visible to other players
-- animation code is temporary. (need to re-learn animation. been doing it wrong.)
-- don't let players place things on other players
+- animation code is temporary. (need to re-learn animation.)
+- don't let players place things on players
 
 ### ChangeLog
+r123
+- lots of bug fixes mostly involving stability and multiplayer
+- increased default ambient lights a little from '0.2 0.2 0.6' to '0.4 0.4 0.8'
+- disabled cl_predict_players to stop other players from jittering around
+- disabled r_fog_cullentities (just to avoid any potential interference. can test this later.)
+- chunks no longer allocate more than once during an update (potential leak fixed)
+- resetlights was still registered as a command, now removed
+- added a ton of debugging code for finding bad entity references
+- chunks are now networked correctly to the appropriate clients
+- when players disconnect they update their chunks to know they can remove if no other players are viewing them
+- the world loading loop now handles all players rather than each player using their own loop
+- fixed a bad reference to previously removed cubic collision bbox ents
+- fixed a bug where cubic collision bbox ents were trying to spawn outside of the world if the player gets too close to the edge
+- no longer ghosting clusters as it tends to break networking
+- renamed some functions to make more sense (Remove* to Clear* etc)
+- intervals between unloads are now global rather than per player (prevent server choking, should probably do this for loading also)
+- when removing clusters, chunk removal is no longer staggered as this was creating more potential bad entity references. this could be fixed, but isn't really necessary. the code is left in, just not used.
+- changed all references to self outside of self's initial function call in sv_cubics.qc to player
+
 r107
 - tested multiplayer. it works. (still needs to not send/draw out of range cubics loaded by other players)
 - added cubiquakeserver.bat to the main engine directory to run dedicated servers easily
