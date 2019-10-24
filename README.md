@@ -73,7 +73,7 @@ impulse 11 | Exit Edit Mode | X | Any non-cubiquake impulse will work as well.
 impulse 150 | Toggle Player Light| T |
 
 ### Console Commands
-(Until menuqc is implemented these can only work during gameplay.)
+(Other than 'start', until menuqc is implemented these can only work during gameplay.)
 
 Command | Description
 --- | ---
