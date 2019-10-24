@@ -110,12 +110,14 @@ shared_server_client/sh_sv_cs_cubics.qc | tools for working with the cubic frame
 client/cs_cubicobjects.qc | for defining custom cubic objects, being cubics that are represented with models rather than trisoup_simple polygons
 
 ### Known Issues
+- chunk sizes other than 6 seem to have issues, noticed weird lighting issues on size 8, odd numbers also have problems
 - hull shape inconsistencies on x and z rotated cubics
 - cubics/chunks/clusters can be placed on players
 - players spawn inside of eachother on server restart and don't network chunks correctly (join an existing server!)
 - players can get stuck in cubics if they move too fast for the loading speed
 
 ### ToDo
+- more testing on chunk sizes, 7 or 9 would be ideal for prefabs (center doors etc with odd sizes)
 - more testing on extended draw ranges
 - use a global interval for load in time instead of per player
 - copy/paste single cubics
