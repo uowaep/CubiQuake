@@ -1,5 +1,5 @@
 // VERSION
-int		cubic_revision	= 123;
+int		cubic_revision	= 126;
 
 // WORLD SETTINGS
 
@@ -204,9 +204,9 @@ void SetDependentViewValues()
 int		SFL_ISNEW		= 1;
 int		SFL_BUILD		= 2;
 int		SFL_INITIALIZE	= 4;
-int		SFL_HIDE		= 8;
+
 int		SFL_UPDATE		= 16;
-int		SFL_TEST		= 32;
+
 
 .int	enttype;
 int		ENT_CLUSTER				= 1;
@@ -507,10 +507,10 @@ entity GetChunkForLocation(entity chunk, vector cubicchunkorg)
 	if(!chunk)
 		return __NULL__;
 	
-	#ifdef CSQC
-	if(chunk.hidden)
-		return __NULL__;
-	#endif
+//	#ifdef CSQC
+//	if(chunk.hidden)
+//		return __NULL__;
+//	#endif
 	
 	return chunk;
 }

@@ -84,8 +84,6 @@ void CSQC_Ent_Update(float bIsNewEntity)
 	}*/
 	
 	i = readbyte();
-	
-	self.isshared = TRUE;
 
 	switch(i)
 	{
@@ -96,7 +94,6 @@ void CSQC_Ent_Update(float bIsNewEntity)
 // CSQC_Ent_Remove : Called when the server requests a SSQC / CSQC entity to be removed.  Essentially call remove(self) as well.
 void CSQC_Ent_Remove()
 {
-	self.isshared = TRUE;
 	Remove(self);
 }
 

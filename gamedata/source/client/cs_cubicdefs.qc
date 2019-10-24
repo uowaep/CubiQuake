@@ -42,7 +42,3 @@ int		relightdynamic;
 float	static_relighttime;
 float	dynamic_relighttime;
 .int	islit;
-
-
-.int	isshared;
-.float	oldentnum;

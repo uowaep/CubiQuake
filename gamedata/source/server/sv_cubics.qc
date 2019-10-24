@@ -1605,8 +1605,8 @@ void Player_WorldInterface()
 		|| player.origin_z >= worlddim_z*0.5 || player.origin_z <= worlddim_z*-0.5)
 			continue;		
 			
-		if(player.movetype != MOVETYPE_WALK)
-			continue;
+//		if(player.movetype != MOVETYPE_WALK)
+//			continue;
 		
 		if(!player.loadingchunks)
 		if(!player.loadingbackgroundchunks)
