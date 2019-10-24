@@ -5,6 +5,9 @@ Cubic Game Framework for the FTEQW Engine __(Requires [FTEQW](http://fte.triptoh
 CubiQuake is a Quake modification. It can be played as is in creative mode to build worlds, but it is also a framework for Quake mod developers. It is designed for building cubic worlds, which popular culture commonly misreferences as voxels, hence the name. Cubiquake uses trisoup_simple to draw most surfaces, and dynamically spawns collision surfaces and calculates lighting as the player moves through the world. Multiple rotatable shapes are supported: cube, ramp, wedge. Each cubic/shape can use any texture or instead use models for more decorative applications such as the example torches. Ambient, static, and dynamic light all work. You do not need to be a modder to use CubiQuake as is. Just follow the installation and playing/generation instructions.
 
 ### Recent Changes
+r126
+- fixed: noclip was preventing the world from loading
+
 r123
 - lots of bug fixes mostly involving stability and multiplayer
 - increased default ambient lights a little from '0.2 0.2 0.6' to '0.4 0.4 0.8'
@@ -124,6 +127,9 @@ client/cs_cubicobjects.qc | for defining custom cubic objects, being cubics that
 - don't let players place things on players
 
 ### ChangeLog
+r126
+- fixed: noclip was preventing the world from loading
+
 r123
 - lots of bug fixes mostly involving stability and multiplayer
 - increased default ambient lights a little from '0.2 0.2 0.6' to '0.4 0.4 0.8'
