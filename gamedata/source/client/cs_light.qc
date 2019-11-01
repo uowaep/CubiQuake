@@ -15,7 +15,7 @@ void ClientToggleLight()
 void InitializeClientLight()
 {
 	clientlight = spawn();
-	clientlight.lightradius = 192;
+	clientlight.lightradius = 224;	// don't use the maxlightradius field as it is not set until networking starts.
 	clientlight.lightbrightness = 2;
 	clientlight.lightcolor = '1 0.9 0.7';
 }
@@ -132,7 +132,7 @@ entity SetChunkLight(entity chunk, int memslot, int type)
 	setorigin(light, chunk.origin + GetCubicOffset(memslot));
 	light.drawmask = MASK_NORMAL;
 	light.cubicmemslot = memslot;
-	light.lightradius = 192;
+	light.lightradius = 224;
 	light.lightcolor = '1 1 1';
 	light.lightbrightness = 1;
 	ChunkEntChain_Add(chunk, light);	
@@ -205,7 +205,7 @@ void SetVertLights(entity light, int isstatic)
 									rgb = light.lightcolor*light.lightbrightness;
 								else
 									rgb = lastrgb = light.lightcolor*light.lightbrightness*(1-(vlen(ofs)/lrad));
-
+								
 								if(rgb_x > 0 || rgb_y > 0 || rgb_z > 0)
 								{
 									facegroupislit = TRUE;

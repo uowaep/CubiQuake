@@ -113,11 +113,6 @@ void UpdateChunk()
 	vector org;
 	entity typegroup, light;
 
-
-//	if(sendflags == SFL_UPDATE)
-//		readlong();
-
-
 	if(sendflags & SFL_INITIALIZE)
 	{
 		worldsize = readlong();
@@ -137,7 +132,7 @@ void UpdateChunk()
 			client_initialized = TRUE;
 		}
 		
-		localcmd("cmd initialized\n");	// tell the server to stop sending so much info
+		localcmd("cmd initialized\n");	// tell the server to stop sending init info
 	}
 	
 	if(sendflags & SFL_ISNEW)

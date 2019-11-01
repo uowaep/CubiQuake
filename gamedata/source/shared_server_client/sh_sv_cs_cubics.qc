@@ -1,5 +1,5 @@
 // VERSION
-int		cubic_revision	= 126;
+int		cubic_revision	= 130;
 
 // WORLD SETTINGS
 
@@ -138,7 +138,7 @@ void InitGameVariables()
 // 	worldsize = 11;							// width in clusters. (must be odd. this is set via cvar or by the existing world)
  	worldheight = worldsize;				// height in clusters. (must be odd. - not working, must set to worldsize to not break stuff)
 	clustersize = 3;						// width/height in chunks. (must be odd)
-	chunksize = 6;							// width/height in cubics. (even and ood both work here)
+	chunksize = 7;							// width/height in cubics. (even and ood both work here)
 
 	// changing these values won't break the world, but might affect performance
 	cubicradius = 16;						// quake units of center of cubic to edge (this will scale the world)
@@ -163,7 +163,7 @@ void InitGameVariables()
 
 #ifdef CSQC
 	// client
-	maxlightradius = chunksize*cubicradius*2;	// maximum light radius. this can be any value, but this is recommended for performance. (this value is 192 with default world settings)
+	maxlightradius = chunksize*cubicradius*2;	// maximum light radius. this can be any value, but this equation is recommended for performance.
 //	ambientlight = autocvar_ambientlight;		// base light color
 	lightupdatedelay_static = 0.5;				//
 	lightupdatedelay_dynamic = 0.02;
@@ -292,19 +292,18 @@ int	NonSolidType(int type)
 	return FALSE;
 }
 
-int GetClusterOccupancyRef(vector ofs)
+/*int GetClusterOccupancyRef(vector ofs)
 {
 	ofs -= '1 1 1'*clustersize*chunksize*cubicradius;
 	ofs *= 1/(clustersize*chunksize*cubicradius*2);
 	ofs += ([maxviewsize, maxviewsize, maxviewheight])*0.5;
 	return ofs_x*maxviewsize*maxviewsize + ofs_y*maxviewsize + ofs_z;
-}
-
+}*/
 
 int GetClusterRef(vector ofs)
 {
 	ofs -= '1 1 1'*clustersize*chunksize*cubicradius;
-	ofs *= 1/(clustersize*chunksize*cubicradius*2);
+	ofs = ofs/(clustersize*chunksize*cubicradius*2);
 	ofs += ([worldsize, worldsize, worldheight])*0.5;
 	return ofs_x*worldsize*worldsize + ofs_y*worldsize + ofs_z;
 }
@@ -316,7 +315,7 @@ vector GetClusterOffset(float refid)
 	ofs_y = floor((refid-(ofs_x*worldsize*worldsize))/worldsize);
 	ofs_z = refid - (ofs_x*worldsize*worldsize) - ofs_y*worldsize;
 	ofs += (([worldsize, worldsize, worldheight])*-0.5) + '1 1 1'*0.5;
-	ofs *= clustersize*chunksize*cubicradius*2;
+	ofs = ofs*clustersize*chunksize*cubicradius*2;
 
 	return ofs;
 }
@@ -324,9 +323,12 @@ vector GetClusterOffset(float refid)
 int GetChunkOriginRef(vector ofs)
 {
 	ofs -= '1 1 1'*chunksize*cubicradius;
-	ofs *= 1/(chunksize*cubicradius*2);
+	ofs = ofs/(chunksize*cubicradius*2);
 	ofs += ([worldsize, worldsize, worldheight])*clustersize*0.5;
-	return ofs_x*pow(worldsize*clustersize, 2) + ofs_y*(worldsize*clustersize) + ofs_z;
+	
+	float f = ofs_x*pow(worldsize*clustersize, 2) + ofs_y*(worldsize*clustersize) + ofs_z;
+
+	return f;
 }
 
 vector GetChunkOrigin(float refid)
@@ -336,7 +338,7 @@ vector GetChunkOrigin(float refid)
 	ofs_y = floor((refid-(ofs_x*pow(worldsize*clustersize, 2)))/(worldsize*clustersize));
 	ofs_z = refid - (ofs_x*(worldsize*clustersize)*(worldsize*clustersize)) - ofs_y*(worldsize*clustersize);
 	ofs += (([worldsize*clustersize, worldsize*clustersize, worldheight*clustersize])*-0.5) + '1 1 1'*0.5;
-	ofs *= chunksize*cubicradius*2;
+	ofs = ofs*chunksize*cubicradius*2;
 
 	return ofs;
 }
@@ -344,7 +346,7 @@ vector GetChunkOrigin(float refid)
 int GetChunkRef(vector ofs)
 {
 	ofs -= '1 1 1'*chunksize*cubicradius;
-	ofs *= 1/(chunksize*cubicradius*2);
+	ofs = ofs/(chunksize*cubicradius*2);
 	ofs += '1 1 1'*clustersize*0.5;
 	return ofs_x*clustersize*clustersize + ofs_y*clustersize + ofs_z;
 }
@@ -356,7 +358,7 @@ vector GetChunkOffset(float refid)
 	ofs_y = floor((refid-(ofs_x*clustersize*clustersize))/clustersize);
 	ofs_z = refid - (ofs_x*clustersize*clustersize) - ofs_y*clustersize;
 	ofs += '-1 -1 -1'*clustersize*0.5 + '1 1 1'*0.5;
-	ofs *= chunksize*cubicradius*2;
+	ofs = ofs*chunksize*cubicradius*2;
 
 	return ofs;
 }
@@ -364,7 +366,7 @@ vector GetChunkOffset(float refid)
 int GetCubicRef(vector ofs)
 {
 	ofs -= '1 1 1'*cubicradius;
-	ofs *= 1/(cubicradius*2);
+	ofs = ofs/(cubicradius*2);
 	ofs += '1 1 1'*chunksize*0.5;
 	return ofs_x*chunksize*chunksize + ofs_y*chunksize + ofs_z;
 }
@@ -376,7 +378,7 @@ vector GetCubicOffset(float refid)
 	ofs_y = floor((refid-(ofs_x*chunksize*chunksize))/chunksize);
 	ofs_z = refid - (ofs_x*chunksize*chunksize) - ofs_y*chunksize;
 	ofs += '-1 -1 -1'*chunksize*0.5 + '1 1 1'*0.5;
-	ofs *= cubicradius*2;
+	ofs = ofs*cubicradius*2;
 
 	return ofs;
 }

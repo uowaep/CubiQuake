@@ -1826,7 +1826,8 @@ void Player_CubiQuakeControls()
 	else	
 	if(self.impulse)	// this turns off edit mode if any impulses not related to it are used
 		self.tool = 0;
-
+	
+	// this lets us know when button0 is pressed vs held. 1 = pressed, 2 = held.
 	if(self.button0)
 	{
 		if(self.button0_down < 2)

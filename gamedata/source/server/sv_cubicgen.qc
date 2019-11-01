@@ -50,7 +50,7 @@ int WriteChunk(vector chunkpos, int *cdata)
 	return newwrite;	
 }
 
-vector GetCubicOffsetForGeneration(vector pos)	{	return (pos+'-1 -1 -1'*chunksize*0.5)*cubicradius*2 + '1 1 1'*cubicradius;	}
+//vector GetCubicOffsetForGeneration(vector pos)	{	return (pos+'-1 -1 -1'*chunksize*0.5)*cubicradius*2 + '1 1 1'*cubicradius;	}
 
 int ChunkGen_SetCubic(int *cdata, int type, int cubicslot0)
 {
@@ -233,6 +233,12 @@ void GenCubicVisibility()
 		string filename = strcat(worldpath, itos(clusterid));
 		file = fopen(filename, FILE_MMAP_RW, sizeof(*cluster_data)*clusterdataslots);
 
+		if(file < 0)
+		{
+			print("Error: Trying to open file that doesn't exist. A\n");
+			continue;
+		}
+		
 		cluster_data = (int*)fgets(file);
 		clusterorg = GetClusterOffset(clusterid);
 		
@@ -242,7 +248,7 @@ void GenCubicVisibility()
 			
 			if(CheckNullChunk(cluster_data, chunkslot0))
 			{
-				print("found null chunk\n");
+				print("found null chunk at ", vtos(clusterorg + GetChunkOffset(i)), "\n");
 				continue;
 			}
 
@@ -298,7 +304,7 @@ void GenCubicVisibility()
 
 						if(fileB < 0)
 						{
-							print("Error: Trying to open file that doesn't exist.\n");
+							print("Error: Trying to open file that doesn't exist. B\n");
 							cullbits = cullbits | bitshift(1, sidecount);
 							continue;
 						}
@@ -365,13 +371,13 @@ void GenerateWorld()
 	{
 		while(strlen(chunkgenqueue_string) && numchunksgeneratedthisframe < maxchunkstogenerateperframe)
 		{
-			s = substring(chunkgenqueue_string, 0, 10); // 10 setes it at almost 10 billion. cutting the string there saves on tokens to generate. we only need the first one.
+			s = substring(chunkgenqueue_string, 0, 10); // 10 sets it at almost 10 billion. cutting the string there saves on tokens to generate. we only need the first one.
 			tokenize(s);
 			token = argv(0);
 			id = stoi(token);
 			tokenlen = strlen(token);
 
-			chunkgenqueue_string = substring(chunkgenqueue_string, tokenlen+1, strlen(chunkgenqueue_string)-(tokenlen+1));		
+			chunkgenqueue_string = substring(chunkgenqueue_string, tokenlen+1, strlen(chunkgenqueue_string)-(tokenlen+1));	
 			pos = GetChunkOrigin(id);
 
 			GenerateChunks(pos);
