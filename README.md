@@ -74,7 +74,7 @@ worlds | Lists existing worlds.
 CVAR | Description
 --- | ---
 adminpass | Password required to access certain commands on the server. (resetview)
-ambientlight | Sets the base light color applied to textures with a red green blue vector. '0 0 0' is black, '1 1 1' is full color.  ('0.2 0.2 0.6' in default.cfg)
+ambientlight | Sets the base light color applied to textures with a red green blue vector. '0 0 0' is black, '1 1 1' is full color.  ('0.4 0.4 0.8' in default.cfg)
 viewdist1 | Number of clusters out horizontally from the player to draw on first pass.
 viewheight1 | Number of clusters out vertically to draw on first pass.
 viewdist2 | Number of clusters out horizontally from the player to draw on second pass.
