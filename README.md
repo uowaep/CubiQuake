@@ -108,7 +108,6 @@ client/cs_cubicobjects.qc | for defining custom cubic objects, being cubics that
 - add alpha handling to the texture shader
 - make collision hulls for x and z rotation orientations to fix hull issues
 - make player light visible to other players
-- write better animation code
 - don't let players place things on players
 
 ### ChangeLog
