@@ -93,7 +93,7 @@ shared_server_client/sh_sv_cs_cubics.qc | tools for working with the cubic frame
 client/cs_cubicobjects.qc | for defining custom cubic objects, being cubics that are represented with models rather than trisoup_simple polygons
 
 ### Known Issues
-- weird lighting issues when light radius is not max
+- weird lighting issues when light radius is not max (fixed in next update)
 - hull shape inconsistencies on x and z rotated cubics
 - cubics/chunks/clusters can be placed on players
 - players spawn inside of eachother on server restart and don't network chunks correctly (join an existing server!)
