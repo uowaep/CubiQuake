@@ -34,7 +34,9 @@ Extract the new files into your install directory. It's always good idea to star
 If the world files don't exist they will generate into /gamedata/data/worlds/worldname and the world will spawn after generation.
 
 ### Multiplayer
-Multiplayer seems to be working. Other player's cubcs load in your view, but that was expected. Fixing that is on the ToDo. Get the server from http://fte.triptohell.info/downloads. Use the cubiquakeserver.bat file or check the command line inside to run a dedicated server.
+Multiplayer is working. Get the server from http://fte.triptohell.info/downloads. Use the cubiquakeserver.bat file or check the command line inside to run a dedicated server.
+
+WARNING: If a server restarts, players need to reconnect to get the world to network to them correctly. This is on the known issues list.
 
 ### Controls
 Bind | Description | Default Key | Notes
