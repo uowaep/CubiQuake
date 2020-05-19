@@ -16,6 +16,18 @@ void FaceGroupChain_Remove(entity o, entity e)		{	o.list_facegroupchain = Linked
 void TypeGroupChain_Add(entity o, entity e)			{	o.list_typegroupchain = LinkedList_Add(e, o.list_typegroupchain, typegroupchain, typegroupchain_prev);	}
 void TypeGroupChain_Remove(entity o, entity e)		{	o.list_typegroupchain = LinkedList_Remove(e, o.list_typegroupchain, typegroupchain, typegroupchain_prev);	}
 
+entity		list_queuenearfacebuildchain;
+.entity		queuenearfacebuildchain;
+.entity		queuenearfacebuildchain_prev;
+void QueueNearFaceBuildChain_Add(entity e)		{	list_queuenearfacebuildchain = LinkedList_Add(e, list_queuenearfacebuildchain, queuenearfacebuildchain, queuenearfacebuildchain_prev);	}
+void QueueNearFaceBuildChain_Remove(entity e)	{	list_queuenearfacebuildchain = LinkedList_Remove(e, list_queuenearfacebuildchain, queuenearfacebuildchain, queuenearfacebuildchain_prev);	}
+
+entity		list_queuefacebuildchain;
+.entity		queuefacebuildchain;
+.entity		queuefacebuildchain_prev;
+void QueueFaceBuildChain_Add(entity e)		{	list_queuefacebuildchain = LinkedList_Add(e, list_queuefacebuildchain, queuefacebuildchain, queuefacebuildchain_prev);	}
+void QueueFaceBuildChain_Remove_(entity e)	{	list_queuefacebuildchain = LinkedList_Remove(e, list_queuefacebuildchain, queuefacebuildchain, queuefacebuildchain_prev);	}
+
 entity		list_dynamiclightchain;
 .entity		dynamiclightchain;
 .entity		dynamiclightchain_prev;
@@ -50,13 +62,33 @@ void LitFaceGroupChain_Remove(entity e)			{	list_litfacegroupchain = LinkedList_
 .entity		chunkentchain;
 .entity		chunkentchain_prev;
 void ChunkEntChain_Add(entity o, entity e)		{	o.list_chunkentchain = LinkedList_Add(e, o.list_chunkentchain, chunkentchain, chunkentchain_prev);	}
-void ChunkEntChain_Remove(entity o, entity e)		{	o.list_chunkentchain = LinkedList_Remove(e, o.list_chunkentchain, chunkentchain, chunkentchain_prev);	}
+void ChunkEntChain_Remove(entity o, entity e)	{	o.list_chunkentchain = LinkedList_Remove(e, o.list_chunkentchain, chunkentchain, chunkentchain_prev);	}
 
 entity		list_clearchunkentchain;
 .entity		clearchunkentchain;
 .entity		clearchunkentchain_prev;
 void ClearChunkEntChain_Add(entity e)			{	list_clearchunkentchain = LinkedList_Add(e, list_clearchunkentchain, clearchunkentchain, clearchunkentchain_prev);	}
-void ClearChunkEntChain_Remove(entity e)			{	list_clearchunkentchain = LinkedList_Remove(e, list_clearchunkentchain, clearchunkentchain, clearchunkentchain_prev);	}
+void ClearChunkEntChain_Remove(entity e)		{	list_clearchunkentchain = LinkedList_Remove(e, list_clearchunkentchain, clearchunkentchain, clearchunkentchain_prev);	}
+
+entity		list_infoeditchunksidechain;
+.entity		infoeditchunksidechain;
+.entity		infoeditchunksidechain_prev;
+void InfoEditChunkSideChain_Add(entity e)			{	list_infoeditchunksidechain = LinkedList_Add(e, list_infoeditchunksidechain, infoeditchunksidechain, infoeditchunksidechain_prev);	}
+void InfoEditChunkSideChain_Remove(entity e)		{	list_infoeditchunksidechain = LinkedList_Remove(e, list_infoeditchunksidechain, infoeditchunksidechain, infoeditchunksidechain_prev);	}
+
+.entity		list_chunkbloatchain;
+.entity		chunkbloatchain;
+.entity		chunkbloatchain_prev;
+void ChunkBloatChain_Add(entity o, entity e)		{	o.list_chunkbloatchain = LinkedList_Add(e, o.list_chunkbloatchain, chunkbloatchain, chunkbloatchain_prev);	}
+void ChunkBloatChain_Remove(entity o, entity e)	{	o.list_chunkbloatchain = LinkedList_Remove(e, o.list_chunkbloatchain, chunkbloatchain, chunkbloatchain_prev);	}
+
+
+entity		list_queuechunkbloatchain;
+.entity		queuechunkbloatchain;
+.entity		queuechunkbloatchain_prev;
+void QueueChunkBloatChain_Add(entity e)			{	list_queuechunkbloatchain = LinkedList_Add(e, list_queuechunkbloatchain, queuechunkbloatchain, queuechunkbloatchain_prev);	}
+void QueueChunkBloatChain_Remove(entity e)		{	list_queuechunkbloatchain = LinkedList_Remove(e, list_queuechunkbloatchain, queuechunkbloatchain, queuechunkbloatchain_prev);	}
+
 
 /*void ChunkChain_Sort(entity chunk)
 {

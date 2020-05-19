@@ -8,12 +8,16 @@
 
 #include "shared_all/sh_all_subs.qc"
 
+#include "shared_client_menu/sh_cs_m_defs.qc"
+#include "shared_client_menu/sh_cs_m_input.qc"
+
 #include "shared_server_client/sh_sv_cs_precaches.qc"
 #include "shared_server_client/sh_sv_cs_chains.qc"
 #include "shared_server_client/sh_sv_cs_cubics.qc"
 
 #include "client/cs_chains.qc"
 #include "client/cs_cubicdefs.qc"
+
 #include "client/cs_animation.qc"
 #include "client/cs_cubicobjects.qc"
 #include "client/cs_clusters.qc"
@@ -23,7 +27,11 @@
 #include "client/cs_shape_ramp.qc"
 #include "client/cs_shape_wedgetip.qc"
 #include "client/cs_shape_wedge.qc"
+#include "client/cs_shape_slab.qc"
+#include "client/cs_shape_custom.qc"
+#include "client/cs_buildfaces.qc"
 #include "client/cs_cubics.qc"
+#include "client/cs_strings.qc"
 #include "client/cs_cubicinterface.qc"
 #include "client/cs_subs.qc"
 #include "client/cs_main.qc"

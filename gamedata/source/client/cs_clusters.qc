@@ -15,6 +15,7 @@ entity SpawnCluster(int clusterid)
 	}
 	
 	setorigin(cluster, GetClusterOffset(clusterid));
+//	setsize(cluster, '-10 -10 -10', '10 10 10');
 	cluster_ent[clusterid] = cluster;
 	
 	return cluster;

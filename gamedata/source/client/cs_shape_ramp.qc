@@ -19,7 +19,7 @@ int SkipFace_Ramp(int facecount, int facebit, int cullbits, int subbits, int ram
 	return FALSE;
 }
 
-void BuildFaces_Ramp(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize)
+void BuildFaces_Ramp(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale)
 {
 	int facecount, facebit, count, numvertsforface;
 	vector vertofs, texturecoords;
@@ -65,14 +65,14 @@ void BuildFaces_Ramp(entity typegroup, int rotation, int cullbits, vector cubicp
 			else
 				texturecoords = SetDefaultTextureCoordsForFace(facecount, count, vertofs);
 			
-			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords);
+			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords, facescale);
 		}
 
 		SetVertexIndexes(numvertsforface, typegroup, facebit);
 	}	
 }
 
-void BuildFaces_Ramp_CW(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize)
+void BuildFaces_Ramp_CW(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale)
 {
 	int facecount, facebit, count, numvertsforface;
 	vector vertofs, texturecoords;
@@ -102,14 +102,14 @@ void BuildFaces_Ramp_CW(entity typegroup, int rotation, int cullbits, vector cub
 	
 			vertofs = RotateVertOFS(vertofs, rotation);
 			texturecoords = SetDefaultTextureCoordsForFace(facecount, count, vertofs);
-			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords);
+			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords, facescale);
 		}
 
 		SetVertexIndexes(numvertsforface, typegroup, facebit);
 	}	
 }
 
-void BuildFaces_Ramp_UD(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize)
+void BuildFaces_Ramp_UD(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale)
 {
 	int facecount, facebit, count, numvertsforface;
 	vector vertofs, texturecoords;
@@ -155,7 +155,7 @@ void BuildFaces_Ramp_UD(entity typegroup, int rotation, int cullbits, vector cub
 			else
 				texturecoords = SetDefaultTextureCoordsForFace(facecount, count, vertofs);
 			
-			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords);
+			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords, facescale);
 		}
 
 		SetVertexIndexes(numvertsforface, typegroup, facebit);

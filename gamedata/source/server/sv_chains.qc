@@ -46,6 +46,12 @@ entity		list_staggeredchunkupdatechain;
 void StaggeredChunkUpdateChain_Add(entity e)		{	list_staggeredchunkupdatechain = LinkedList_Add(e, list_staggeredchunkupdatechain, staggeredchunkupdatechain, staggeredchunkupdatechain_prev);	}
 void StaggeredChunkUpdateChain_Remove(entity e)	{	list_staggeredchunkupdatechain = LinkedList_Remove(e, list_staggeredchunkupdatechain, staggeredchunkupdatechain, staggeredchunkupdatechain_prev);	}
 
+entity		list_setchunksendflags_BUILD_chain;
+.entity		setchunksendflags_BUILD_chain;
+.entity		setchunksendflags_BUILD_chain_prev;
+void SetChunkSendFlags_BUILD_Chain_Add(entity e)		{	list_setchunksendflags_BUILD_chain = LinkedList_Add(e, list_setchunksendflags_BUILD_chain, setchunksendflags_BUILD_chain, setchunksendflags_BUILD_chain_prev);	}
+void SetChunkSendFlags_BUILD_Chain_Remove(entity e)	{	list_setchunksendflags_BUILD_chain = LinkedList_Remove(e, list_setchunksendflags_BUILD_chain, setchunksendflags_BUILD_chain, setchunksendflags_BUILD_chain_prev);	}
+
 /*entity		list_hidingfromplayerchain;
 .entity		hidingfromplayerchain;
 .entity		hidingfromplayerchain_prev;
@@ -69,3 +75,24 @@ entity		list_projectilechain;
 .entity		projectilechain_prev;
 void ProjectileChain_Add(entity e)		{	list_projectilechain = LinkedList_Add(e, list_projectilechain, projectilechain, projectilechain_prev);	}
 void ProjectileChain_Remove(entity e)	{	list_projectilechain = LinkedList_Remove(e, list_projectilechain, projectilechain, projectilechain_prev);	}
+
+// GENERATION CHAINS
+
+entity		list_unconnectedchunkchain;
+.entity		unconnectedchunkchain;
+.entity		unconnectedchunkchain_prev;
+void UnconnectedChunkChain_Add(entity e)		{	list_unconnectedchunkchain = LinkedList_Add(e, list_unconnectedchunkchain, unconnectedchunkchain, unconnectedchunkchain_prev);	}
+void UnconnectedChunkChain_Remove(entity e)		{	list_unconnectedchunkchain = LinkedList_Remove(e, list_unconnectedchunkchain, unconnectedchunkchain, unconnectedchunkchain_prev);	}
+
+entity		list_matchingprefabchain;
+.entity		matchingprefabchain;
+.entity		matchingprefabchain_prev;
+void MatchingPrefabChain_Add(entity e)		{	list_matchingprefabchain = LinkedList_Add(e, list_matchingprefabchain, matchingprefabchain, matchingprefabchain_prev);	}
+void MatchingPrefabChain_Remove(entity e)	{	list_matchingprefabchain = LinkedList_Remove(e, list_matchingprefabchain, matchingprefabchain, matchingprefabchain_prev);	}
+
+entity		list_prefabtypechain;
+.entity		prefabtypechain;
+.entity		prefabtypechain_prev;
+void PrefabTypeChain_Add(entity e)		{	list_prefabtypechain = LinkedList_Add(e, list_prefabtypechain, prefabtypechain, prefabtypechain_prev);	}
+void PrefabTypeChain_Remove(entity e)	{	list_prefabtypechain = LinkedList_Remove(e, list_prefabtypechain, prefabtypechain, prefabtypechain_prev);	}
+

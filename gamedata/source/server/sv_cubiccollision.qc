@@ -32,6 +32,8 @@ void LeaveSolidCubic_Func(entity chunk, entity e, vector org)
 
 void SetSolidCubic_Func(entity chunk, entity e, vector org)
 {
+	float yawofs = 0;
+	
 	if(!e)
 	{
 		e = spawn();
@@ -47,30 +49,91 @@ void SetSolidCubic_Func(entity chunk, entity e, vector org)
 		if(shape > BLOCKSHAPE_CUBE)
 		{
 			e.solid = SOLID_BSP;
-	
+			
 			if(shape == BLOCKSHAPE_RAMP)
-				setmodel(e, "models/collision/ramp.bsp");
+			{
+				if(rotation <= BLOCKROTATION_S)
+					setmodel(e, "models/collision/ramp.bsp");
+				else
+				if(rotation <= BLOCKROTATION_CW_S)
+					setmodel(e, "models/collision/ramp_cw.bsp");
+				else
+				if(rotation <= BLOCKROTATION_UD_S)
+					setmodel(e, "models/collision/ramp_ud.bsp");
+				else
+				if(rotation <= BLOCKROTATION_CCW_S)
+				{
+					setmodel(e, "models/collision/ramp_cw.bsp");
+					yawofs = 90;
+				}
+			}
 			else
 			if(shape == BLOCKSHAPE_WEDGETIP)
-				setmodel(e, "models/collision/wedgetip.bsp");
+			{
+				if(rotation <= BLOCKROTATION_S)
+					setmodel(e, "models/collision/wedgetip.bsp");
+				else
+				if(rotation <= BLOCKROTATION_CW_S)
+					setmodel(e, "models/collision/wedgetip_cw.bsp");
+				else
+				if(rotation <= BLOCKROTATION_UD_S)
+					setmodel(e, "models/collision/wedgetip_ud.bsp");
+				else
+				if(rotation <= BLOCKROTATION_CCW_S)
+					setmodel(e, "models/collision/wedgetip_ccw.bsp");
+				else
+				if(rotation <= BLOCKROTATION_FW_S)
+					setmodel(e, "models/collision/wedgetip_fw.bsp");
+				else
+				if(rotation <= BLOCKROTATION_BW_S)
+					setmodel(e, "models/collision/wedgetip_bw.bsp");
+			}
 			else
 			if(shape == BLOCKSHAPE_WEDGE)
-				setmodel(e, "models/collision/wedge.bsp");
-			
-			e.angles_y = ((rotation/4)-floor(rotation/4))*4*90;
-			
-			if(rotation >= BLOCKROTATION_BW_E)
-				e.angles_x = -90;
+			{
+				if(rotation <= BLOCKROTATION_S)
+					setmodel(e, "models/collision/wedge.bsp");
+				else
+				if(rotation <= BLOCKROTATION_CW_S)
+					setmodel(e, "models/collision/wedge_cw.bsp");
+				else
+				if(rotation <= BLOCKROTATION_UD_S)
+					setmodel(e, "models/collision/wedge_ud.bsp");
+				else
+				if(rotation <= BLOCKROTATION_CCW_S)
+					setmodel(e, "models/collision/wedge_ccw.bsp");
+				else
+				if(rotation <= BLOCKROTATION_FW_S)
+					setmodel(e, "models/collision/wedge_fw.bsp");
+				else
+				if(rotation <= BLOCKROTATION_BW_S)
+					setmodel(e, "models/collision/wedge_bw.bsp");
+			}
 			else
-			if(rotation >= BLOCKROTATION_FW_E)
-				e.angles_x = 90;
-			else				
-				e.angles_z = floor(rotation/4)*90;				
+			if(shape == BLOCKSHAPE_SLAB)
+			{
+				if(rotation <= BLOCKROTATION_S)
+					setmodel(e, "models/collision/slab.bsp");
+				else
+				if(rotation <= BLOCKROTATION_CW_S)
+					setmodel(e, "models/collision/slab_cw.bsp");
+				else
+				if(rotation <= BLOCKROTATION_UD_S)
+					setmodel(e, "models/collision/slab_ud.bsp");
+				else
+				if(rotation <= BLOCKROTATION_CCW_S)
+				{
+					setmodel(e, "models/collision/slab_cw.bsp");
+					yawofs = 180;
+				}
+			}
+			
+			e.angles_y = ((rotation/4)-floor(rotation/4))*4*90 + yawofs;
 		}
 		else
 		{
-			e.solid = SOLID_BBOX;
-			setsize(e, '-1 -1 -1'*cubicradius, '1 1 1'*cubicradius);
+			e.solid = SOLID_BSP;
+			setmodel(e, "models/collision/cube.bsp");
 		}
 		
 		CubicBBoxChain_Add(chunk, e);
@@ -102,7 +165,7 @@ void CallPhysicsFunctionForCubic(vector org, void(entity, entity, vector) func)
 					continue;
 
 				cubicchunkorg = GetNearChunkOrg(cubicorg);
-				chunk = GetChunkForLocation(chunk, cubicchunkorg);
+				chunk = GetChunkForLocation(__NULL__, cubicchunkorg);
 				
 				if(!chunk)
 					continue;
@@ -129,3 +192,12 @@ void CallPhysicsFunctionForCubic(vector org, void(entity, entity, vector) func)
 
 void SetSolidCubics(entity e, vector org)	{	CallPhysicsFunctionForCubic(org, SetSolidCubic_Func);	e.physicssolidsset = TRUE;	}
 void LeaveSolidCubics(entity e, vector org)	{	if(e.physicssolidsset)	CallPhysicsFunctionForCubic(org, LeaveSolidCubic_Func);	}
+
+entity GetCubicBBoxForLocation(vector cubicorg)
+{
+	for(entity bbox = findradius(cubicorg, 0); bbox; bbox = bbox.chain)
+		if(bbox.enttype == ENT_CUBICBBOX)
+			return bbox;
+
+	return __NULL__;	
+}

@@ -43,14 +43,15 @@ void PutClientInServer()
 	self.view_ofs = '0 0 22';
 	setmodel(self, "models/player/player.mdl");
 	setsize(self, '-8 -8 -24', '8 8 26');
-	setorigin(self, '0 0 128');
+	setorigin(self, '0 0 0');
 
 	//end code
 
-	if(world_initialized == 3)					// allows new player to move/fall only if the world is done generating
-		self.movetype = MOVETYPE_WALK;
+	self.movetype = 0;							// don't let the player move until chunks are loaded
+	self.waitingtospawn = TRUE;
 	self.toolsize = TOOLSIZE_EDITOR_CUBIC;		// sets default tool size
 	self.editor_blocktype = 1;					// sets default editor block type
 	self.editor_blockshape = BLOCKSHAPE_CUBE;	// default editor block shape
+	InitializeSelectionEdge();					// sets default editor selection size
 	PlayerChain_Add(self);						// adds the player to a linked list
 }

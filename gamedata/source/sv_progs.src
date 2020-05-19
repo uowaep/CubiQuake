@@ -2,6 +2,7 @@
 #pragma	progs_dat	"../progs.dat"
 
 #define SSQC
+#define DEBUG
 #include "shared_all/fteextensions.qc"
 
 #include "shared_all/sh_all_subs.qc"
@@ -15,7 +16,11 @@
 #include "server/sv_subs.qc"
 #include "server/sv_cubiccollision.qc"
 #include "server/sv_attacks.qc"
+#include "server/sv_cubicfaceculling.qc"
 #include "server/sv_cubicgen.qc"
+#include "server/sv_cubicnetworking.qc"
+#include "server/sv_cubicvis.qc"
+#include "server/sv_cubicinterface.qc"
 #include "server/sv_cubics.qc"
 #include "server/sv_main.qc"
 #include "server/sv_client.qc"

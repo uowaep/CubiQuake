@@ -4,19 +4,29 @@ string GetTextureForTypeFace(float type, float facebit)
 	
 	switch(type)
 	{
-		case BLOCKTYPE_DIRT:	tex = "dirt";	break;
-		case BLOCKTYPE_BRICK:	tex = "brick";	break;
-		case BLOCKTYPE_BLOCK:	tex = "block";	break;
+		case BLOCKTYPE_EDIT:			tex = "edit";				break;
+		case BLOCKTYPE_DIRT:		if(facebit == FACE_TOP) tex = "dirt_top";		if(facebit == FACE_SIDE) tex = "dirt_side";			if(facebit == FACE_BOTTOM) tex = "dirt_bottom";			break;
+		case BLOCKTYPE_BRICK:		if(facebit == FACE_TOP) tex = "city4_6_top";	if(facebit == FACE_SIDE) tex = "city4_6_side";		if(facebit == FACE_BOTTOM) tex = "city4_6_bottom";		break;
+		case BLOCKTYPE_BLOCK:		if(facebit == FACE_TOP) tex = "bricka2_top";	if(facebit == FACE_SIDE) tex = "bricka2_side";		if(facebit == FACE_BOTTOM) tex = "bricka2_bottom";		break;
+		case BLOCKTYPE_SUPPORT:		if(facebit == FACE_TOP) tex = "mmetal1_2_top";	if(facebit == FACE_SIDE) tex = "mmetal1_2_side";	if(facebit == FACE_BOTTOM) tex = "mmetal1_2_bottom";	break;
+		case BLOCKTYPE_GORE:		if(facebit == FACE_TOP) tex = "exit02_2_top";	if(facebit == FACE_SIDE) tex = "exit02_2_side";		if(facebit == FACE_BOTTOM) tex = "exit02_2_bottom";		break;
+		case BLOCKTYPE_STONE:		if(facebit == FACE_TOP) tex = "metal4_top";		if(facebit == FACE_SIDE) tex = "metal4_side";		if(facebit == FACE_BOTTOM) tex = "metal4_bottom";		break;
+		case BLOCKTYPE_METAL:		if(facebit == FACE_TOP) tex = "metal5_3_top";	if(facebit == FACE_SIDE) tex = "metal5_3_side";		if(facebit == FACE_BOTTOM) tex = "metal5_3_bottom";		break;
+		case BLOCKTYPE_METALB:		if(facebit == FACE_TOP) tex = "cop_top";		if(facebit == FACE_SIDE) tex = "cop_side";			if(facebit == FACE_BOTTOM) tex = "cop_bottom";			break;
+		case BLOCKTYPE_METALC:		if(facebit == FACE_TOP) tex = "cop1_3_top";		if(facebit == FACE_SIDE) tex = "cop1_3_side";		if(facebit == FACE_BOTTOM) tex = "cop1_3_bottom";		break;
+		case BLOCKTYPE_WOOD:		if(facebit == FACE_TOP) tex = "wizwood1_3_top";	if(facebit == FACE_SIDE) tex = "wizwood1_3_side";	if(facebit == FACE_BOTTOM) tex = "wizwood1_3_bottom";	break;
+		case BLOCKTYPE_BLUESTONE:	if(facebit == FACE_TOP) tex = "bluestone_top";	if(facebit == FACE_SIDE) tex = "bluestone_side";	if(facebit == FACE_BOTTOM) tex = "bluestone_bottom";	break;
+		case BLOCKTYPE_BLUEMETAL:	if(facebit == FACE_TOP) tex = "wiz1_1_top";		if(facebit == FACE_SIDE) tex = "wiz1_1_side";		if(facebit == FACE_BOTTOM) tex = "wiz1_1_bottom";		break;
+		case BLOCKTYPE_DECMETAL:	if(facebit == FACE_TOP) tex = "m5_top";			if(facebit == FACE_SIDE) tex = "m5_side";			if(facebit == FACE_BOTTOM) tex = "m5_bottom";			break;
 	}
-	
-//	tex = strcat("cubics/", tex);
-	
+
+/*	if(type > 0)
 	switch(facebit)
 	{
 		case FACE_TOP:		tex = strcat(tex, "_top");		break;
 		case FACE_SIDE:		tex = strcat(tex, "_side");		break;
 		case FACE_BOTTOM:	tex = strcat(tex, "_bottom");	break;
-	}
+	}*/
 
 	return tex;
 }
@@ -52,12 +62,14 @@ vector RotateVertOFS(vector vertofs, int rotation)
 	return vertofs;
 }
 
-void SetFaceValues(vector cubicpos, vector vertofs, entity typegroup, int facebit, int facegroupsize, vector texturecoords)
+void SetFaceValues(vector cubicpos, vector vertofs, entity typegroup, int facebit, int facegroupsize, vector texturecoords, float facescale)
 {
 	int vertspercubic, trianglevertsspercubic;
 	
-	vector vertpos = cubicpos + vertofs*cubicradius;
+	vector vertpos = cubicpos + vertofs*cubicradius*facescale;
 	entity facegroup = GetFaceGroup(typegroup, facebit);
+
+	texturecoords = texturecoords*facescale;
 
 	if(!facegroup)
 	{
@@ -69,12 +81,19 @@ void SetFaceValues(vector cubicpos, vector vertofs, entity typegroup, int facebi
 			case FACE_TOP:		vertspercubic = 4;	trianglevertsspercubic = 6;		break;	// 1 face
 			case FACE_SIDE:		vertspercubic = 16;	trianglevertsspercubic = 24;	break;	// 4 faces
 			case FACE_BOTTOM:	vertspercubic = 4;	trianglevertsspercubic = 6;		break;	// 1 face
+		//	default:			print("Warning: Missing facebit value.\n");			break;
 		}
 		
 		facegroup = spawn();
 		facegroup.verts = memalloc(sizeof(trisoup_simple_vert_t)*(facegroupsize*vertspercubic)); // vertexes
 		facegroup.vertex_indexes = memalloc(sizeof(int)*(facegroupsize*trianglevertsspercubic)); // triangles
 		facegroup.verts_staticrgb = memalloc(sizeof(vector)*(facegroupsize*vertspercubic)); // vertex static lighting/basergb
+
+		// FIXME: Remove these lines upon FTE engine update. (This is a workaround.)
+	//	vector *workaroundalloc = memalloc(sizeof(vector)*(facegroupsize*vertspercubic));	
+	//	memfree(workaroundalloc);
+		// END
+
 		facegroup.faces = facebit;
 		facegroup.texturename = GetTextureForTypeFace(typegroup.blocktype, facebit);
 		FaceGroupChain_Add(typegroup, facegroup);
@@ -97,11 +116,13 @@ void SetVertexIndexes(int numvertsforface, entity typegroup, int facebit)
 	entity facegroup = GetFaceGroup(typegroup, facebit);
 	int numindexes = facegroup.numvertexindexes;
 	
+	// first polygon
 	vector tri1_verts = '0 1 2' + '1 1 1'*facegroup.numtrisets;
 	facegroup.vertex_indexes[numindexes] = tri1_verts_x;	numindexes++;
 	facegroup.vertex_indexes[numindexes] = tri1_verts_y;	numindexes++;
 	facegroup.vertex_indexes[numindexes] = tri1_verts_z;	numindexes++;
 	
+	// second polygon
 	if(numvertsforface == 4)
 	{
 		vector tri2_verts = '2 1 3' + '1 1 1'*facegroup.numtrisets;
@@ -112,6 +133,9 @@ void SetVertexIndexes(int numvertsforface, entity typegroup, int facebit)
 	
 	facegroup.numtrisets += numvertsforface;
 	facegroup.numvertexindexes = numindexes;	
+	
+	if(numindexes > 65535)
+		print("WARNING: Too many vertexes on facegroup!\n");
 }
 
 int SwapCullBits(int cullbits, int cb_u, int cb_w, int cb_s, int cb_e, int cb_n, int cb_d)
@@ -218,11 +242,11 @@ void RemoveTypeGroup(entity chunk, entity typegroup)
 	Remove(typegroup);
 }
 
- // FIXME remove grouppos arg
-void DrawFaceGroup(entity facegroup, vector grouppos)
+//int totalvertcount;
+void DrawFaceGroup(entity facegroup)
 {
 	if(!facegroup)
 		return;
-	
+//	totalvertcount+=facegroup.numvertexindexes;
 	addtrisoup_simple(facegroup.texturename, 0, facegroup.verts, facegroup.vertex_indexes, facegroup.numvertexindexes);	
 }

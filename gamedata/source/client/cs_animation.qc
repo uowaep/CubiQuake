@@ -10,11 +10,11 @@
 .float	frameoffset;
 float	lerpdur = 0.1;
 
-void AnimateModel(entity e)	// this is all hacked in, needs to be done properly.
+void AnimateModel(entity e)
 {	
 	if(time >= e.frameendtime)	
 	{
-		e.frame1time = time+e.frameoffset*e.anim_frameduration;	// FIXME this is a hack
+		e.frame1time = time+e.frameoffset*e.anim_frameduration;
 		e.frameendtime = time+e.anim_frameduration;
 
 		if(e.frame < e.beginframe || e.frame > e.finalframe || e.restartanim)
@@ -31,7 +31,7 @@ void AnimateModel(entity e)	// this is all hacked in, needs to be done properly.
 		e.restartanim = FALSE;
 	}
 
-	if(e.lerpframes)	// This is probably all wrong. Not sure how to lerp properly in FTE yet.
+	if(e.lerpframes)
 		e.frame1time = (time+e.frameoffset*e.anim_frameduration)*(0.1/e.anim_frameduration);
 }
 

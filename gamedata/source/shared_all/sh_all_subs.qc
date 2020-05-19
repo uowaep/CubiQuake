@@ -194,9 +194,9 @@ float AngleDifference(float angA, float angB)
 	local float angdiff;
 
 	angdiff = angA - angB;
-	if(angdiff > 180)
+	while(angdiff > 180)
 		angdiff -= 360;
-	if(angdiff < -180)
+	while(angdiff < -180)
 		angdiff += 360;
 	return angdiff;
 }

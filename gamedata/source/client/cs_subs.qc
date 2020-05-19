@@ -14,7 +14,8 @@ void Remove(entity e)
 	if(e.enttype == ENT_CHUNK)
 	{
 		ClearChunkValues(e, FALSE);
-		FreeChunkAllocations(e);
+		if(e.chunkinitialized)
+			FreeChunkAllocations(e);
 
 		entity cluster = GetClusterForLocation(__NULL__, GetNearClusterOrg(e.origin));
 		if(cluster)
@@ -42,6 +43,22 @@ void Remove(entity e)
 	//	GhostChunkChain_Add(e);
 	//	return;
 	}
+	else
+	if(e.enttype == ENT_CHUNKBLOAT)
+	{
+		if(e.chunkinitialized)
+			FreeChunkAllocations(e);
+		QueueChunkBloatChain_Remove(e);
+		
+		entity chunk = GetChunkForLocation(__NULL__, e.origin);
+		if(chunk)
+			ChunkBloatChain_Remove(chunk, e);
+
+	}
+	
+	QueueNearFaceBuildChain_Remove(e);
+	QueueFaceBuildChain_Remove(e);
+	QueueChunkBloatChain_Remove(e);
 	
 	// remove this entity
 	remove(e);

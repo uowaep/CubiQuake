@@ -1,12 +1,11 @@
 /////////////
 // CUBE START
 
-void BuildFaces_Cube(entity typegroup, int cullbits, vector cubicpos, int facegroupsize)
+void BuildFaces_Cube(entity typegroup, int cullbits, vector cubicpos, int facegroupsize, float facescale)
 {
 	int facecount, facebit, count;
 	vector vertofs, texturecoords;
-	vector rgb = '0 0 0';
-	
+
 	for(facecount = 0; facecount < 6; facecount++)
 	{
 		facebit = bitshift(1, facecount);
@@ -35,7 +34,7 @@ void BuildFaces_Cube(entity typegroup, int cullbits, vector cubicpos, int facegr
 				case 3:	texturecoords = '1 1 0';	break;
 			}
 			
-			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords);
+			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords, facescale);
 		}
 
 		SetVertexIndexes(4, typegroup, facebit);

@@ -1,4 +1,6 @@
-.int		cs_worldsize;
+//.float		button3;
+
+//.int		cs_worldsize;
 
 .int		averagetype;
 .*entity	cluster_playerlist;
@@ -8,15 +10,16 @@
 .int		loadingchunks;
 .int		loadingbackgroundchunks;
 .int		backgroundloadtime;
-int		backgroundunloadtime;
+int			backgroundunloadtime;
 .int		visingchunks;
 .vector		lastbackgroundqueuepos;
-.vector		lastdistantbackgroundqueuepos;
+.vector		lastdistantbackgroundqueuepos;	// this is more for setting the vertical draw area than distant chunks (should rename it)
 int			numplayersloadingfiles;
 .vector		playerclusterorg;
 .int		playerclusterid;
 .vector		client_initialized;
 .int		viewreset;
+.int		waitingtospawn;
 
 .*int		loadcluster_cluster_data;
 .float		loadcluster_file;
@@ -33,11 +36,59 @@ entity		stagger_removeunoccupiedclusters_ghostchunk;
 .int		editor_blocktype;
 .int		editor_blockshape;
 .int		editor_blockrotation;
-
-.string		prefabfilename;
+.int		editor_infoedit;
+.int		editor_editchunk;
+.int		editor_fillmode;
+.vector		editor_selection_mins;
+.vector		editor_selection_maxs;
+.int		editor_sizetool;
 
 vector		ambientlight;
 
 int			maxplayers;
 
 .int		button0_down;
+.int		button1_down;
+
+vector		lasteditorvaluesorg;
+
+.float		removetime;
+
+.*entity	networkbloat;
+.int		networkbloat_allocated;
+
+int			autocvar_cq_maxchunksloadedperframe;
+float		chunkremovaldelay;
+
+// generation
+.int		infoedit_chunksidedata[numsideinfoslots];	// using an array instead of pointers so we can send this info to csqc as stats
+.string		prefabfilename;
+.*int		prefabdata;
+.*int		prefabdata_temp;
+.int		lookingforconnections;
+.vector		genorg;
+int			worldgen_fillpos;
+int			worldgen_filled;
+.int		genrotation;
+.int		genzone;
+int			genstep;
+int			genpaused;
+int			numzones = 2;
+entity		prefab_zonefill[numzones];
+int			gen_type;
+int			GEN_TYPE_FLAT			= 0;
+int			GEN_TYPE_WASTELAND		= 1;
+int			GEN_TYPE_PREFAB			= 2;
+
+//string*		zonelist;
+//int			numzones;
+int			numchunkssincepassage;
+int			truncatearea;
+int			truncateareapos;
+int			chunksperpassage;
+int			gen_expandfit;
+int			gen_searchingforspace;
+int			lineargeneration;
+
+
+//int GetZoneIDForName(string zonename);

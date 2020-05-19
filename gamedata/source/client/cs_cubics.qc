@@ -1,79 +1,8 @@
-int ConvertRotation(int rotation, int xzoffset, int yawoffset)
-{
-	rotation += xzoffset*4;
-	int xzrotation = floor(rotation/4)*4;
-	int yaw = rotation-xzrotation;
-	
-	yaw+=yawoffset;
-	if(yaw > 3)
-		yaw -= 4;
-	
-	rotation = xzrotation+yaw;
-	return rotation;
-}
-
-void BuildFacesForShape(entity typegroup, int blockshape, int blockrotation, int cullbits, vector cubicposition, int numchunkcubics)
-{
-	switch(blockshape)
-	{
-		case BLOCKSHAPE_CUBE:														BuildFaces_Cube(typegroup, cullbits, cubicposition, numchunkcubics);						break;
-		
-		case BLOCKSHAPE_RAMP:		if(blockrotation <= BLOCKROTATION_S)			BuildFaces_Ramp(typegroup, blockrotation, cullbits, cubicposition, numchunkcubics);			else
-									if(blockrotation <= BLOCKROTATION_CW_S)			BuildFaces_Ramp_CW(typegroup, blockrotation, cullbits, cubicposition, numchunkcubics);		else
-									if(blockrotation <= BLOCKROTATION_UD_S)			BuildFaces_Ramp_UD(typegroup, blockrotation, cullbits, cubicposition, numchunkcubics);		else
-									if(blockrotation <= BLOCKROTATION_CCW_S)		BuildFaces_Ramp_CW(typegroup, ConvertRotation(blockrotation, -2, -1), cullbits, cubicposition, numchunkcubics);	else
-									if(blockrotation <= BLOCKROTATION_FW_S)			BuildFaces_Ramp_UD(typegroup, ConvertRotation(blockrotation, -2, 2), cullbits, cubicposition, numchunkcubics);	break;
-									
-		case BLOCKSHAPE_WEDGETIP:	if(blockrotation <= BLOCKROTATION_S)			BuildFaces_WedgeTip(typegroup, blockrotation, cullbits, cubicposition, numchunkcubics); 	else
-									if(blockrotation <= BLOCKROTATION_CW_S)			BuildFaces_WedgeTip_CW(typegroup, blockrotation, cullbits, cubicposition, numchunkcubics);	else
-									if(blockrotation <= BLOCKROTATION_UD_S)			BuildFaces_WedgeTip_UD(typegroup, blockrotation, cullbits, cubicposition, numchunkcubics);	else
-									if(blockrotation <= BLOCKROTATION_CCW_S)		BuildFaces_WedgeTip_CCW(typegroup, blockrotation, cullbits, cubicposition, numchunkcubics);	else
-									if(blockrotation <= BLOCKROTATION_FW_S)			BuildFaces_WedgeTip_FW(typegroup, blockrotation, cullbits, cubicposition, numchunkcubics);	else
-									if(blockrotation <= BLOCKROTATION_BW_S)			BuildFaces_WedgeTip_BW(typegroup, blockrotation, cullbits, cubicposition, numchunkcubics);	break;
-									
-		case BLOCKSHAPE_WEDGE:		if(blockrotation <= BLOCKROTATION_S)			BuildFaces_Wedge(typegroup, blockrotation, cullbits, cubicposition, numchunkcubics); 		else	
-									if(blockrotation <= BLOCKROTATION_CW_S)			BuildFaces_Wedge_CW(typegroup, blockrotation, cullbits, cubicposition, numchunkcubics); 	else
-									if(blockrotation <= BLOCKROTATION_UD_S)			BuildFaces_Wedge_UD(typegroup, blockrotation, cullbits, cubicposition, numchunkcubics); 	else
-									if(blockrotation <= BLOCKROTATION_CCW_S)		BuildFaces_Wedge_CCW(typegroup, blockrotation, cullbits, cubicposition, numchunkcubics);	else
-									if(blockrotation <= BLOCKROTATION_FW_S)			BuildFaces_Wedge_FW(typegroup, blockrotation, cullbits, cubicposition, numchunkcubics);		else
-									if(blockrotation <= BLOCKROTATION_BW_S)			BuildFaces_Wedge_BW(typegroup, blockrotation, cullbits, cubicposition, numchunkcubics);		break;		
-	}
-}
-
-void BuildChunkFaces(entity chunk, int isnew)
-{
-	entity typegroup;
-	int blockshape, blockrotation, cullbits, cubiccount, numchunkcubics;
-	vector cubicposition;
-	int builtcount, type;
-
-	numchunkcubics = chunk.numvisiblecubics;
-
-	for(cubiccount = 0; builtcount < numchunkcubics; cubiccount++)
-	{
-		type = chunk.cubic_blocktype[cubiccount];
-		
-		if(!type)
-			continue;
-		
-		typegroup = GetTypeGroup(chunk, type);
-		blockshape = chunk.cubic_blockshape[cubiccount];
-		blockrotation = chunk.cubic_blockrotation[cubiccount];
-		cullbits = chunk.cubic_cullbits[cubiccount];
-		cubicposition = chunk.origin + GetCubicOffset(cubiccount);
-		
-		BuildFacesForShape(typegroup, blockshape, blockrotation, cullbits, cubicposition, numchunkcubics);
-		
-		builtcount++;
-	}
-	
-	if(!isnew)
-		ResetStaticLights(TRUE);	// cubics were added or removed so chunk faces need to be relit
-}
-
 void ClearChunkValues(entity chunk, int clearstaticlighttriggers)
 {
 	entity light;
+
+//	chunk.findnetworkbloatent = FALSE;
 	
 	while(chunk.list_typegroupchain)
 		RemoveTypeGroup(chunk, chunk.list_typegroupchain);
@@ -94,6 +23,145 @@ void ClearChunkValues(entity chunk, int clearstaticlighttriggers)
 	}
 }
 
+// chunk can also be a chunk bloat ent for storing data in queue
+void UpdateChunkBuildData(entity chunk, float sendflags, int bloatstage, int clearmem)
+{
+	int memslot, type;//, bloatcount;
+	int maxblocks = pow(chunksize, 3);
+	
+	chunk.numvisiblecubics = readshort();
+	
+	if(clearmem)
+	{
+		memfill8(chunk.cubic_blocktype, 0, sizeof(int)*pow(chunksize, 3));
+		memfill8(chunk.cubic_blockshape, 0, sizeof(int)*pow(chunksize, 3));
+		memfill8(chunk.cubic_blockrotation, 0, sizeof(int)*pow(chunksize, 3));
+		memfill8(chunk.cubic_cullbits, 0, sizeof(int)*pow(chunksize, 3));
+	}
+	
+	for(float count = 0; count < min(maxcubicupdates, chunk.numvisiblecubics-(maxcubicupdates*bloatstage)); count++)
+	{
+		memslot = readshort();
+		
+//		memslot = 0;		
+//		for(bloatcount = 0; bloatcount < maxblocks/255; bloatcount++)
+//			memslot += readbyte();
+
+	//	memslot = readbyte();
+	//	memslot += readbyte();
+	//	memslot += readbyte();
+
+		if(!count)
+			chunk.firstmemslot = memslot;		
+		
+		type = readbyte();		
+		chunk.cubic_blocktype[memslot] = type;
+		
+		if(!NonSolidType(type))
+		{
+			chunk.cubic_blockshape[memslot] = readbyte();			
+			chunk.cubic_blockrotation[memslot] = readbyte();
+			chunk.cubic_cullbits[memslot] = readbyte();
+		}	
+	}		
+}
+
+void LoadCubic(entity chunk, int memslot, int type)
+{
+	entity typegroup, light;	
+	
+	switch(type)
+	{
+		// EXAMPLE CUBIC OBJECT : Light
+		case BLOCKTYPE_TORCH:	light = SetChunkLight(chunk, memslot, type);	 // adds a light to the chunk of specified type (BLOCKTYPE_TORCH in this case)
+								light.lightcolor = '1 0.9 0.7';				// overrides default value set in SetChunkLight()
+								SetAnimation(light, 0, 6, 0.1, TRUE, FALSE, TRUE);	// Sets up the animation for this model.
+								light.predraw = Predraw_Torch;	// set predraw func if necessary
+								light.parentchunk = chunk;
+								break;
+		
+		// default trisoup_simple cubic
+		default:				for(typegroup = chunk.list_typegroupchain; typegroup; typegroup = typegroup.typegroupchain)
+									if(typegroup.blocktype == type)
+										break;
+								if(!typegroup)	// texture set group for chunk
+								{
+									CreateTypeGroup(chunk, type);
+									chunk.list_typegroupchain.lightcolor = ambientlight;		// NOTE: the .list_ chain entity is always the last added to the list (but this should only be trusted if it was just added)
+								}
+								
+								break;
+	}	
+}
+
+void CopyBloatChunkValuesToChunk(entity bloatent, entity chunk, int bloatstage)
+{
+	int type, slotcount;
+	
+	for(float memslot = bloatent.firstmemslot; slotcount < min(maxcubicupdates, chunk.numvisiblecubics-(maxcubicupdates*bloatstage)); memslot++)
+	{
+		type = bloatent.cubic_blocktype[memslot];
+		chunk.cubic_blocktype[memslot] = type;
+		
+		if(type)
+		{
+			if(!NonSolidType(type))
+			{
+				chunk.cubic_blockshape[memslot] = bloatent.cubic_blockshape[memslot];			
+				chunk.cubic_blockrotation[memslot] = bloatent.cubic_blockrotation[memslot];
+				chunk.cubic_cullbits[memslot] = bloatent.cubic_cullbits[memslot];
+			}	
+			
+			slotcount++;
+		}
+	}	
+}
+
+void LoadChunkCubics(entity chunk)
+{
+	int loadcount, type;
+	
+	for(int memslot = 0; loadcount < chunk.numvisiblecubics && memslot < pow(chunksize, 3); memslot++)
+	{
+		type = chunk.cubic_blocktype[memslot];
+		
+		if(type)
+		{
+			LoadCubic(chunk, memslot, type);
+			loadcount++;
+		}
+	}
+}
+
+void ReadInitializeData(float sendflags)
+{
+	if(sendflags & SFL_INITIALIZE)
+	{
+		worldsize = readbyte();
+		clustersize = readbyte();
+		chunksize = readbyte();
+		cubicradius = readbyte()*0.5;	// *0.5 because we sent 2x the radius as an integer instead of radius as a float when trying to support single quake unit sized cubics
+		viewsize = readbyte();
+		viewheight = readbyte();
+		viewsize_distant = readbyte();
+		viewheight_distant = readbyte();
+		ambientlight_x = readcoord();
+		ambientlight_y = readcoord();
+		ambientlight_z = readcoord();
+		maxcubicupdates = readbyte();
+		SetDependentViewValues();
+		ambientlightset = FALSE;
+
+		if(!client_initialized) // this is here instead of in CSQC_Init() to make sure the server has loaded worldsize and any other variables before running InitGameVariables().
+		{
+			InitGameVariables();
+			client_initialized = TRUE;
+		}
+		
+		localcmd("cmd cq_initialized\n");	// tell the server to stop sending init info
+	}
+}
+
 void UpdateChunk()
 {
 /*	if(self == world)
@@ -106,34 +174,20 @@ void UpdateChunk()
 		else
 			self = spawn();
 	}*/
+
+	entity e, nexte;
+	int i;
+	int numbloatentsfound = 0;
+	vector org = '0 0 0';
+	int clearmem = TRUE;
+//	int oldupdateref = self.updateref;
+	
+	self.lastupdatetime = time;
 	
 	float sendflags = readlong();
+	int ref = readbyte();
 
-	int i, memslot, type;
-	vector org;
-	entity typegroup, light;
-
-	if(sendflags & SFL_INITIALIZE)
-	{
-		worldsize = readlong();
-		viewsize = readlong();
-		viewheight = readlong();
-		viewsize_distant = readlong();
-		viewheight_distant = readlong();
-		ambientlight_x = readcoord();
-		ambientlight_y = readcoord();
-		ambientlight_z = readcoord();
-		SetDependentViewValues();
-		ambientlightset = FALSE;
-
-		if(!client_initialized) // this is here instead of in CSQC_Init() to make sure the server has loaded worldsize and any other variables before running InitGameVariables().
-		{	
-			InitGameVariables();
-			client_initialized = TRUE;
-		}
-		
-		localcmd("cmd initialized\n");	// tell the server to stop sending init info
-	}
+	ReadInitializeData(sendflags);
 	
 	if(sendflags & SFL_ISNEW)
 	{
@@ -147,13 +201,15 @@ void UpdateChunk()
 			self.cubic_blockshape = memalloc(sizeof(int)*pow(chunksize, 3));
 			self.cubic_blockrotation = memalloc(sizeof(int)*pow(chunksize, 3));		
 			self.cubic_cullbits = memalloc(sizeof(int)*pow(chunksize, 3));
-		
+			clearmem = FALSE;
+			
 			org = GetChunkOrigin(i);
 			setorigin(self, org);
+//			setsize(self, '-25 -25 -25', '25 25 25');
 			self.enttype = ENT_CHUNK;
 			self.flags = FL_FINDABLE_NONSOLID;
-			ChunkChain_Add(self);
-		
+			self.chunkid = i;
+			ChunkChain_Add(self);	
 			
 			if(!clusters_allocated)
 			{
@@ -163,8 +219,8 @@ void UpdateChunk()
 			
 			int clusterid = GetClusterRef(GetNearClusterOrg(org));
 			entity cluster = cluster_ent[clusterid];
-			
-			if((cluster == list_ghostclusterchain && list_ghostclusterchain) || cluster.ghostclusterchain)
+
+			if((cluster == list_ghostclusterchain && list_ghostclusterchain) || cluster.ghostclusterchain_prev)
 				print("Warning: Trying to use ghosted cluster on client.\n");
 			
 			if(!cluster)
@@ -173,61 +229,200 @@ void UpdateChunk()
 			cluster.chunk_ent[GetChunkRef(self.origin-cluster.origin)] = self;
 			cluster.numchunks++;
 			
-			TriggerStaticLightReset(org);
+		//	TriggerStaticLightReset(org);
 		}
 	}
 
 	if(sendflags & SFL_BUILD)
 	{
-		ClearChunkValues(self, TRUE);
+		UpdateChunkBuildData(self, sendflags, 0, clearmem);
 		
-		self.numvisiblecubics = readshort();
-		
-		if(!(sendflags & SFL_ISNEW))
+		if(ref <= self.updateref && !(ref < 100 && self.updateref >= 100))
 		{
-			memfill8(self.cubic_blocktype, 0, sizeof(int)*pow(chunksize, 3));
-			memfill8(self.cubic_blockshape, 0, sizeof(int)*pow(chunksize, 3));
-			memfill8(self.cubic_blockrotation, 0, sizeof(int)*pow(chunksize, 3));
-			memfill8(self.cubic_cullbits, 0, sizeof(int)*pow(chunksize, 3));
+		//	print("Developer Notice: Caught out of order bloat.\n");
+			return;
 		}
 		
-		for(float count = 0; count < self.numvisiblecubics; count++)
+		self.updateref = ref;
+
+		QueueNearFaceBuildChain_Remove(self);
+		QueueFaceBuildChain_Remove(self);
+		self.findnetworkbloatent = FALSE;
+
+		int numbloatents = ceil((float)self.numvisiblecubics/maxcubicupdates)-1;
+		
+		for(e = list_queuechunkbloatchain; e; e = nexte)
 		{
-			memslot = readshort();
-			type = readbyte();
-			self.cubic_blocktype[memslot] = type;
+			nexte = e.queuechunkbloatchain;
 			
-			switch(type)
+			if(e.origin == self.origin)
 			{
-				// EXAMPLE CUBIC OBJECT : Light
-				case BLOCKTYPE_TORCH:	light = SetChunkLight(self, memslot, type);	 // adds a light to the chunk of specified type (BLOCKTYPE_TORCH in this case)
-										light.lightcolor = '1 0.9 0.7';				// overrides default value set in SetChunkLight()
-										SetAnimation(light, 0, 6, 0.1, TRUE, FALSE, TRUE);	// You may want to use your own animation code. This is just a hacky example.
-										light.predraw = Predraw_Torch;	// set predraw func if necessary
-										break;
+				QueueNearFaceBuildChain_Remove(e);
+				QueueFaceBuildChain_Remove(e);
 				
-				// default trisoup_simple cubic
-				default:				self.cubic_blockshape[memslot] = readbyte();			
-										self.cubic_blockrotation[memslot] = readbyte();
-										self.cubic_cullbits[memslot] = readbyte();
-										for(typegroup = self.list_typegroupchain; typegroup; typegroup = typegroup.typegroupchain)
-											if(typegroup.blocktype == type)
-												break;
-										if(!typegroup)	// texture set group for chunk
-										{
-											CreateTypeGroup(self, type);
-											self.list_typegroupchain.lightcolor = ambientlight;		// NOTE: the .list_ chain entity is always the last added to the list (but this should only be trusted if it was just added)
-										}
-										
-										break;
+				if(e.updateref == self.updateref)
+					continue;
+				
+				QueueChunkBloatChain_Remove(e);
+				ChunkBloatChain_Remove(self, e);
 			}
 		}
-	
-		BuildChunkFaces(self, sendflags & SFL_ISNEW);
+		
+		if(self.numvisiblecubics > maxcubicupdates)
+		{
+			for(e = list_queuechunkbloatchain; e; e = nexte)
+			{
+				nexte = e.queuechunkbloatchain;
+				
+				if(e.origin == self.origin)
+				if(e.updateref == self.updateref)
+				{
+					numbloatentsfound++;
+					CopyBloatChunkValuesToChunk(e, self, e.bloatlevel);
+				//	QueueFaceBuildChain_Remove(e);
+					QueueChunkBloatChain_Remove(e);
+					ChunkBloatChain_Add(self, e);
+				}
+			}
+			
+			if(numbloatentsfound < numbloatents)
+			{
+				self.findnetworkbloatent = TRUE;//numbloatents-numbloatentsfound;
+				self.recentsendflags = sendflags;
+			}
+		}
+
+		if(!self.findnetworkbloatent)
+		{
+			ClearChunkValues(self, TRUE);
+			LoadChunkCubics(self);
+		//	TriggerStaticLightReset(org);			
+			QueueChunkFaceBuild(self, sendflags);
+
+			for(e = self.list_chunkbloatchain; e; e = nexte)
+			{
+				nexte = e.chunkbloatchain;
+				ChunkBloatChain_Remove(self, e);
+			}
+		}
 	}
 }
 
-void DrawFaceGroupForChunkGrid(vector pos)
+void UpdateChunkBloat()
+{
+	int i;
+	entity cluster, e, nexte;
+	entity chunk = __NULL__;
+	int clearmem = TRUE;
+	int numbloatentsfound = 0;
+	int addbloattochunk = FALSE;
+	vector org = '0 0 0';
+//	int oldupdateref = self.updateref;
+	
+	float sendflags = readlong();
+	int ref = readbyte();
+	
+	ReadInitializeData(sendflags);
+
+	if(sendflags & SFL_ISNEW)
+	{
+		i = readlong();	
+		self.bloatlevel = readbyte();
+		
+		if(!self.chunkinitialized)
+		{
+			self.chunkinitialized = TRUE;
+			
+			self.cubic_blocktype = memalloc(sizeof(int)*pow(chunksize, 3));
+			self.cubic_blockshape = memalloc(sizeof(int)*pow(chunksize, 3));
+			self.cubic_blockrotation = memalloc(sizeof(int)*pow(chunksize, 3));		
+			self.cubic_cullbits = memalloc(sizeof(int)*pow(chunksize, 3));
+			clearmem = FALSE;
+			
+			self.enttype = ENT_CHUNKBLOAT;
+			self.flags = FL_FINDABLE_NONSOLID;
+			org = GetChunkOrigin(i);
+			setorigin(self, org);
+			
+		//	TriggerStaticLightReset(org);
+		}
+	}
+
+	if(sendflags & SFL_BUILD)
+	{
+		UpdateChunkBuildData(self, sendflags, self.bloatlevel, clearmem);
+
+		if(ref <= self.updateref && !(ref < 100 && self.updateref >= 100))
+		{
+		//	print("Developer Notice: Caught out of order bloat.\n");
+			return;
+		}
+		self.updateref = ref;
+		
+		QueueNearFaceBuildChain_Remove(self);
+		QueueFaceBuildChain_Remove(self);
+
+		int clusterid = GetClusterRef(GetNearClusterOrg(self.origin));
+		cluster = cluster_ent[clusterid];
+		
+		if(cluster)
+			chunk = cluster.chunk_ent[GetChunkRef(self.origin-cluster.origin)];
+		
+		if(chunk)
+		{
+			ChunkBloatChain_Remove(chunk, self);			
+			
+			for(e = chunk.list_chunkbloatchain; e; e = nexte)//e.chunkbloatchain)
+			{
+				nexte = e.chunkbloatchain;
+				
+				if(e.updateref == self.updateref)
+					continue;
+				
+				QueueNearFaceBuildChain_Remove(e);
+				QueueFaceBuildChain_Remove(e);
+				ChunkBloatChain_Remove(chunk, e);
+			}
+			
+	//		if(chunk.findnetworkbloatent)
+			if(chunk.updateref == self.updateref)
+				addbloattochunk = TRUE;
+		}
+		
+		if(addbloattochunk)
+		{
+			ChunkBloatChain_Add(chunk, self);
+			
+			for(e = chunk.list_chunkbloatchain; e; e = e.chunkbloatchain)
+				numbloatentsfound++;
+
+		//	ClearChunkValues(chunk, TRUE);
+			CopyBloatChunkValuesToChunk(self, chunk, self.bloatlevel);
+			QueueChunkBloatChain_Remove(self);
+
+			if(numbloatentsfound == ceil((float)chunk.numvisiblecubics/maxcubicupdates)-1)
+			{
+				chunk.findnetworkbloatent = FALSE;
+				ClearChunkValues(chunk, TRUE);
+				LoadChunkCubics(chunk);
+			//	TriggerStaticLightReset(org);				
+				QueueChunkFaceBuild(chunk, chunk.recentsendflags);
+				
+				for(e = chunk.list_chunkbloatchain; e; e = nexte)
+				{
+					nexte = e.chunkbloatchain;
+					ChunkBloatChain_Remove(chunk, e);
+				}
+			}
+		}
+		else
+			QueueChunkBloatChain_Add(self); // puts bloat in global chain so when the parent chunk update arrives it has a place to look for it and know that it is waiting to be updated to the chunk
+	}
+}
+
+int maxfacesbuiltperframe = 1;
+
+/*int DrawFaceGroupForChunkGrid(vector pos, int builtfaces)
 {
 	entity typegroup, facegroup, chunkent;
 	
@@ -239,11 +434,25 @@ void DrawFaceGroupForChunkGrid(vector pos)
 	if(pos_x >= worlddim_x*0.5 || pos_x <= worlddim_x*-0.5
 	|| pos_y >= worlddim_y*0.5 || pos_y <= worlddim_y*-0.5
 	|| pos_z >= worlddim_z*0.5 || pos_z <= worlddim_z*-0.5)
-		return;	
+		return builtfaces;	
 
 	entity e = GetChunkForLocation(__NULL__, pos);
+	
 	if(e)
 	{
+		
+		if(e.queuedforfacebuild == 1)
+		{
+			if(builtfaces < maxfacesbuiltperframe)
+			{
+				BuildChunkFaces(e);
+				e.queuedforfacebuild++;
+				builtfaces++;
+			}
+			else
+				return builtfaces;
+		}		
+		
 		for(typegroup = e.list_typegroupchain; typegroup; typegroup = typegroup.typegroupchain)
 			for(facegroup = typegroup.list_facegroupchain; facegroup; facegroup = facegroup.facegroupchain)
 				DrawFaceGroup(facegroup, pos);
@@ -254,14 +463,19 @@ void DrawFaceGroupForChunkGrid(vector pos)
 			ClearChunkEntChain_Add(chunkent);
 		}
 	}
-}
+	
+	return builtfaces;
+}*/
 
 void DrawChunks()
 {
 	entity typegroup, facegroup;
+	entity editchunk = __NULL__;
 //	vector pos, dist;
-
-	vector nearchunkorg = GetNearChunkOrg(view_org);
+	int drawplane = 0;
+	int builtfaces = 0;
+	
+/*	vector nearchunkorg = GetNearChunkOrg(view_org);
 
 	if(nearchunkorg != playerchunkorg)
 	{
@@ -279,21 +493,28 @@ void DrawChunks()
 	{
 		list_clearchunkentchain.drawmask = 0;
 		ClearChunkEntChain_Remove(list_clearchunkentchain);
-	}
+	}*/
 
 //	int drawplane = 0;
-	
+//	totalvertcount = 0;
 	for(entity e = list_chunkchain; e; e = e.chunkchain)
 	{
-		if(e.hidden)
+		if(editor_infoedit)
+		if(e.chunkid != editor_editchunk)
 			continue;
 		
 		for(typegroup = e.list_typegroupchain; typegroup; typegroup = typegroup.typegroupchain)
 			for(facegroup = typegroup.list_facegroupchain; facegroup; facegroup = facegroup.facegroupchain)
-				DrawFaceGroup(facegroup, e.origin);
+				DrawFaceGroup(facegroup);
 	}
 			
-/*	int viewrange = ((max(maxviewsize, maxviewheight)*clustersize)+(1))*0.5;		
+//print(ftos(totalvertcount), "\n");
+/*	int numgroupsdrawn = 0;
+	int maxgroupsdrawn = 1;
+
+	int viewrange = ((max(maxviewsize, maxviewheight)*clustersize)+(1))*0.5;		
+	
+	viewrange = viewrange*(0.5+(120*frametime));//(maxgroupsdrawn/numfacegroups);
 	
 	makevectors(view_ang);
 	vector draw_ofs = [rint(v_forward_x), rint(v_forward_y), rint(v_forward_z)];
@@ -308,30 +529,154 @@ void DrawChunks()
 	if(dist_y > dist_x && dist_y > dist_z)
 		drawplane = 2;
 	
-	for(int range = -1; range <= viewrange; range++)
+
+	
+	for(int range = -1; range <= viewrange && numgroupsdrawn < maxgroupsdrawn; range++)
 	{
 		if(drawplane == 1)
 		{
 			pos_x = range*draw_ofs_x;
-			for(pos_z = -viewrange; pos_z <= viewrange; pos_z++)
-				for(pos_y = -viewrange; pos_y <= viewrange; pos_y++)
-					DrawFaceGroupForChunkGrid(pos);
+			for(pos_z = -viewrange; pos_z <= viewrange && numgroupsdrawn < maxgroupsdrawn; pos_z++)
+				for(pos_y = -viewrange; pos_y <= viewrange && numgroupsdrawn < maxgroupsdrawn; pos_y++)
+				{
+					builtfaces += DrawFaceGroupForChunkGrid(pos, builtfaces);
+				//	numgroupsdrawn++;
+				}
 		}
 		else
 		if(drawplane == 2)
 		{
 			pos_y = range*draw_ofs_y;
-			for(pos_z = -viewrange; pos_z <= viewrange; pos_z++)
-				for(pos_x = -viewrange; pos_x <= viewrange; pos_x++)
-					DrawFaceGroupForChunkGrid(pos);
+			for(pos_z = -viewrange; pos_z <= viewrange && numgroupsdrawn < maxgroupsdrawn; pos_z++)
+				for(pos_x = -viewrange; pos_x <= viewrange && numgroupsdrawn < maxgroupsdrawn; pos_x++)
+				{
+					builtfaces += DrawFaceGroupForChunkGrid(pos, builtfaces);
+				//	numgroupsdrawn++;
+				}
 		}
 		else
 		if(drawplane == 0)
 		{
 			pos_z = range*draw_ofs_z;
-			for(pos_x = -viewrange; pos_x <= viewrange; pos_x++)
-				for(pos_y = -viewrange; pos_y <= viewrange; pos_y++)
-					DrawFaceGroupForChunkGrid(pos);
+			for(pos_x = -viewrange; pos_x <= viewrange && numgroupsdrawn < maxgroupsdrawn; pos_x++)
+				for(pos_y = -viewrange; pos_y <= viewrange && numgroupsdrawn < maxgroupsdrawn; pos_y++)
+				{
+					builtfaces += DrawFaceGroupForChunkGrid(pos, builtfaces);
+				//	numgroupsdrawn++;
+				}
 		}
 	}*/
+}
+
+vector GetIntercept(vector line_start, vector line_end, vector edge_offset)
+{
+	vector runrise = line_end - line_start;
+	float slope = runrise_y/runrise_x;
+	vector point = line_start - edge_offset;
+	
+	// point_y = slope*point_x + yintercept;
+	vector intercept;
+	intercept_x = 0;
+	intercept_y = point_y - slope*point_x;
+	intercept += edge_offset;
+	
+	return intercept;	
+}
+
+vector GetInterceptInverted(vector line_start, vector line_end, vector edge_offset)
+{
+	vector runrise = line_end - line_start;
+	float slope = runrise_x/runrise_y;
+	vector point = line_start - edge_offset;
+	
+	// point_y = slope*point_x + yintercept;
+	vector intercept;
+	intercept_y = 0;
+	intercept_x = point_x - slope*point_y;
+	intercept += edge_offset;
+	
+	return intercept;	
+}
+
+int		tracelinetoplane_behindplane;
+vector TraceLineToPlane(vector line_start, vector line_end, vector plane_normal, vector plane_point)
+{
+	tracelinetoplane_behindplane = FALSE;
+	
+    vector v = line_end-line_start;
+    vector n = plane_normal;
+    float d = -(plane_normal*plane_point);
+	
+    // dot products
+    float dot1 = n*v;
+    float dot2 = n*line_start;
+
+	if(plane_normal*(line_end-plane_point) > 0) // the end isn't on or behind the plane (ignores reverse intersection, and non-intersections)
+		return line_end;
+	else
+	if(plane_normal*(line_start-plane_point) <= 0) // both ends are behind the plane (or on it)
+	{
+		tracelinetoplane_behindplane = TRUE;
+		return line_end;
+	}
+
+	// line is parallel with plane
+     if(dot1 == 0)
+        return line_end; // return original end point
+
+    float t = -(dot2 + d) / dot1;
+    return line_start + (t * v);
+}
+
+void DrawGridLine(vector baseorg, vector pos, vector direction, float cellsize, int gridsize, vector rgb, float gridalpha)
+{
+	vector line_start = baseorg + (pos - '0.5 0.5 0.5'*(gridsize-1))*cellsize;
+	vector line_end = line_start + direction*(gridsize-1)*cellsize;
+		
+	vector line_start_p = TraceLineToPlane(line_end, line_start, view_normal, view_point);
+	
+	if(tracelinetoplane_behindplane)
+		return;
+	
+	vector line_end_p = TraceLineToPlane(line_start, line_end, view_normal, view_point);
+
+	if(tracelinetoplane_behindplane)
+		return;
+	
+	line_start = project(line_start_p);
+	line_end = project(line_end_p);
+
+	drawline(4, line_start, line_end, rgb, gridalpha);	
+}
+
+void DrawGrid(vector baseorg, float cellsize, int gridsize, vector rgb, float gridalpha)
+{
+	vector pos;
+	
+	for(pos_x = 0; pos_x < gridsize; pos_x++)
+		for(pos_y = 0; pos_y < gridsize; pos_y++)
+			DrawGridLine(baseorg, pos, '0 0 1', cellsize, gridsize, rgb, gridalpha);
+
+	pos_y = 0;
+	for(pos_x = 0; pos_x < gridsize; pos_x++)
+		for(pos_z = 0; pos_z < gridsize; pos_z++)
+		DrawGridLine(baseorg, pos, '0 1 0', cellsize, gridsize, rgb, gridalpha);
+		
+	pos_x = 0;
+	for(pos_y = 0; pos_y < gridsize; pos_y++)
+		for(pos_z = 0; pos_z < gridsize; pos_z++)
+		DrawGridLine(baseorg, pos, '1 0 0', cellsize, gridsize, rgb, gridalpha);		
+}
+
+void DrawGrids()
+{
+	if(cvar("cq_showchunkoutline"))
+		DrawGrid(GetNearChunkOrg(view_org), chunksize*cubicradius*2, 2, '0 1 1', 0.4);
+//	DrawGrid(GetNearestCubicOrigin(view_org+view_normal*80, chunksize_iseven), cubicradius*2, 2, '1 1 1', 0.2);
+}
+
+void InitializeClientSettings()
+{
+
+
 }

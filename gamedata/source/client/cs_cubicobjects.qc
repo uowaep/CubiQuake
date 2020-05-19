@@ -11,6 +11,11 @@ void SetModelForCubicObject(entity cubic, int type, int setbboxsize)
 
 float Predraw_Torch()
 {
+	if(editor_infoedit)
+	if(self.parentchunk.chunkid != editor_editchunk)
+		return PREDRAW_NEXT;
+	
 	AnimateModel(self);
+	
 	return PREDRAW_AUTOADD;
 }

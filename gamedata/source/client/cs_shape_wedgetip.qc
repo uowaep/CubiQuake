@@ -1,7 +1,7 @@
 //////////////////
 // WEDGE TIP START
 
-void BuildFaces_WedgeTip(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize)
+void BuildFaces_WedgeTip(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale)
 {
 	int facecount, facebit, count, numvertsforface;
 	vector vertofs, texturecoords;
@@ -54,14 +54,14 @@ void BuildFaces_WedgeTip(entity typegroup, int rotation, int cullbits, vector cu
 			if(texturecoords_y == 0)
 				texturecoords_y = 0.5;
 			
-			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords);
+			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords, facescale);
 		}
 
 		SetVertexIndexes(numvertsforface, typegroup, facebit);
 	}	
 }
 
-void BuildFaces_WedgeTip_CW(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize)
+void BuildFaces_WedgeTip_CW(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale)
 {
 	int facecount, facebit, count, numvertsforface;
 	vector vertofs, texturecoords;
@@ -131,14 +131,14 @@ void BuildFaces_WedgeTip_CW(entity typegroup, int rotation, int cullbits, vector
 					texturecoords_x = 0.5;
 			}
 			
-			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords);
+			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords, facescale);
 		}
 
 		SetVertexIndexes(numvertsforface, typegroup, facebit);
 	}	
 }
 
-void BuildFaces_WedgeTip_UD(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize)
+void BuildFaces_WedgeTip_UD(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale)
 {
 	int facecount, facebit, count, numvertsforface;
 	vector vertofs, texturecoords;
@@ -191,14 +191,14 @@ void BuildFaces_WedgeTip_UD(entity typegroup, int rotation, int cullbits, vector
 			if(texturecoords_y == 1)
 				texturecoords_y = 0.5;
 			
-			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords);
+			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords, facescale);
 		}
 
 		SetVertexIndexes(numvertsforface, typegroup, facebit);
 	}	
 }
 
-void BuildFaces_WedgeTip_CCW(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize)
+void BuildFaces_WedgeTip_CCW(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale)
 {
 	int facecount, facebit, count, numvertsforface;
 	vector vertofs, texturecoords;
@@ -268,14 +268,14 @@ void BuildFaces_WedgeTip_CCW(entity typegroup, int rotation, int cullbits, vecto
 					texturecoords_x = 0.5;
 			}
 			
-			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords);
+			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords, facescale);
 		}
 
 		SetVertexIndexes(numvertsforface, typegroup, facebit);
 	}	
 }
 	
-void BuildFaces_WedgeTip_FW(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize)
+void BuildFaces_WedgeTip_FW(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale)
 {
 	int facecount, facebit, count, numvertsforface;
 	vector vertofs, texturecoords;
@@ -339,14 +339,14 @@ void BuildFaces_WedgeTip_FW(entity typegroup, int rotation, int cullbits, vector
 			else
 				texturecoords = SetDefaultTextureCoordsForFace(facecount, count, vertofs);
 			
-			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords);
+			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords, facescale);
 		}
 
 		SetVertexIndexes(numvertsforface, typegroup, facebit);
 	}	
 }
 
-void BuildFaces_WedgeTip_BW(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize)
+void BuildFaces_WedgeTip_BW(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale)
 {
 	int facecount, facebit, count, numvertsforface;
 	vector vertofs, texturecoords;
@@ -410,7 +410,7 @@ void BuildFaces_WedgeTip_BW(entity typegroup, int rotation, int cullbits, vector
 			else
 				texturecoords = SetDefaultTextureCoordsForFace(facecount, count, vertofs);
 			
-			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords);
+			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords, facescale);
 		}
 
 		SetVertexIndexes(numvertsforface, typegroup, facebit);

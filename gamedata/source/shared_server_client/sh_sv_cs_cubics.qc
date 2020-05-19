@@ -1,5 +1,5 @@
 // VERSION
-int		cubic_revision	= 130;
+string		cubic_revision	= "cubiquake r137";
 
 // WORLD SETTINGS
 
@@ -8,8 +8,9 @@ int 	worldheight;
 int		clustersize;
 int		chunksize;
 int		chunksize_iseven;
+vector	dungeonsize;
 
-int		cubicradius;
+float	cubicradius;
 int		physicssize;
 int		physicssize_iseven;
 int 	chunk_sharerange;
@@ -21,36 +22,38 @@ int		viewsize_distant;
 int		viewheight_distant;
 int		loadradiusarea;
 
-int		maxchunksloadedperframe;
+int		maxcubicupdates;
 int		maxchunksghostedperframe;
-	
+
 int		maxclusters;
 int		maxchunks;
 int		numslotsforchunkincluster;
 int		clusterdataslots;
 vector	worlddim;
+vector	dungeondim;
+vector	clusterdim;
+vector	chunkdim;
 vector	loadcenter;
 vector	viewcenter;
 vector	viewcenter_distant;
 int		maxviewsize;
 int		maxviewheight;
 vector	maxviewcenter;
+int		maxbloatents;
 //int		clustertablesize;
 
 #ifdef CSQC
 int		maxlightradius;
-//var vector autocvar_ambientlight = '0 0 0';
 vector	ambientlight;
-float	lightupdatedelay_static;
-float	lightupdatedelay_dynamic;
-.int	hidden;
 #endif
 
 
 //		if you modify game logic relating to chunk information, you might want to edit these
 
-int		numworldslots	= 1;
+int		numworldslots	= 3;
 int		WORLDSLOT_WORLDSIZE		= 0;
+int		WORLDSLOT_CLUSTERSIZE	= 1;
+int		WORLDSLOT_CHUNKSIZE		= 2;
 
 int		numprechunkvaluesincluster	= 2;
 int		CLUSTERSLOT_AVERAGETYPE			= 0; // not used, was going to use for distant drawing.
@@ -59,6 +62,25 @@ int		CLUSTERSLOT_NUMVISIBLECUBICS	= 1;
 int		numprecubicvaluesinchunk	= 2;
 int		CHUNKSLOT_CHUNKBITS				= 0;
 int		CHUNKSLOT_NUMVISIBLECUBICS		= 1;
+
+
+int		numsideinfoslots = 24;
+int		numprefabgenvaluesinchunk	= numsideinfoslots+3;
+
+int		PREFABCHUNKSLOT_CHUNKSIDETYPE_0		= 0;	// 0-5
+int		PREFABCHUNKSLOT_CONNECTIONFIT_0		= 6;	// 6-11
+int		PREFABCHUNKSLOT_CONNECTIONFLAGS_0	= 12;	// 12-17
+int		PREFABCHUNKSLOT_GROUPSIZE_0			= 18;	// 18-23
+
+int		PREFABCHUNKSLOT_ZONE				= 24;
+int		PREFABCHUNKSLOT_CHANCE				= 25;
+int		PREFABCHUNKSLOT_CHUNKFLAGS			= 26;
+
+// prefab connection flags
+int		CFL_ALLOWROTATEDFIT			= 1;
+
+// prefab chunk flags
+int		CHFL_ALLOWSAMEZONEPASSAGE	= 1;
 
 int		numvaluespercubic			= 4;
 int		CUBICSLOT_TYPE					= 0;
@@ -89,20 +111,38 @@ int		CULLBITS_PARTIAL_D		= 2048;
 int		CULLBITS_PARTIAL_ALL	= 4032;	// (64+128+256+512+1024+2048)
 
 .*int	cubic_blocktype;
-int		numblocktypes = 4;
-int		BLOCKTYPE_DIRT		= 1;	// block types should be listed first
+// below 0 values are for editing
+int		BLOCKTYPE_EDIT		= -1;
+
+// 1 - 100 are reserved for textures types
+int		BLOCKTYPE_DIRT		= 1;
 int		BLOCKTYPE_BRICK		= 2;
 int		BLOCKTYPE_BLOCK		= 3;
+int		BLOCKTYPE_SUPPORT	= 4;
+int		BLOCKTYPE_GORE		= 5;
+int		BLOCKTYPE_STONE		= 6;
+int		BLOCKTYPE_METAL		= 7;
+int		BLOCKTYPE_METALB	= 8;
+int		BLOCKTYPE_METALC	= 9;
+int		BLOCKTYPE_WOOD		= 10;
+int		BLOCKTYPE_BLUESTONE	= 11;
+int		BLOCKTYPE_BLUEMETAL	= 12;
+int		BLOCKTYPE_DECMETAL	= 13;
+int		numtextureblocktypes = 13;
 
-int		numobjectblocktypes	= 1;	// non-block object cubic types should be listed last
-int		BLOCKTYPE_TORCH		= 4;
+// 101 - 256 are reserved for object types
+// (This can go higher, but SendCubics() and UpdateChunkBuildData() must be edited to transfer more than a byte for this info.)
+int		baseobjecttypeid	= 101;
+int		BLOCKTYPE_TORCH		= baseobjecttypeid+0;
+int		numobjectblocktypes	= 1;
 
 .*int	cubic_blockshape;
-int		numblockshapes	= 4;
+int		numblockshapes	= 5;
 int		BLOCKSHAPE_CUBE		= 1;
 int		BLOCKSHAPE_RAMP		= 2;
 int		BLOCKSHAPE_WEDGETIP	= 3;
 int		BLOCKSHAPE_WEDGE	= 4;
+int		BLOCKSHAPE_SLAB		= 5;
 
 .*int	cubic_blockrotation;
 int		BLOCKROTATION_E		= 0;
@@ -137,11 +177,11 @@ void InitGameVariables()
 	// changing the following values will break a generated world (re-generate afterward. FIXME: save all unchangeable values to the world.)
 // 	worldsize = 11;							// width in clusters. (must be odd. this is set via cvar or by the existing world)
  	worldheight = worldsize;				// height in clusters. (must be odd. - not working, must set to worldsize to not break stuff)
-	clustersize = 3;						// width/height in chunks. (must be odd)
-	chunksize = 7;							// width/height in cubics. (even and ood both work here)
+//	clustersize = 1;						// width/height in chunks. (must be odd)
+//	chunksize = 13;							// width/height in cubics. (even and ood both work here)
 
 	// changing these values won't break the world, but might affect performance
-	cubicradius = 16;						// quake units of center of cubic to edge (this will scale the world)
+//	cubicradius = 16;						// quake units of center of cubic to edge (this will scale the world)
 	physicssize = 3;						// width of area in cubics to create bbox/bsp ents around player (even and odd both work here. needs to increase if cubic size shrinks and if player size isn't also reduced and vise verca.)
 	chunk_sharerange	= 500;				// doesn't do anything yet
 	loadsize = 3;							// width of area loaded immediately upon player movement. usually only happens during spawn. (must be odd. even values don't work ...yet...)
@@ -154,19 +194,18 @@ void InitGameVariables()
 	loadradiusarea = FALSE;					// the cluster load area is a sphere instead of rectangle shape (broken because of layered loading using current rectangle shaped logic)
 
 	// these values are for regulating how many times certain large/heavy loops are allowed to iterate per frame
-	maxchunksloadedperframe = 9;			// the chunk loading loop in LoadWorldForPlayer
-	maxchunksghostedperframe = 9;			// the chunk ghosting loop in RemoveUnoccupiedClusters
-	
+//	maxcubicupdates	= 200;					// maximum number of cubics that can be sent in a single chunk entity before spawning more entities to relay the data without overloading memory (or something)
+//	maxchunksloadedperframe = 12;			// the chunk loading loop in LoadWorldForPlayer and the speed for network updating when sending existing chunks
+	maxchunksghostedperframe = 9;			// the chunk ghosting loop in RemoveUnoccupiedClusters (NOT IN USE)
+//	chunkremovaldelay = 10;					// how many seconds a chunk should hang around when not occupied, to avoid having to readload too often
 	// set these to match the highest values
 //	maxviewsize = max(viewsize, viewsize_distant);		
 //	maxviewheight = max(viewheight, viewheight_distant);
 
 #ifdef CSQC
 	// client
-	maxlightradius = chunksize*cubicradius*2;	// maximum light radius. this can be any value, but this equation is recommended for performance.
-//	ambientlight = autocvar_ambientlight;		// base light color
-	lightupdatedelay_static = 0.5;				//
-	lightupdatedelay_dynamic = 0.02;
+	maxlightradius = chunksize*cubicradius*2*2;	// maximum light radius. this can be any value, but this equation is recommended for performance.
+	
 #endif
 
 	// do not edit these
@@ -175,8 +214,12 @@ void InitGameVariables()
 	numslotsforchunkincluster = numprecubicvaluesinchunk + pow(chunksize, 3)*numvaluespercubic;
 	clusterdataslots = numprechunkvaluesincluster+pow(clustersize, 3)*numslotsforchunkincluster;
 	worlddim = [worldsize, worldsize, worldheight]*clustersize*chunksize*cubicradius*2;
+	dungeondim = dungeonsize*clustersize*chunksize*cubicradius*2;
+	clusterdim = '1 1 1'*clustersize*chunksize*cubicradius*2;
+	chunkdim = '1 1 1'*chunksize*cubicradius*2;
 	loadcenter = '1 1 1'*(loadsize-1)*0.5;
-
+	maxbloatents = ceil(pow(chunksize, 3)/maxcubicupdates)-1;
+	
 //	viewcenter = ('1 1 0'*(viewsize-1)+'0 0 1'*(viewheight-1))*0.5;
 //	viewcenter_distant = ('1 1 0'*(viewsize_distant-1)+'0 0 1'*(viewheight_distant-1))*0.5;
 //	maxviewcenter = ('1 1 0'*(maxviewsize-1)+'0 0 1'*(maxviewheight-1))*0.5;
@@ -198,7 +241,7 @@ void SetDependentViewValues()
 	maxviewheight = max(viewheight, viewheight_distant);
 	viewcenter = ('1 1 0'*(viewsize-1)+'0 0 1'*(viewheight-1))*0.5;
 	viewcenter_distant = ('1 1 0'*(viewsize_distant-1)+'0 0 1'*(viewheight_distant-1))*0.5;
-	maxviewcenter = ('1 1 0'*(maxviewsize-1)+'0 0 1'*(maxviewheight-1))*0.5;	
+	maxviewcenter = ('1 1 0'*(maxviewsize-1)+'0 0 1'*(maxviewheight-1))*0.5;
 }
 
 int		SFL_ISNEW		= 1;
@@ -211,14 +254,51 @@ int		SFL_UPDATE		= 16;
 .int	enttype;
 int		ENT_CLUSTER				= 1;
 int		ENT_CHUNK				= 2;
-int		ENT_CUBICBBOX			= 3;
+int		ENT_CHUNKBLOAT			= 3;
+int		ENT_CUBICBBOX			= 4;
+int		ENT_INFOEDIT_SELECTION	= 5;
+int		ENT_INFOEDIT_SELECTION_GROUPSIZE_EXTEND = 6;
+int		ENT_MODIFYSIDE_SELECTION	= 7;
 
-int		STAT_TOOL					= 33;
-int		STAT_TOOLSIZE				= 34;
-int		STAT_PLAYERCLUSTERID		= 35;
-int		STAT_EDITOR_BLOCKTYPE		= 36;
-int		STAT_EDITOR_BLOCKSHAPE		= 37;
-int		STAT_EDITOR_BLOCKROTATION	= 38;
+int		STAT_TOOL							= 33;
+int		STAT_TOOLSIZE						= 34;
+int		STAT_PLAYERCLUSTERID				= 35;
+int		STAT_EDITOR_BLOCKTYPE				= 36;
+int		STAT_EDITOR_BLOCKSHAPE				= 37;
+int		STAT_EDITOR_BLOCKROTATION			= 38;
+int		STAT_EDITOR_INFOEDIT				= 39;
+int		STAT_EDITOR_EDITCHUNK				= 40;
+int		STAT_EDITOR_FILLMODE				= 41;
+int		STAT_EDITOR_SIZETOOL				= 42;
+
+int		STAT_EDITOR_CHUNKSIDETYPE_UP		= 43;
+int		STAT_EDITOR_CHUNKSIDETYPE_WEST		= 44;
+int		STAT_EDITOR_CHUNKSIDETYPE_SOUTH		= 45;
+int		STAT_EDITOR_CHUNKSIDETYPE_EAST		= 46;
+int		STAT_EDITOR_CHUNKSIDETYPE_NORTH		= 47;
+int		STAT_EDITOR_CHUNKSIDETYPE_DOWN		= 48;
+int		STAT_EDITOR_CHUNKSIDEFIT_UP			= 49;
+int		STAT_EDITOR_CHUNKSIDEFIT_WEST		= 50;
+int		STAT_EDITOR_CHUNKSIDEFIT_SOUTH		= 51;
+int		STAT_EDITOR_CHUNKSIDEFIT_EAST		= 52;
+int		STAT_EDITOR_CHUNKSIDEFIT_NORTH		= 53;
+int		STAT_EDITOR_CHUNKSIDEFIT_DOWN		= 54;
+int		STAT_EDITOR_CHUNKSIDEFLAGS_UP		= 55;
+int		STAT_EDITOR_CHUNKSIDEFLAGS_WEST		= 56;
+int		STAT_EDITOR_CHUNKSIDEFLAGS_SOUTH	= 57;
+int		STAT_EDITOR_CHUNKSIDEFLAGS_EAST		= 58;
+int		STAT_EDITOR_CHUNKSIDEFLAGS_NORTH	= 59;
+int		STAT_EDITOR_CHUNKSIDEFLAGS_DOWN		= 60;
+int		STAT_EDITOR_CHUNKGROUPSIZE_UP		= 61;
+int		STAT_EDITOR_CHUNKGROUPSIZE_WEST		= 62;
+int		STAT_EDITOR_CHUNKGROUPSIZE_SOUTH	= 63;
+int		STAT_EDITOR_CHUNKGROUPSIZE_EAST		= 64;
+int		STAT_EDITOR_CHUNKGROUPSIZE_NORTH	= 65;
+int		STAT_EDITOR_CHUNKGROUPSIZE_DOWN		= 66;
+
+int		STAT_EDITOR_CHUNKZONE				= 67;
+int		STAT_EDITOR_CHUNKCHANCE				= 68;
+int		STAT_EDITOR_CHUNKFLAGS				= 69;
 
 .int	numvertexindexes;
 .entity	parentchunk;
@@ -258,10 +338,11 @@ int		TOOLSIZE_EDITOR_CUBIC	= 100;
 int		TOOLSIZE_EDITOR_CHUNK	= 101;
 int		TOOLSIZE_EDITOR_CLUSTER	= 102;
 
-int		TOOL_EDITOR_REMOVE	= 110;
-int		TOOL_EDITOR_ADD		= 111;
-int		TOOL_EDITOR_COPY	= 112;
-int		TOOL_EDITOR_PASTE	= 113;
+int		TOOL_EDITOR_MODIFY		= 110;
+int		TOOL_EDITOR_ADD			= 111;
+int		TOOL_EDITOR_COPY		= 112;
+int		TOOL_EDITOR_PASTE		= 113;
+int		TOOL_EDITOR_INFOEDIT	= 114;
 
 int		EDITOR_BLOCKTYPE_INCREASE			= 120;
 int		EDITOR_BLOCKTYPE_DECREASE			= 121;
@@ -274,15 +355,49 @@ int		EDITOR_BLOCKROTATION_XZ_DECREASE	= 127;
 
 int		CLIENT_TOGGLELIGHT	= 150;
 
+.int	chunkconnectiontype;
+int		numconnectiontypes = 6;
+int		CHUNKCONNECTION_GENERATED	= -3;
+int		CHUNKCONNECTION_FREE		= -2;
+int		CHUNKCONNECTION_EDGE		= -1;
+int		CHUNKCONNECTION_CLOSED		= 0;
+int		CHUNKCONNECTION_OPENED		= 1;
+int		CHUNKCONNECTION_PASSAGE		= 2;
+int		CHUNKCONNECTION_ANY			= 3;
+int		CHUNKCONNECTION_RANDOM		= 4;
+int		CHUNKCONNECTION_REQUIREONE	= 5;
+
+int		tooltracedist		= 15;
+
 .int	cubicmemslot;
 
 int			clusters_allocated;
 entity		*cluster_ent;
 .*entity	chunk_ent;
+.int		bloatlevel;
+.int		updateref;
 
 .float	lightradius;
 .float	lightbrightness;
 .vector	lightcolor;
+
+#ifdef SSQC
+.*float		chunk_playerdelay;
+#endif
+
+// editor fields
+.int		prefabzone;
+.int		prefabchance;
+.int		prefabchunkflags;
+
+
+int GetFixedRotation(int rotation, int shape)
+{
+	if(shape == BLOCKSHAPE_CUBE)
+		rotation = 0;
+	
+	return rotation;
+}
 
 int	NonSolidType(int type)
 {
@@ -302,10 +417,24 @@ int	NonSolidType(int type)
 
 int GetClusterRef(vector ofs)
 {
+	if(ofs_x > worlddim_x*0.5 || ofs_x < worlddim_x*-0.5
+	|| ofs_y > worlddim_y*0.5 || ofs_y < worlddim_y*-0.5
+	|| ofs_z > worlddim_z*0.5 || ofs_z < worlddim_z*-0.5)
+	{
+		print("Warning: Looking for cluster id out of world bounds.\n");
+		return -1;	
+	}
+	
 	ofs -= '1 1 1'*clustersize*chunksize*cubicradius;
 	ofs = ofs/(clustersize*chunksize*cubicradius*2);
 	ofs += ([worldsize, worldsize, worldheight])*0.5;
-	return ofs_x*worldsize*worldsize + ofs_y*worldsize + ofs_z;
+	
+	int ref = ofs_x*worldsize*worldsize + ofs_y*worldsize + ofs_z;
+	
+	if(ref >= maxclusters || ref < 0)
+		return -1;
+	
+	return ref;
 }
 
 vector GetClusterOffset(float refid)
@@ -320,8 +449,16 @@ vector GetClusterOffset(float refid)
 	return ofs;
 }
 
-int GetChunkOriginRef(vector ofs)
+int GetChunkOriginRef(vector ofs, string caller)
 {
+	if(ofs_x > worlddim_x*0.5 || ofs_x < worlddim_x*-0.5
+	|| ofs_y > worlddim_y*0.5 || ofs_y < worlddim_y*-0.5
+	|| ofs_z > worlddim_z*0.5 || ofs_z < worlddim_z*-0.5)
+	{
+		print("Warning: Looking for chunk id out of world bounds.\n", caller, "\n");
+		return -1;	
+	}	
+	
 	ofs -= '1 1 1'*chunksize*cubicradius;
 	ofs = ofs/(chunksize*cubicradius*2);
 	ofs += ([worldsize, worldsize, worldheight])*clustersize*0.5;
@@ -345,6 +482,14 @@ vector GetChunkOrigin(float refid)
 
 int GetChunkRef(vector ofs)
 {
+	if(ofs_x > clusterdim_x*0.5 || ofs_x < clusterdim_x*-0.5
+	|| ofs_y > clusterdim_y*0.5 || ofs_y < clusterdim_y*-0.5
+	|| ofs_z > clusterdim_z*0.5 || ofs_z < clusterdim_z*-0.5)
+	{
+		print("Warning: Looking for chunk id out of bounds from cluster.\n");
+		return -1;	
+	}	
+	
 	ofs -= '1 1 1'*chunksize*cubicradius;
 	ofs = ofs/(chunksize*cubicradius*2);
 	ofs += '1 1 1'*clustersize*0.5;
@@ -365,6 +510,14 @@ vector GetChunkOffset(float refid)
 
 int GetCubicRef(vector ofs)
 {
+	if(ofs_x > chunkdim_x*0.5 || ofs_x < chunkdim_x*-0.5
+	|| ofs_y > chunkdim_y*0.5 || ofs_y < chunkdim_y*-0.5
+	|| ofs_z > chunkdim_z*0.5 || ofs_z < chunkdim_z*-0.5)
+	{
+		print("Warning: Looking for cubic id out of bounds from chunk.\n");
+		return -1;	
+	}	
+	
 	ofs -= '1 1 1'*cubicradius;
 	ofs = ofs/(cubicradius*2);
 	ofs += '1 1 1'*chunksize*0.5;
@@ -383,7 +536,8 @@ vector GetCubicOffset(float refid)
 	return ofs;
 }
 
-int	GetCubicStatus(entity chunk, vector cubicorg, int ignorenonsolids) // status of solid blocks
+ // status of solid blocks
+int	GetCubicStatus(entity chunk, vector cubicorg, int ignorenonsolids)
 {
 	if(!chunk)
 		return -1;
@@ -440,6 +594,36 @@ vector GetNearestCubicOrigin(vector org, int centeroffset)
 	return cubicorg;
 }
 
+string GetToolName(int toolnum)
+{
+	string s;
+
+	switch(toolnum)
+	{
+		case TOOL_EDITOR_MODIFY:		s = "Modify";		break;
+		case TOOL_EDITOR_ADD:			s = "Add";			break;
+		case TOOL_EDITOR_COPY:			s = "Copy/Save";	break;
+		case TOOL_EDITOR_PASTE:			s = "Paste/Load";	break;
+		case TOOL_EDITOR_INFOEDIT:		s = "Prefab Edit (chunk only)";	break;
+	}
+
+	return s;
+}
+
+string GetToolSizeName(int toolsize)
+{
+	string s;
+
+	switch(toolsize)
+	{
+		case TOOLSIZE_EDITOR_CUBIC:		s = "Block";	break;
+		case TOOLSIZE_EDITOR_CHUNK:		s = "Chunk";	break;
+		case TOOLSIZE_EDITOR_CLUSTER:	s = "Cluster";	break;
+	}
+
+	return s;
+}
+
 float GetToolScale(int toolsize)
 {
 	float toolscale;
@@ -472,14 +656,27 @@ entity GetClusterForLocation(entity cluster, vector clusterorg)
 	if(!clusters_allocated)
 		return __NULL__;
 
-	entity e = cluster_ent[GetClusterRef(clusterorg)];
+	if(clusterorg_x > worlddim_x*0.5 || clusterorg_x < worlddim_x*-0.5
+	|| clusterorg_y > worlddim_y*0.5 || clusterorg_y < worlddim_y*-0.5
+	|| clusterorg_z > worlddim_z*0.5 || clusterorg_z < worlddim_z*-0.5)
+		return __NULL__;
+
+	int clusterref = GetClusterRef(clusterorg);
+	
+	if(clusterref == -1)	// for functions that call without checking bounds
+		return __NULL__;
+		
+	entity e = cluster_ent[clusterref];
 	
 	#ifdef DEBUG
 	if(wasfreed(e))
 			print("GetClusterForLocation A wasfreed.\n");
 	#endif
 	
-	return cluster_ent[GetClusterRef(clusterorg)];
+	if(!e)
+		return __NULL__;
+	
+	return e;
 }
 //#endif
 
@@ -489,7 +686,17 @@ entity GetChunkForLocation(entity chunk, vector cubicchunkorg)
 	if(!clusters_allocated)
 		return __NULL__;
 	
-	entity cluster = cluster_ent[GetClusterRef(GetNearClusterOrg(cubicchunkorg))];
+	if(cubicchunkorg_x > worlddim_x*0.5 || cubicchunkorg_x < worlddim_x*-0.5
+	|| cubicchunkorg_y > worlddim_y*0.5 || cubicchunkorg_y < worlddim_y*-0.5
+	|| cubicchunkorg_z > worlddim_z*0.5 || cubicchunkorg_z < worlddim_z*-0.5)
+		return __NULL__;
+	
+	int clusterref = GetClusterRef(GetNearClusterOrg(cubicchunkorg));
+	
+	if(clusterref == -1)	// for functions that call without checking bounds
+		return __NULL__;
+	
+	entity cluster = cluster_ent[clusterref];
 	
 	#ifdef DEBUG
 	if(wasfreed(cluster))
@@ -509,17 +716,12 @@ entity GetChunkForLocation(entity chunk, vector cubicchunkorg)
 	if(!chunk)
 		return __NULL__;
 	
-//	#ifdef CSQC
-//	if(chunk.hidden)
-//		return __NULL__;
-//	#endif
-	
 	return chunk;
 }
 //#endif
 
 /*#ifdef CSQC
-entity GetChunkForLocation(entity chunk, vector cubicchunkorg)
+entity GetChunkForLocation(entity chunk, vector cubicchunkorg) //hidefromfunctionlist
 {
 	if(chunk && cubicchunkorg == chunk.origin)
 		return chunk;
@@ -684,6 +886,83 @@ vector NearestNearCubicOrg(vector cubicorg, vector start)
 
 vector TraceCubic(vector start, vector end, int getinside)
 {
+	entity chunk;
+	vector chunkpos, lastgridpos;
+	
+	vector gridpos = GetNearestCubicOrigin(start, chunksize_iseven);
+	vector tracedir = normalize(end-start);
+	
+	int stepX = GetPolarity(tracedir_x)*cubicradius*2;
+	int stepY = GetPolarity(tracedir_y)*cubicradius*2;
+	int stepZ = GetPolarity(tracedir_z)*cubicradius*2;
+	
+	float tDeltaX = (cubicradius*2)/PositiveValue(tracedir_x);
+	float tDeltaY = (cubicradius*2)/PositiveValue(tracedir_y);
+	float tDeltaZ = (cubicradius*2)/PositiveValue(tracedir_z);
+	
+	int posX = gridpos_x;
+	int posY = gridpos_y;
+	int posZ = gridpos_z;
+
+	float tMaxX = (PositiveValue((posX + stepX*0.5) - start_x))/PositiveValue(tracedir_x);
+	float tMaxY = (PositiveValue((posY + stepY*0.5) - start_y))/PositiveValue(tracedir_y);
+	float tMaxZ = (PositiveValue((posZ + stepZ*0.5) - start_z))/PositiveValue(tracedir_z);
+	
+	float tEndX = PositiveValue(end_x-start_x)/PositiveValue(tracedir_x);
+	float tEndY = PositiveValue(end_y-start_y)/PositiveValue(tracedir_y);
+	float tEndZ = PositiveValue(end_z-start_z)/PositiveValue(tracedir_z);
+	
+	float raylendot = (end-start)*(end-start);
+	
+	while((gridpos-start)*(gridpos-start) < raylendot)
+	{
+		chunkpos = GetNearChunkOrg(gridpos);
+		chunk = GetChunkForLocation(__NULL__, chunkpos);
+	
+		if(GetCubicStatus(chunk, gridpos, FALSE) != -1)
+		{
+			if(getinside)
+				return gridpos;
+			else
+				return lastgridpos;
+		}
+		
+		lastgridpos = gridpos;
+		
+		if(tMaxX < tMaxY)
+		{
+			if(tMaxX < tMaxZ)
+			{
+				posX = posX + stepX;
+				tMaxX = tMaxX + tDeltaX;
+			}
+			else
+			{
+				posZ = posZ + stepZ;
+				tMaxZ = tMaxZ + tDeltaZ;
+			}
+		}
+		else
+		{
+			if(tMaxY < tMaxZ) {
+				posY = posY + stepY;
+				tMaxY = tMaxY + tDeltaY;
+			}
+			else
+			{
+				posZ = posZ + stepZ;
+				tMaxZ = tMaxZ + tDeltaZ;
+			}
+		}
+		
+		gridpos = [posX, posY, posZ];
+	}
+	
+	return end;
+}
+
+vector TraceCubic2(vector start, vector end, int getinside)
+{
 	#ifdef SSQC
 	int cullbits;
 	#endif
@@ -698,7 +977,7 @@ vector TraceCubic(vector start, vector end, int getinside)
 	
 		if(cubicorg != lastcubicorg)
 		{
-			chunk = GetChunkForLocation(chunk, GetNearChunkOrg(pos));			
+			chunk = GetChunkForLocation(__NULL__, GetNearChunkOrg(pos));			
 			
 			if(chunk)
 			{
@@ -725,7 +1004,7 @@ vector TraceCubic(vector start, vector end, int getinside)
 						{
 							cubicorg = NearestNearCubicOrg(cubicorg, start);	// closest cubic from the first solid cubic found
 
-							if(GetCubicStatus(GetChunkForLocation(chunk, GetNearChunkOrg(cubicorg)), cubicorg, FALSE) == -1)	// check if nearest is located at an empty cubic 
+							if(GetCubicStatus(GetChunkForLocation(__NULL__, GetNearChunkOrg(cubicorg)), cubicorg, FALSE) == -1)	// check if nearest is located at an empty cubic 
 								return cubicorg;	// cubic was empty so trace ends there
 							else
 								return NearestNearCubicOrg(cubicorg, start);	// cubic was not empty so set trace 1 cubic closer
@@ -759,22 +1038,32 @@ vector TraceCubic(vector start, vector end, int getinside)
 	return end;
 }
 
-int ToolIsOnEdge(vector clusterpos, vector toolpos)
+int ToolIsOnEdge(vector clusterpos, vector toolpos, int toolsize, int toolid, vector toolmins, vector toolmaxs)
 {
-	vector editsizeA = ('1 1 0'* (viewsize-1) + '0 0 1'*(viewheight-1))*clustersize*chunksize*cubicradius;
-	vector editsizeB = ('1 1 0'* (viewsize_distant-1) + '0 0 1'*(viewheight_distant-1))*clustersize*chunksize*cubicradius;
-	
-	if(toolpos_x <= clusterpos_x - editsizeA_x || toolpos_x >= clusterpos_x + editsizeA_x
-	|| toolpos_y <= clusterpos_y - editsizeA_y || toolpos_y >= clusterpos_y + editsizeA_y
-	|| toolpos_z <= clusterpos_z - editsizeA_z || toolpos_z >= clusterpos_z + editsizeA_z)
-	if(toolpos_x <= clusterpos_x - editsizeB_x || toolpos_x >= clusterpos_x + editsizeB_x
-	|| toolpos_y <= clusterpos_y - editsizeB_y || toolpos_y >= clusterpos_y + editsizeB_y
-	|| toolpos_z <= clusterpos_z - editsizeB_z || toolpos_z >= clusterpos_z + editsizeB_z)		
+	if(toolpos_x + toolmins_x < worlddim_x*-0.5 || toolpos_x + toolmaxs_x > worlddim_x*0.5
+	|| toolpos_y + toolmins_y < worlddim_y*-0.5 || toolpos_y + toolmaxs_y > worlddim_y*0.5
+	|| toolpos_z + toolmins_z < worlddim_z*-0.5 || toolpos_z + toolmaxs_z > worlddim_z*0.5)
 		return TRUE;
+		
+	if(toolid == TOOL_EDITOR_COPY)
+		return FALSE;
 	
-	if(toolpos_x < worlddim_x*-0.5 || toolpos_x > worlddim_x*0.5
-	|| toolpos_y < worlddim_y*-0.5 || toolpos_y > worlddim_y*0.5
-	|| toolpos_z < worlddim_z*-0.5 || toolpos_z > worlddim_z*0.5)
+	vector editsizeA = (('1 1 0'* (viewsize-1)*0.5 + '0 0 1'*(viewheight-1)*0.5) + '1 1 1'*0.5)*clustersize*chunksize*cubicradius*2;
+	vector editsizeB = (('1 1 0'* (viewsize_distant-1)*0.5 + '0 0 1'*(viewheight_distant-1)*0.5) + '1 1 1'*0.5)*clustersize*chunksize*cubicradius*2;
+
+	float toolscale = GetToolScale(toolsize);
+	editsizeA -= '1 1 1'*toolscale*cubicradius;
+	editsizeB -= '1 1 1'*toolscale*cubicradius;
+
+	toolmins += '1 1 1'*cubicradius*2;
+	toolmaxs -= '1 1 1'*cubicradius*2;
+
+	if(toolpos_x+toolmins_x <= clusterpos_x - editsizeA_x || toolpos_x + toolmaxs_x >= clusterpos_x + editsizeA_x
+	|| toolpos_y+toolmins_y <= clusterpos_y - editsizeA_y || toolpos_y + toolmaxs_y >= clusterpos_y + editsizeA_y
+	|| toolpos_z+toolmins_z <= clusterpos_z - editsizeA_z || toolpos_z + toolmaxs_z >= clusterpos_z + editsizeA_z)
+	if(toolpos_x+toolmins_x <= clusterpos_x - editsizeB_x || toolpos_x + toolmaxs_x >= clusterpos_x + editsizeB_x
+	|| toolpos_y+toolmins_y <= clusterpos_y - editsizeB_y || toolpos_y + toolmaxs_y >= clusterpos_y + editsizeB_y
+	|| toolpos_z+toolmins_z <= clusterpos_z - editsizeB_z || toolpos_z + toolmaxs_z >= clusterpos_z + editsizeB_z)		
 		return TRUE;
 		
 	return FALSE;
@@ -782,6 +1071,10 @@ int ToolIsOnEdge(vector clusterpos, vector toolpos)
 
 void FreeChunkAllocations(entity chunk)
 {
+	#ifdef SSQC
+	memfree(chunk.chunk_playerdelay);
+	#endif
+	
 	memfree(chunk.cubic_blocktype);		
 	memfree(chunk.cubic_blockshape);
 	memfree(chunk.cubic_blockrotation);

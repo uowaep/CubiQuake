@@ -15,8 +15,8 @@ void ClientToggleLight()
 void InitializeClientLight()
 {
 	clientlight = spawn();
-	clientlight.lightradius = 224;	// don't use the maxlightradius field as it is not set until networking starts.
-	clientlight.lightbrightness = 2;
+//	clientlight.lightradius = 256;//256;	// don't use the maxlightradius field as it is not set until networking starts.
+	clientlight.lightbrightness = 3;
 	clientlight.lightcolor = '1 0.9 0.7';
 }
 
@@ -26,14 +26,13 @@ void ResetStaticLights(int forcerelight)
 		static_relighttime = time;
 	else
 	if(!static_relighttime)
-		static_relighttime = time + lightupdatedelay_static;	// the delay is to allow more shared server/client ents to update, thus requiring less calls to reset static lighting
+		static_relighttime = time + autocvar_cq_lights_static_updateinterval;	// the delay is to allow more shared server/client ents to update, thus requiring less calls to reset static lighting
 }
 
 void ResetAmbientLight()
 {
 	entity chunk, typegroup, facegroup;
 	int count;
-//	ambientlight = autocvar_ambientlight;
 	for(chunk = list_chunkchain; chunk; chunk = chunk.chunkchain)
 		for(typegroup = chunk.list_typegroupchain; typegroup; typegroup = typegroup.typegroupchain)
 			for(facegroup = typegroup.list_facegroupchain; facegroup; facegroup = facegroup.facegroupchain)
@@ -91,8 +90,7 @@ void ClearStaticLightResetTrigger(vector org)
 
 void ClearStaticLightResetTriggersForLight(entity light)
 {
-	float lightradiusdotp, lightsize;
-	int lrad;
+	float lightradiusdotp, lightsize, lrad;
 	vector lightchunkorg, chunkpos, ofs, target;
 
 	if(!maxlightradius)
@@ -132,7 +130,7 @@ entity SetChunkLight(entity chunk, int memslot, int type)
 	setorigin(light, chunk.origin + GetCubicOffset(memslot));
 	light.drawmask = MASK_NORMAL;
 	light.cubicmemslot = memslot;
-	light.lightradius = 224;
+	light.lightradius = 416;
 	light.lightcolor = '1 1 1';
 	light.lightbrightness = 1;
 	ChunkEntChain_Add(chunk, light);	
@@ -147,12 +145,12 @@ entity SetChunkLight(entity chunk, int memslot, int type)
 void SetVertLights(entity light, int isstatic)
 {
 	vector vertpos, facergb, ofs, chunkpos, rgb, lastrgb, lightchunkorg, target;
-	float lightsize, ofsdotp, lightradiusdotp;
+	float lightsize, ofsdotp, lightradiusdotp, lrad;
 	entity typegroup, facegroup;
-	int	count, facegroupislit, lrad;
+	int	count, facegroupislit;
 	entity chunk = __NULL__;	
 	entity cluster = __NULL__;
-	
+
 	if(!maxlightradius)
 		lrad = light.lightradius;
 	else
@@ -171,6 +169,11 @@ void SetVertLights(entity light, int isstatic)
 				ofs = chunkpos - ('1 1 1'*(lightsize-1)*0.5);
 				target = lightchunkorg + ofs*chunksize*cubicradius*2;
 
+				if(target_x > worlddim_x*0.5 || target_x < worlddim_x*-0.5
+				|| target_y > worlddim_y*0.5 || target_y < worlddim_y*-0.5
+				|| target_z > worlddim_z*0.5 || target_z < worlddim_z*-0.5)
+					continue;
+				
 				chunk = GetChunkForLocation(__NULL__, target);
 
 				if(isstatic)
@@ -181,7 +184,7 @@ void SetVertLights(entity light, int isstatic)
 					cluster = GetClusterForLocation(cluster, GetNearClusterOrg(chunk.origin));
 					
 					if(chunk.list_typegroupchain)
-					for(typegroup = chunk.list_typegroupchain; typegroup != world; typegroup = typegroup.typegroupchain)
+					for(typegroup = chunk.list_typegroupchain; typegroup; typegroup = typegroup.typegroupchain)
 						for(facegroup = typegroup.list_facegroupchain; facegroup; facegroup = facegroup.facegroupchain)
 						{
 							facegroupislit = FALSE;
@@ -240,7 +243,10 @@ void AddLights()
 	int count;
 	vector rgb;
 
-	if(!ambientlightset)//ambientlight != autocvar_ambientlight)	// checks if ambientlight cvar has changed. for building prefabs. FIXME: let server/world force this value.
+	if(clientlight)
+		clientlight.lightradius = autocvar_cq_clientlightradius;
+
+	if(!ambientlightset)
 		ResetAmbientLight();
 
 	if((static_relighttime && time >= static_relighttime) || time >= dynamic_relighttime)
@@ -252,7 +258,7 @@ void AddLights()
 		}
 		
 		relightdynamic = TRUE;
-		dynamic_relighttime = time+lightupdatedelay_dynamic;//0.02;	// dynamic light update delay
+		dynamic_relighttime = time+autocvar_cq_lights_dynamic_updateinterval;
 	}
 	
 	if(relightstatic)
@@ -268,7 +274,6 @@ void AddLights()
 		
 		StaticLitFaceGroupChain_Remove(list_staticlitfacegroupchain);
 	}
-
 	
 	if(relightdynamic || relightstatic)
 	while(list_litfacegroupchain)
@@ -287,7 +292,7 @@ void AddLights()
 	if(relightstatic)	
 	for(light = list_staticlightchain; light; light = light.staticlightchain)
 		SetVertLights(light, TRUE);
-		
+	
 	if(relightdynamic || relightstatic)	
 	for(light = list_dynamiclightchain; light; light = light.dynamiclightchain)
 		SetVertLights(light, FALSE);
