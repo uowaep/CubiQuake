@@ -9,6 +9,8 @@ I would do a complete wipe and reinstall. But do whatever.
 
 Readme is outdated. Use the F1-F4 Keys in-game for help!
 
+Happy 40th anniversary of the last Mt. St. Helens Explosion. 
+
 r137
 + added a start menu and help menus to the console (access with F1-F4)
 + the console opens by default on start to display the main help menu with shortcut links
