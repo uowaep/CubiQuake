@@ -104,12 +104,12 @@ Extract the new files into your install directory. It's always good idea to star
 - Open the console. (SHIFT-ESC)
 >
 - Quick Start:
-- - Type "start" and use current settings.
+- - Type "cq_start" and use current settings.
 >
 - Custom Start:
-- - Set 'worldname name'. (default: world1)
-- - Set 'worldsize size'. (default: 9 - There is no max, but beware of long generation times.)
-- - Type "start" or "map world.map".
+- - Set 'cq_worldname name'. (default: world1)
+- - Set 'cq_worldsize size'. (default: 9 - There is no max, but beware of long generation times.)
+- - Type "cq_start" or "map world.map".
 
 If the world files don't exist they will generate into /gamedata/data/worlds/worldname and the world will spawn after generation.
 
@@ -141,7 +141,7 @@ impulse 11 | Exit Edit Mode | X | Any non-cubiquake impulse will work as well.
 impulse 150 | Toggle Player Light| T |
 
 ### Console Commands
-(Other than 'start', until menuqc is implemented these can only work during gameplay.)
+(Other than 'cq_start', until menuqc is implemented these can only work during gameplay.)
 
 Command | Description
 --- | ---
