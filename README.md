@@ -99,19 +99,9 @@ Note: If sharing the same FTE install with other mods, the default.fmf file shou
 ### Updating
 Extract the new files into your install directory. It's always good idea to start from scratch when updating, but you shouldn't need to. If anything is broken try clearing the data dir first. If that doesn't help, start from a clean install. If that doesn't help run debug mode in FTEQCC and get some screenshots.
 
-### Playing/Generation
+### Starting CubiQuake
 - Start FTEQW.
-- Open the console. (SHIFT-ESC)
->
-- Quick Start:
-- - Type "cq_start" and use current settings.
->
-- Custom Start:
-- - Set 'cq_worldname name'. (default: world1)
-- - Set 'cq_worldsize size'. (default: 9 - There is no max, but beware of long generation times.)
-- - Type "cq_start" or "map world.map".
-
-If the world files don't exist they will generate into /gamedata/data/worlds/worldname and the world will spawn after generation.
+- Click on "Start World"
 
 ### Multiplayer
 Multiplayer is working. Get the server from http://fte.triptohell.info/downloads. Use the cubiquakeserver.bat file or check the command line inside to run a dedicated server.
