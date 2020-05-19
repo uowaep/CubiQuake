@@ -108,75 +108,14 @@ Multiplayer is working. Get the server from http://fte.triptohell.info/downloads
 
 WARNING: If a server restarts, players need to reconnect to get the world to network to them correctly. This is on the known issues list.
 
-### Controls
-Bind | Description | Default Key | Notes
---- | --- | --- | ---
-+attack | Use Tool |  mouse1 | 
-impulse 100 | Tool Size: Cubic | 1 | 1x
-impulse 101 | Tool Size: Chunk | 2 | 6x
-impulse 102 | Tool Size: Cluster | 3 | 18x
-impulse 110 | Tool Mode: Remove Cubic(s) | Q | 
-impulse 111 | Tool Mode: Add Cubic(s) | E | 
-impulse 112 | Tool Mode: Copy/Save Cubics(s) | C | 
-impulse 113 | Tool Mode: Paste/Load Cubics(s) | V | 
-impulse 120 | Tool: Cubic Type/Texture Next | mwheelup |
-impulse 121 | Tool: Cubic Type/Texture Prev | mwheeldown |
-impulse 122 | Tool: Cubic Shape Next | . |
-impulse 123 | Tool: Cubic Shape Prev | , |
-impulse 124 | Tool: Cubic Rotation Y+ | \[ |
-impulse 125 | Tool: Cubic Rotation Y- | ] |
-impulse 126 | Tool: Cubic Rotation X/Z+ | = |
-impulse 127 | Tool: Cubic Rotation X/Z- | - |
-impulse 11 | Exit Edit Mode | X | Any non-cubiquake impulse will work as well.
-impulse 150 | Toggle Player Light| T |
-
-### Console Commands
-(Other than 'cq_start', until menuqc is implemented these can only work during gameplay.)
-
-Command | Description
---- | ---
-filename | Sets/displays the filename to use in the current game instance for saving/loading prefabs.
-resetview | Resets all player's rendering to use new values from server cvars: viewdist1, viewheight1, viewdist2, viewheight2, ambientlight.
-start | Starts world.map, using the current worldname and worldsize settings.
-worlds | Lists existing worlds.
-
-### CVARs
-CVAR | Description
---- | ---
-adminpass | Password required to access certain commands on the server. (resetview)
-ambientlight | Sets the base light color applied to textures with a red green blue vector. '0 0 0' is black, '1 1 1' is full color.  ('0.4 0.4 0.8' in default.cfg)
-viewdist1 | Number of clusters out horizontally from the player to draw on first pass.
-viewheight1 | Number of clusters out vertically to draw on first pass.
-viewdist2 | Number of clusters out horizontally from the player to draw on second pass.
-viewheight2 | Number of clusters out vertically to draw on second pass.
-worldname | Sets the world name, which is also the directory where the files are stored within /gamedata/data/worlds/. (default: world1)
-worldsize | Sets the world size in clusters. (default: 9 - There is no max, but beware of long generation times.)
-
-### Files of Interest (modders)
-File | Description
---- | ---
-server/sv_cubics.qc | the major portion of cubic handling on the server
-server/sv_cubicgen.qc | world generation
-server/sv_cubiccollision.qc | collision handling
-server/sv_attacks.qc | projectile collision handling and example code for adding projectiles
-client/cs_cubics.qc | client cubic handling
-client/cs_cubicinterface.qc | hud / clientside tool drawing and positioning is handled here
-shared_server_client/sh_sv_cs_cubics.qc | tools for working with the cubic framework, and general world settings
-client/cs_cubicobjects.qc | for defining custom cubic objects, being cubics that are represented with models rather than trisoup_simple polygons
-
 ### Known Issues
-- weird lighting issues when light radius is not max (fixed in next update)
-- hull shape inconsistencies on x and z rotated cubics
 - cubics/chunks/clusters can be placed on players
 - players spawn inside of eachother on server restart and don't network chunks correctly (join an existing server!)
-- players can get stuck in cubics if they move too fast for the loading speed
+- players can get stuck in cubics if they move too fast for the loading speed (haven't seen this happen in a while)
 
 ### ToDo
-- more work on extended draw range performance
-- copy/paste single cubics
-- update world generator to use cluster/chunk prefabs
-- add alpha handling to the texture shader
-- make collision hulls for x and z rotation orientations to fix hull issues
+- even more work on extended draw range performance
+- copy/paste multiple cubics via custom selection tool
 - make player light visible to other players
 - don't let players place things on players
 
