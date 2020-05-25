@@ -6,6 +6,9 @@
 #define CSQC
 #include "shared_all/fteextensions.qc"
 
+// CUBIQUAKE CORE START
+//
+
 #include "shared_all/sh_all_subs.qc"
 
 #include "shared_client_menu/sh_cs_m_defs.qc"
@@ -14,11 +17,11 @@
 #include "shared_server_client/sh_sv_cs_precaches.qc"
 #include "shared_server_client/sh_sv_cs_chains.qc"
 #include "shared_server_client/sh_sv_cs_cubics.qc"
+#include "shared_server_client/sh_sv_cs_animation.qc"
 
 #include "client/cs_chains.qc"
 #include "client/cs_cubicdefs.qc"
 
-#include "client/cs_animation.qc"
 #include "client/cs_cubicobjects.qc"
 #include "client/cs_clusters.qc"
 #include "client/cs_light.qc"
@@ -36,3 +39,6 @@
 #include "client/cs_subs.qc"
 #include "client/cs_main.qc"
 #include "client/cs_view.qc"
+
+//
+// CUBIQUAKE CORE END

@@ -1,6 +1,6 @@
 void ClearChunkValues(entity chunk, int clearstaticlighttriggers)
 {
-	entity light;
+	entity light = __NULL__;
 
 //	chunk.findnetworkbloatent = FALSE;
 	
@@ -26,7 +26,7 @@ void ClearChunkValues(entity chunk, int clearstaticlighttriggers)
 // chunk can also be a chunk bloat ent for storing data in queue
 void UpdateChunkBuildData(entity chunk, float sendflags, int bloatstage, int clearmem)
 {
-	int memslot, type;//, bloatcount;
+	int memslot = 0, type = 0;//, bloatcount;
 	int maxblocks = pow(chunksize, 3);
 	
 	chunk.numvisiblecubics = readshort();
@@ -96,7 +96,7 @@ void LoadCubic(entity chunk, int memslot, int type)
 
 void CopyBloatChunkValuesToChunk(entity bloatent, entity chunk, int bloatstage)
 {
-	int type, slotcount;
+	int type = 0, slotcount = 0;
 	
 	for(float memslot = bloatent.firstmemslot; slotcount < min(maxcubicupdates, chunk.numvisiblecubics-(maxcubicupdates*bloatstage)); memslot++)
 	{
@@ -119,7 +119,7 @@ void CopyBloatChunkValuesToChunk(entity bloatent, entity chunk, int bloatstage)
 
 void LoadChunkCubics(entity chunk)
 {
-	int loadcount, type;
+	int loadcount = 0, type = 0;
 	
 	for(int memslot = 0; loadcount < chunk.numvisiblecubics && memslot < pow(chunksize, 3); memslot++)
 	{
@@ -175,9 +175,8 @@ void UpdateChunk()
 			self = spawn();
 	}*/
 
-	entity e, nexte;
-	int i;
-	int numbloatentsfound = 0;
+	entity e = __NULL__, nexte = __NULL__;
+	int i = 0, numbloatentsfound = 0;
 	vector org = '0 0 0';
 	int clearmem = TRUE;
 //	int oldupdateref = self.updateref;
@@ -310,12 +309,10 @@ void UpdateChunk()
 
 void UpdateChunkBloat()
 {
-	int i;
-	entity cluster, e, nexte;
-	entity chunk = __NULL__;
+	int i = 0, numbloatentsfound = 0;
+	entity cluster = __NULL__, e = __NULL__, nexte = __NULL__, chunk = __NULL__;
 	int clearmem = TRUE;
-	int numbloatentsfound = 0;
-	int addbloattochunk = FALSE;
+	int addbloattochunk = FALSE;	
 	vector org = '0 0 0';
 //	int oldupdateref = self.updateref;
 	
@@ -469,11 +466,9 @@ int maxfacesbuiltperframe = 1;
 
 void DrawChunks()
 {
-	entity typegroup, facegroup;
-	entity editchunk = __NULL__;
+	entity typegroup = __NULL__, facegroup = __NULL__, editchunk = __NULL__;
 //	vector pos, dist;
-	int drawplane = 0;
-	int builtfaces = 0;
+	int drawplane = 0, builtfaces = 0;
 	
 /*	vector nearchunkorg = GetNearChunkOrg(view_org);
 
@@ -651,7 +646,7 @@ void DrawGridLine(vector baseorg, vector pos, vector direction, float cellsize, 
 
 void DrawGrid(vector baseorg, float cellsize, int gridsize, vector rgb, float gridalpha)
 {
-	vector pos;
+	vector pos = '0 0 0';
 	
 	for(pos_x = 0; pos_x < gridsize; pos_x++)
 		for(pos_y = 0; pos_y < gridsize; pos_y++)

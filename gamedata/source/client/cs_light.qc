@@ -1,5 +1,8 @@
 void ClientToggleLight()
 {
+	if(!client_initialized)	// don't try to light anything until faces arrive (or even toggle this)
+		return;
+	
 	if(clientlight_state)
 	{
 		clientlight_state = FALSE;
@@ -144,7 +147,7 @@ entity SetChunkLight(entity chunk, int memslot, int type)
 
 void SetVertLights(entity light, int isstatic)
 {
-	vector vertpos, facergb, ofs, chunkpos, rgb, lastrgb, lightchunkorg, target;
+	vector vertpos, facergb, ofs, chunkpos, rgb, lightchunkorg, target;
 	float lightsize, ofsdotp, lightradiusdotp, lrad;
 	entity typegroup, facegroup;
 	int	count, facegroupislit;
@@ -207,7 +210,7 @@ void SetVertLights(entity light, int isstatic)
 								if(ofsdotp == 0)
 									rgb = light.lightcolor*light.lightbrightness;
 								else
-									rgb = lastrgb = light.lightcolor*light.lightbrightness*(1-(vlen(ofs)/lrad));
+									rgb = light.lightcolor*light.lightbrightness*(1-(vlen(ofs)/lrad));
 								
 								if(rgb_x > 0 || rgb_y > 0 || rgb_z > 0)
 								{
@@ -237,19 +240,31 @@ void SetVertLights(entity light, int isstatic)
 			}
 }
 
+// This _Wrap function gives mods access to the relightstatic and relightdynamic fields before they are cleared. Use __wrap or __accumulate.
+void ApplyLighting_Wrap()
+{
+	if(relightstatic)		
+	for(entity light = list_staticlightchain; light; light = light.staticlightchain)
+		SetVertLights(light, TRUE);
+
+	if(relightdynamic || relightstatic)		
+	for(entity light = list_dynamiclightchain; light; light = light.dynamiclightchain)
+		SetVertLights(light, FALSE);	
+}
+
 void AddLights()
 {
-	entity light;
-	int count;
-	vector rgb;
+	int count = 0;
+	vector rgb = '0 0 0';
 
 	if(clientlight)
 		clientlight.lightradius = autocvar_cq_clientlightradius;
 
 	if(!ambientlightset)
 		ResetAmbientLight();
-
-	if((static_relighttime && time >= static_relighttime) || time >= dynamic_relighttime)
+	
+//  static_relighttime is the min amount of time to wait during chunk network updating and face building to re-light new incoming/built faces. it should not be triggered otherwise.
+	if((static_relighttime && time >= static_relighttime) || time >= dynamic_relighttime) 
 	{
 		if(static_relighttime && time >= static_relighttime)
 		{
@@ -261,7 +276,7 @@ void AddLights()
 		dynamic_relighttime = time+autocvar_cq_lights_dynamic_updateinterval;
 	}
 	
-	if(relightstatic)
+	if(relightstatic)		// sets base color to ambient when static relight is called
 	while(list_staticlitfacegroupchain)
 	{
 		for(count = 0; count < list_staticlitfacegroupchain.numvertexes; count++)
@@ -275,7 +290,7 @@ void AddLights()
 		StaticLitFaceGroupChain_Remove(list_staticlitfacegroupchain);
 	}
 	
-	if(relightdynamic || relightstatic)
+	if(relightdynamic || relightstatic) // sets verts to base color: ambient or static
 	while(list_litfacegroupchain)
 	{
 		for(count = 0; count < list_litfacegroupchain.numvertexes; count++)
@@ -289,13 +304,7 @@ void AddLights()
 		LitFaceGroupChain_Remove(list_litfacegroupchain);
 	}
 	
-	if(relightstatic)	
-	for(light = list_staticlightchain; light; light = light.staticlightchain)
-		SetVertLights(light, TRUE);
-	
-	if(relightdynamic || relightstatic)	
-	for(light = list_dynamiclightchain; light; light = light.dynamiclightchain)
-		SetVertLights(light, FALSE);
+	ApplyLighting_Wrap();
 	
 	relightstatic = FALSE;
 	relightdynamic = FALSE;

@@ -1,23 +1,21 @@
 string GetTextureForTypeFace(float type, float facebit)
 {
-	string tex;
-	
 	switch(type)
 	{
-		case BLOCKTYPE_EDIT:			tex = "edit";				break;
-		case BLOCKTYPE_DIRT:		if(facebit == FACE_TOP) tex = "dirt_top";		if(facebit == FACE_SIDE) tex = "dirt_side";			if(facebit == FACE_BOTTOM) tex = "dirt_bottom";			break;
-		case BLOCKTYPE_BRICK:		if(facebit == FACE_TOP) tex = "city4_6_top";	if(facebit == FACE_SIDE) tex = "city4_6_side";		if(facebit == FACE_BOTTOM) tex = "city4_6_bottom";		break;
-		case BLOCKTYPE_BLOCK:		if(facebit == FACE_TOP) tex = "bricka2_top";	if(facebit == FACE_SIDE) tex = "bricka2_side";		if(facebit == FACE_BOTTOM) tex = "bricka2_bottom";		break;
-		case BLOCKTYPE_SUPPORT:		if(facebit == FACE_TOP) tex = "mmetal1_2_top";	if(facebit == FACE_SIDE) tex = "mmetal1_2_side";	if(facebit == FACE_BOTTOM) tex = "mmetal1_2_bottom";	break;
-		case BLOCKTYPE_GORE:		if(facebit == FACE_TOP) tex = "exit02_2_top";	if(facebit == FACE_SIDE) tex = "exit02_2_side";		if(facebit == FACE_BOTTOM) tex = "exit02_2_bottom";		break;
-		case BLOCKTYPE_STONE:		if(facebit == FACE_TOP) tex = "metal4_top";		if(facebit == FACE_SIDE) tex = "metal4_side";		if(facebit == FACE_BOTTOM) tex = "metal4_bottom";		break;
-		case BLOCKTYPE_METAL:		if(facebit == FACE_TOP) tex = "metal5_3_top";	if(facebit == FACE_SIDE) tex = "metal5_3_side";		if(facebit == FACE_BOTTOM) tex = "metal5_3_bottom";		break;
-		case BLOCKTYPE_METALB:		if(facebit == FACE_TOP) tex = "cop_top";		if(facebit == FACE_SIDE) tex = "cop_side";			if(facebit == FACE_BOTTOM) tex = "cop_bottom";			break;
-		case BLOCKTYPE_METALC:		if(facebit == FACE_TOP) tex = "cop1_3_top";		if(facebit == FACE_SIDE) tex = "cop1_3_side";		if(facebit == FACE_BOTTOM) tex = "cop1_3_bottom";		break;
-		case BLOCKTYPE_WOOD:		if(facebit == FACE_TOP) tex = "wizwood1_3_top";	if(facebit == FACE_SIDE) tex = "wizwood1_3_side";	if(facebit == FACE_BOTTOM) tex = "wizwood1_3_bottom";	break;
-		case BLOCKTYPE_BLUESTONE:	if(facebit == FACE_TOP) tex = "bluestone_top";	if(facebit == FACE_SIDE) tex = "bluestone_side";	if(facebit == FACE_BOTTOM) tex = "bluestone_bottom";	break;
-		case BLOCKTYPE_BLUEMETAL:	if(facebit == FACE_TOP) tex = "wiz1_1_top";		if(facebit == FACE_SIDE) tex = "wiz1_1_side";		if(facebit == FACE_BOTTOM) tex = "wiz1_1_bottom";		break;
-		case BLOCKTYPE_DECMETAL:	if(facebit == FACE_TOP) tex = "m5_top";			if(facebit == FACE_SIDE) tex = "m5_side";			if(facebit == FACE_BOTTOM) tex = "m5_bottom";			break;
+		case BLOCKTYPE_EDIT:		return "edit";				break;
+		case BLOCKTYPE_DIRT:		if(facebit == FACE_TOP) return "dirt_top";		if(facebit == FACE_SIDE) return "dirt_side";		if(facebit == FACE_BOTTOM) return "dirt_bottom";		break;
+		case BLOCKTYPE_BRICK:		if(facebit == FACE_TOP) return "city4_6_top";	if(facebit == FACE_SIDE) return "city4_6_side";		if(facebit == FACE_BOTTOM) return "city4_6_bottom";		break;
+		case BLOCKTYPE_BLOCK:		if(facebit == FACE_TOP) return "bricka2_top";	if(facebit == FACE_SIDE) return "bricka2_side";		if(facebit == FACE_BOTTOM) return "bricka2_bottom";		break;
+		case BLOCKTYPE_SUPPORT:		if(facebit == FACE_TOP) return "mmetal1_2_top";	if(facebit == FACE_SIDE) return "mmetal1_2_side";	if(facebit == FACE_BOTTOM) return "mmetal1_2_bottom";	break;
+		case BLOCKTYPE_GORE:		if(facebit == FACE_TOP) return "exit02_2_top";	if(facebit == FACE_SIDE) return "exit02_2_side";	if(facebit == FACE_BOTTOM) return "exit02_2_bottom";	break;
+		case BLOCKTYPE_STONE:		if(facebit == FACE_TOP) return "metal4_top";	if(facebit == FACE_SIDE) return "metal4_side";		if(facebit == FACE_BOTTOM) return "metal4_bottom";		break;
+		case BLOCKTYPE_METAL:		if(facebit == FACE_TOP) return "metal5_3_top";	if(facebit == FACE_SIDE) return "metal5_3_side";	if(facebit == FACE_BOTTOM) return "metal5_3_bottom";	break;
+		case BLOCKTYPE_METALB:		if(facebit == FACE_TOP) return "cop_top";		if(facebit == FACE_SIDE) return "cop_side";			if(facebit == FACE_BOTTOM) return "cop_bottom";			break;
+		case BLOCKTYPE_METALC:		if(facebit == FACE_TOP) return "cop1_3_top";	if(facebit == FACE_SIDE) return "cop1_3_side";		if(facebit == FACE_BOTTOM) return "cop1_3_bottom";		break;
+		case BLOCKTYPE_WOOD:		if(facebit == FACE_TOP) return "wizwood1_3_top";if(facebit == FACE_SIDE) return "wizwood1_3_side";	if(facebit == FACE_BOTTOM) return "wizwood1_3_bottom";	break;
+		case BLOCKTYPE_BLUESTONE:	if(facebit == FACE_TOP) return "bluestone_top";	if(facebit == FACE_SIDE) return "bluestone_side";	if(facebit == FACE_BOTTOM) return "bluestone_bottom";	break;
+		case BLOCKTYPE_BLUEMETAL:	if(facebit == FACE_TOP) return "wiz1_1_top";	if(facebit == FACE_SIDE) return "wiz1_1_side";		if(facebit == FACE_BOTTOM) return "wiz1_1_bottom";		break;
+		case BLOCKTYPE_DECMETAL:	if(facebit == FACE_TOP) return "m5_top";		if(facebit == FACE_SIDE) return "m5_side";			if(facebit == FACE_BOTTOM) return "m5_bottom";			break;
 	}
 
 /*	if(type > 0)
@@ -28,7 +26,7 @@ string GetTextureForTypeFace(float type, float facebit)
 		case FACE_BOTTOM:	tex = strcat(tex, "_bottom");	break;
 	}*/
 
-	return tex;
+	return __NULL__;
 }
 
 entity GetFaceGroup(entity typegroup, int facebit)
@@ -64,7 +62,7 @@ vector RotateVertOFS(vector vertofs, int rotation)
 
 void SetFaceValues(vector cubicpos, vector vertofs, entity typegroup, int facebit, int facegroupsize, vector texturecoords, float facescale)
 {
-	int vertspercubic, trianglevertsspercubic;
+	int vertspercubic = 0, trianglevertsspercubic = 0;
 	
 	vector vertpos = cubicpos + vertofs*cubicradius*facescale;
 	entity facegroup = GetFaceGroup(typegroup, facebit);
@@ -165,7 +163,7 @@ int RotateCullBits(int cullbits, int rotation)
 
 int GetNumVertsForFace(int facecount, int A, int B, int C, int D, int E, int F, optional int G)
 {
-	int numvertsforface;
+	int numvertsforface = 0;
 	
 	switch(facecount)
 	{
@@ -183,7 +181,7 @@ int GetNumVertsForFace(int facecount, int A, int B, int C, int D, int E, int F, 
 
 vector SetDefaultTextureCoordsForFace(int facecount, int count, vector vertofs)
 {
-	vector texturecoords;
+	vector texturecoords = '0 0 0';
 	
 	vector texvertofs = [rint(vertofs_x), rint(vertofs_y), 0];
 	

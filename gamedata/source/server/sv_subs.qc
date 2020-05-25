@@ -1,4 +1,4 @@
-void Remove(entity e)
+void CleanUp_Remove (entity e)
 {
 	if(!e)
 	{
@@ -38,8 +38,15 @@ void Remove(entity e)
 		}
 		
 		memfree(e.networkbloat);
-	}
+	}	
 	
+	LeaveSolidCubics(e, e.lastsolidcubicorigin);
+	e.physicssolidsset = FALSE;
+}
+
+void Remove(entity e)
+{
+	CleanUp_Remove(e);
 	remove(e);
 }
 
@@ -67,7 +74,7 @@ void SV_ParseClientCommand (string s)
 	else
 	if(c == "cq_resendchunk")
 	{
-		print("Developer Notice: Trying to resend chunk.\n");
+		dprint("Resending chunk.\n");
 		chunk = GetChunkForLocation(__NULL__, GetChunkOrigin(stoi(argv(1))));
 		SetChunkSendFlags(chunk, SFL_BUILD, __FUNC__);
 	}

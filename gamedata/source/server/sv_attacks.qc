@@ -41,6 +41,4 @@ void ProjectileUpdate()
 		SetSolidCubics(e, e.origin);
 		e.lastsolidcubicorigin = e.origin;
 	}
-	
-	RemoveUnusedCubicBBoxes();
 }

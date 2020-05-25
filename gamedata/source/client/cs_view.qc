@@ -130,6 +130,6 @@ void CSQC_UpdateView(float vwidth, float vheight, float notmenu)
 	
 	DrawGrids();
 	DrawHud2D(vwidth);
-
-	IncreaseInputStates();
+	
+	IncreaseInputStates();	
 }

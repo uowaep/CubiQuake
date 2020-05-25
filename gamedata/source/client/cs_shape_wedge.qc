@@ -3,8 +3,8 @@
 
 void BuildFaces_Wedge(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale)
 {
-	int facecount, facebit, count, numvertsforface;
-	vector vertofs, texturecoords;
+	int facecount = 0, facebit = 0, count = 0, numvertsforface = 0;
+	vector vertofs = '0 0 0', texturecoords = '0 0 0';
 
 	cullbits = RotateCullBits(cullbits, rotation);
 	int subbits = CULLBITS_U | CULLBITS_W | CULLBITS_N | CULLBITS_S;	// ramp face needs to check these sides for culling
@@ -55,8 +55,8 @@ void BuildFaces_Wedge(entity typegroup, int rotation, int cullbits, vector cubic
 
 void BuildFaces_Wedge_CW(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale)
 {
-	int facecount, facebit, count, numvertsforface;
-	vector vertofs, texturecoords;
+	int facecount = 0, facebit = 0, count = 0, numvertsforface = 0;
+	vector vertofs = '0 0 0', texturecoords = '0 0 0';
 
 	cullbits = RotateCullBits(cullbits, rotation);
 	int subbits = CULLBITS_U | CULLBITS_W | CULLBITS_D | CULLBITS_S;
@@ -131,8 +131,8 @@ void BuildFaces_Wedge_CW(entity typegroup, int rotation, int cullbits, vector cu
 
 void BuildFaces_Wedge_UD(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale)
 {
-	int facecount, facebit, count, numvertsforface;
-	vector vertofs, texturecoords;
+	int facecount = 0, facebit = 0, count = 0, numvertsforface = 0;
+	vector vertofs = '0 0 0', texturecoords = '0 0 0';
 
 	cullbits = RotateCullBits(cullbits, rotation);
 	int subbits = CULLBITS_D | CULLBITS_W | CULLBITS_N | CULLBITS_S;	// ramp face needs to check these sides for culling
@@ -183,8 +183,8 @@ void BuildFaces_Wedge_UD(entity typegroup, int rotation, int cullbits, vector cu
 
 void BuildFaces_Wedge_CCW(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale)
 {
-	int facecount, facebit, count, numvertsforface;
-	vector vertofs, texturecoords;
+	int facecount = 0, facebit = 0, count = 0, numvertsforface = 0;
+	vector vertofs = '0 0 0', texturecoords = '0 0 0';
 
 	cullbits = RotateCullBits(cullbits, rotation);
 	int subbits = CULLBITS_U | CULLBITS_W | CULLBITS_D | CULLBITS_N;
@@ -259,8 +259,8 @@ void BuildFaces_Wedge_CCW(entity typegroup, int rotation, int cullbits, vector c
 
 void BuildFaces_Wedge_FW(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale)
 {
-	int facecount, facebit, count, numvertsforface;
-	vector vertofs, texturecoords;
+	int facecount = 0, facebit = 0, count = 0, numvertsforface = 0;
+	vector vertofs = '0 0 0', texturecoords = '0 0 0';
 
 	cullbits = RotateCullBits(cullbits, rotation);
 	int subbits = CULLBITS_U | CULLBITS_E | CULLBITS_N | CULLBITS_S;	// ramp face needs to check these sides for culling
@@ -335,8 +335,8 @@ void BuildFaces_Wedge_FW(entity typegroup, int rotation, int cullbits, vector cu
 
 void BuildFaces_Wedge_BW(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale)
 {
-	int facecount, facebit, count, numvertsforface;
-	vector vertofs, texturecoords;
+	int facecount = 0, facebit = 0, count = 0, numvertsforface = 0;
+	vector vertofs = '0 0 0', texturecoords = '0 0 0';
 
 	cullbits = RotateCullBits(cullbits, rotation);
 	int subbits = CULLBITS_D | CULLBITS_W | CULLBITS_N | CULLBITS_S;	// ramp face needs to check these sides for culling

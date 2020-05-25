@@ -1,7 +1,3 @@
-.vector	lastsolidcubicorigin;
-.int	collisioncount;
-.int	physicssolidsset;
-
 void RemoveUnusedCubicBBoxes()
 {
 	entity e, nexte;
@@ -23,10 +19,7 @@ void LeaveSolidCubic_Func(entity chunk, entity e, vector org)
 	{
 		e.collisioncount -= 1;
 		if(!e.collisioncount)
-		{
-			CubicBBoxChain_Remove(chunk, e);
 			UnusedCubicBBoxChain_Add(e);
-		}
 	}
 }
 
@@ -42,7 +35,7 @@ void SetSolidCubic_Func(entity chunk, entity e, vector org)
 		setorigin(e, org);
 		e.effects = EF_NODRAW;
 		
-		int id = GetCubicRef(org-chunk.origin);
+		int id = GetCubicRef(org-chunk.origin, __FUNC__);
 		int shape = chunk.cubic_blockshape[id];
 		int rotation = chunk.cubic_blockrotation[id];
 		
@@ -137,6 +130,8 @@ void SetSolidCubic_Func(entity chunk, entity e, vector org)
 		}
 		
 		CubicBBoxChain_Add(chunk, e);
+		
+		setsize(e, '-1 -1 -1'*cubicradius, '1 1 1'*cubicradius);
 	}
 	else
 		UnusedCubicBBoxChain_Remove(e);

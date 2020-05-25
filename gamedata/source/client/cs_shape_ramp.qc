@@ -21,8 +21,8 @@ int SkipFace_Ramp(int facecount, int facebit, int cullbits, int subbits, int ram
 
 void BuildFaces_Ramp(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale)
 {
-	int facecount, facebit, count, numvertsforface;
-	vector vertofs, texturecoords;
+	int facecount = 0, facebit = 0, count = 0, numvertsforface = 0;
+	vector vertofs = '0 0 0', texturecoords = '0 0 0';
 
 	cullbits = RotateCullBits(cullbits, rotation);
 	int subbits = CULLBITS_U | CULLBITS_W | CULLBITS_N | CULLBITS_S;
@@ -74,8 +74,8 @@ void BuildFaces_Ramp(entity typegroup, int rotation, int cullbits, vector cubicp
 
 void BuildFaces_Ramp_CW(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale)
 {
-	int facecount, facebit, count, numvertsforface;
-	vector vertofs, texturecoords;
+	int facecount = 0, facebit = 0, count = 0, numvertsforface = 0;
+	vector vertofs = '0 0 0', texturecoords = '0 0 0';
 
 	cullbits = RotateCullBits(cullbits, rotation);
 	int subbits = CULLBITS_U | CULLBITS_W | CULLBITS_D | CULLBITS_S;
@@ -111,8 +111,8 @@ void BuildFaces_Ramp_CW(entity typegroup, int rotation, int cullbits, vector cub
 
 void BuildFaces_Ramp_UD(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale)
 {
-	int facecount, facebit, count, numvertsforface;
-	vector vertofs, texturecoords;
+	int facecount = 0, facebit = 0, count = 0, numvertsforface = 0;
+	vector vertofs = '0 0 0', texturecoords = '0 0 0';
 
 	cullbits = RotateCullBits(cullbits, rotation);
 	int subbits = CULLBITS_D | CULLBITS_W | CULLBITS_N | CULLBITS_S;

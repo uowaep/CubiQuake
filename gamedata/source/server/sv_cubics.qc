@@ -109,7 +109,7 @@ void InitializeChunk(entity cluster, entity chunk)
 
 void RemoveClustersForPlayerClients()
 {
-	entity chunk, cluster;//, nextcluster;
+	entity chunk = __NULL__, cluster = __NULL__;//, nextcluster;
 //	for(cluster = list_removeclusterforallclientschain; cluster; cluster = nextcluster)
 //	{
 		cluster = list_removeclusterforallclientschain;
@@ -158,7 +158,7 @@ void RemoveChunkEnt(entity chunk, entity cluster)
 
 void RemoveUnoccupiedClusters(int numframesbetweenunloads)
 {
-	entity cluster, chunk, nextchunk;
+	entity cluster = __NULL__, chunk = __NULL__, nextchunk = __NULL__;
 //	int	numchunksghosted;
 	
 	if(!list_unoccupiedclusterchain)
@@ -230,7 +230,7 @@ void RemoveUnoccupiedClusters(int numframesbetweenunloads)
 
 int AddPlayerToCluster(entity player, entity cluster, int chunkcount)
 {
-	entity e, chunk;
+	entity e = __NULL__, chunk = __NULL__;
 
 	if(player.viewreset)
 	for(chunk = cluster.list_chunkchain; chunk; chunk = chunk.chunkchain)
@@ -263,7 +263,7 @@ int AddPlayerToCluster(entity player, entity cluster, int chunkcount)
 
 int RemovePlayerFromCluster(entity player, entity cluster)
 {
-	entity e;
+	entity e = __NULL__;
 	int shiftslots = FALSE;
 	
 	for(int i = 0; i < maxplayers; i++)
@@ -306,8 +306,8 @@ int RemovePlayerFromCluster(entity player, entity cluster)
 
 void UnloadWorldForPlayer(entity player, vector org, int disconnect)
 {
-	vector dist, pos, clusterpos;
-	entity cluster;
+	vector dist = '0 0 0', pos = '0 0 0', clusterpos = '0 0 0';
+	entity cluster = __NULL__;
 
 	int _maxviewsize = maxviewsize;
 	int _maxviewheight = maxviewheight;
@@ -369,11 +369,10 @@ void UnloadWorldForPlayer(entity player, vector org, int disconnect)
 
 entity LoadCluster(entity player, vector pos, int forceload)
 {
-	int chunkslot0, cubicslot0, count, numchunksloaded;
-	entity cluster;
+	int chunkslot0 = 0, cubicslot0 = 0, count = 0, numchunksloaded = 0, i =0;
+	entity cluster = __NULL__;
 	int *cluster_data;
-	float file;
-	int i = 0;
+	float file = 0;
 
 	if(!forceload && player.stagger_loadcluster_chunkid)
 	{
@@ -536,8 +535,8 @@ entity LoadCluster(entity player, vector pos, int forceload)
 
 void SetClusterOccupancyForPlayer(entity player, vector org)
 {
-	vector dist, pos, clusterpos;
-	entity cluster;
+	vector dist = '0 0 0', pos = '0 0 0', clusterpos = '0 0 0';
+	entity cluster = __NULL__;
 	int chunkcount = 0;
 	
 	float viewedgeA = (maxviewsize-viewsize)*0.5;
@@ -594,7 +593,7 @@ void SetClusterOccupancyForPlayer(entity player, vector org)
 
 int LoadClusterForPlayer(entity player, vector pos, int forceload)
 {
-	entity cluster;
+	entity cluster = __NULL__;
 	
 	if(forceload || !player.stagger_loadcluster_chunkid)
 	{
@@ -623,9 +622,9 @@ int LoadClusterForPlayer(entity player, vector pos, int forceload)
 
 int LoadWorldForPlayer(entity player, vector org, int areasize, int areaheight, vector areacenter, int maxclustersloadedperframe, int isbackground, int subsize, int subheight, float numframesbetweenloads)
 {
-	vector dist, pos, nextpos, lastpos, ofs, clusterpos;
-	float scaleval, scaleheightval;
-	int numloadedclustersthisframe, stop, getnextpos;
+	vector dist = '0 0 0', pos = '0 0 0', ofs = '0 0 0', clusterpos = '0 0 0', nextpos = '0 0 0', lastpos = '0 0 0';
+	float scaleval = 0, scaleheightval = 0;
+	int numloadedclustersthisframe = 0, stop = 0, getnextpos = 0;
 
 	float loadareaedge = (areasize-subsize)*0.5;
 	float loadheightedge = (areaheight-subheight)*0.5;
@@ -861,7 +860,7 @@ void Player_WorldInterface()
 		player.lastsolidcubicorigin = player.origin;
 	}
 
-	RemoveUnusedCubicBBoxes();
+//	RemoveUnusedCubicBBoxes();
 	
 	for(e = list_setchunksendflags_BUILD_chain; e; e = nexte)
 	{
@@ -1042,6 +1041,14 @@ void InitializePlayers()
 	}
 }
 
+void WorldLogic()
+{
+	InitializePlayers();
+	ProjectileUpdate();	// see sv_attacks.qc for examples
+	SaveModifiedClusterFiles();
+	Player_WorldInterface();	
+}
+
 void StartFrame_Cubics()
 {
 	if(world_initialized < 3)
@@ -1057,9 +1064,7 @@ void StartFrame_Cubics()
 	}
 	else
 	{	
-		InitializePlayers();
-		ProjectileUpdate();	// see sv_attacks.qc for examples
-		SaveModifiedClusterFiles();
-		Player_WorldInterface();
+		WorldLogic();
+		RemoveUnusedCubicBBoxes();
 	}
 }

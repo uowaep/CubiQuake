@@ -5,11 +5,15 @@
 #define DEBUG
 #include "shared_all/fteextensions.qc"
 
+// CUBIQUAKE CORE START
+//
+
 #include "shared_all/sh_all_subs.qc"
 
 #include "shared_server_client/sh_sv_cs_precaches.qc"
 #include "shared_server_client/sh_sv_cs_chains.qc"
 #include "shared_server_client/sh_sv_cs_cubics.qc"
+#include "shared_server_client/sh_sv_cs_animation.qc"
 
 #include "server/sv_cubicdefs.qc"
 #include "server/sv_chains.qc"
@@ -24,3 +28,6 @@
 #include "server/sv_cubics.qc"
 #include "server/sv_main.qc"
 #include "server/sv_client.qc"
+
+//
+// CUBIQUAKE CORE END

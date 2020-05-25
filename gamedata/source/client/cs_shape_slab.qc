@@ -3,13 +3,12 @@
 
 void BuildFaces_Slab_Universal(entity typegroup, int rotation, int cullbits, int subbits, vector cubicpos, int facegroupsize, int rotationtype, float facescale)
 {
-	int facecount, facebit, count;
-	vector vertofs, texturecoords;
+	int facecount = 0, facebit = 0, count = 0, rampface = 0;
+	vector vertofs = '0 0 0', texturecoords = '0 0 0';
 
 	cullbits = RotateCullBits(cullbits, rotation);
 //	subbits = CULLBITS_U | CULLBITS_W | CULLBITS_N | CULLBITS_S | CULLBITS_E;	// ramp face needs to check these sides for culling
 	
-	int rampface;
 	if(rotationtype == 0)
 		rampface = 0;
 	else

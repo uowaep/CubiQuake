@@ -1,6 +1,6 @@
 void SetNumVisibleCubics(entity chunk, int val)
 {
-	int count;
+	int count = 0;
 	int numbloatents = ceil((float)val/maxcubicupdates)-1;
 	
 //	chunk.updateref++;
@@ -50,8 +50,8 @@ void SetCubicVisibility(entity chunk, int memslot)
 	if(chunk.cubic_blocktype[memslot] == 0)
 		return;	
 	
-	int cullbits, nearcullbits, partialside;
-	vector nearcubicorg, cubicchunkorg, ofs;
+	int cullbits = 0, nearcullbits = 0, partialside = 0;
+	vector nearcubicorg = '0 0 0', cubicchunkorg = '0 0 0', ofs = '0 0 0';
 	entity originalchunk = chunk;
 	int	originalcullbits = originalchunk.cubic_cullbits[memslot];
 
@@ -79,7 +79,7 @@ void SetCubicVisibility(entity chunk, int memslot)
 		else
 		if(GetCubicStatus(chunk, nearcubicorg, TRUE) != -1)
 		{
-			nearcullbits = chunk.cubic_cullbits[GetCubicRef(nearcubicorg-chunk.origin)];			
+			nearcullbits = chunk.cubic_cullbits[GetCubicRef(nearcubicorg-chunk.origin, __FUNC__)];			
 			if(!(nearcullbits & partialside))
 				cullbits = cullbits | bitshift(1, sidecount);
 		}
@@ -98,9 +98,9 @@ void SetCubicVisibility(entity chunk, int memslot)
 
 void UpdateChunkAreaVisibility(entity chunk, vector cubicorg, int markmodified)
 {
-	vector ofs, nearcubicorg, cubicchunkorg;
+	vector ofs = '0 0 0', nearcubicorg = '0 0 0', cubicchunkorg = '0 0 0';
 	
-	int cubicid = GetCubicRef(cubicorg-chunk.origin);
+	int cubicid = GetCubicRef(cubicorg-chunk.origin, __FUNC__);
 	SetCubicVisibility(chunk, cubicid);
 	if(markmodified)
 		SetChunkAsModified(chunk);
@@ -126,7 +126,7 @@ void UpdateChunkAreaVisibility(entity chunk, vector cubicorg, int markmodified)
 		if(!chunk)
 			continue;
 		
-		cubicid = GetCubicRef(nearcubicorg - chunk.origin);
+		cubicid = GetCubicRef(nearcubicorg - chunk.origin, __FUNC__);
 		SetCubicVisibility(chunk, cubicid);
 		if(chunk != originalchunk)
 			SetChunkAsModified(chunk);
@@ -135,7 +135,7 @@ void UpdateChunkAreaVisibility(entity chunk, vector cubicorg, int markmodified)
 
 void UpdateChunkAreaVisibility_OuterEdge(entity chunk)
 {
-	vector pos, cubicpos;
+	vector pos = '0 0 0', cubicpos = '0 0 0';
 		
 	for(pos_x = 0; pos_x < chunksize; pos_x++)
 		for(pos_y = 0; pos_y < chunksize; pos_y++)
@@ -170,8 +170,8 @@ vector GetChunkOffsetFromGrid(vector pos)
 
 void UpdateClusterAreaVisibility_OuterEdge(entity cluster)
 {
-	vector pos, cpos, checked, chunkorg;
-	entity chunk;
+	vector pos = '0 0 0', cpos = '0 0 0', checked = '0 0 0', chunkorg = '0 0 0';
+	entity chunk = __NULL__;
 	
 	for(pos_x = 0; pos_x < clustersize; pos_x++)
 		for(pos_y = 0; pos_y < clustersize; pos_y++)

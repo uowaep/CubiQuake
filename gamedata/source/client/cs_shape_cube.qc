@@ -3,8 +3,8 @@
 
 void BuildFaces_Cube(entity typegroup, int cullbits, vector cubicpos, int facegroupsize, float facescale)
 {
-	int facecount, facebit, count;
-	vector vertofs, texturecoords;
+	int facecount = 0, facebit = 0, count = 0;
+	vector vertofs = '0 0 0', texturecoords = '0 0 0';
 
 	for(facecount = 0; facecount < 6; facecount++)
 	{

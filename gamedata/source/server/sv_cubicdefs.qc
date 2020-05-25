@@ -92,3 +92,8 @@ int			lineargeneration;
 
 
 //int GetZoneIDForName(string zonename);
+
+.vector	lastsolidcubicorigin;
+.int	collisioncount;
+.int	physicssolidsset;
+void LeaveSolidCubics(entity e, vector org);

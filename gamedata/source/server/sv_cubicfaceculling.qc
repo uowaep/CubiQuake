@@ -48,7 +48,7 @@ int RotateCullBits(int cullbits, int rotation)
 
 int	GetPartialSideCullBitsForShape(int type, int shape, int rotation)
 {
-	int partialsidebits;
+	int partialsidebits = 0;
 	
 	if(type >= baseobjecttypeid)
 		return CULLBITS_PARTIAL_ALL;

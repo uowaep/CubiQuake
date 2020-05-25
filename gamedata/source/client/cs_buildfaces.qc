@@ -60,10 +60,9 @@ void QueueFaceBuildChain_Remove(entity e)
 
 void BuildChunkFaces(entity chunk, int distant)
 {
-	entity typegroup;
-	int blockshape, blockrotation, cullbits, cubiccount, numchunkcubics;
-	vector cubicposition;
-	int builtcount, type;
+	entity typegroup = __NULL__;
+	int blockshape = 0, blockrotation = 0, cullbits = 0, cubiccount = 0, numchunkcubics = 0, builtcount = 0, type = 0;
+	vector cubicposition = '0 0 0';
 
 	numchunkcubics = chunk.numvisiblecubics;
 	
@@ -82,7 +81,7 @@ void BuildChunkFaces(entity chunk, int distant)
 	{
 		if(cubiccount >= pow(chunksize, 3))
 		{
-			print("Warning: Couldn't find all the block data for the chunk.\n");
+			dprint("Warning: Lost chunk data over the network.\n");
 			localcmd(strcat("cmd cq_resendchunk ", itos(GetChunkOriginRef(chunk.origin, __FUNC__)), "\n"));
 			break;
 		}
@@ -144,7 +143,7 @@ void BuildChunkFaces(entity chunk, int distant)
 float	buildfacetime;
 void BuildQueuedFaces()
 {
-	entity e, nexte;
+	entity e = __NULL__, nexte = __NULL__;
 	int numbuilds = 0;
 	
 	if(time < buildfacetime)
@@ -177,7 +176,7 @@ void BuildQueuedFaces()
 
 void BuildNearQueuedFaces()
 {
-	entity e, nexte;
+	entity e = __NULL__, nexte = __NULL__;
 
 	for(e = list_queuenearfacebuildchain; e; e = nexte)
 	{
@@ -203,14 +202,14 @@ void QueueChunkFaceBuild(entity chunk, float sendflags)
 		
 		if(!(sendflags & SFL_ISNEW))
 			if(sendflags & SFL_BUILD)
-				chunk.resetlights = TRUE;
+				chunk.resetlights = TRUE; // i guess we don't care about far lights? we'll see
 		
 		return;
 	}
 
 	QueueFaceBuildChain_Add(chunk);
 	
-	entity e, lastchain, oldlist;
+	entity e = __NULL__, lastchain = __NULL__, oldlist = __NULL__;
 	for(e = list_queuefacebuildchain; e; e = e.queuefacebuildchain)
 	{
 		if(!e.queuefacebuildchain)
@@ -231,9 +230,9 @@ void QueueChunkFaceBuild(entity chunk, float sendflags)
 vector	oldplayerchunkpos;
 void UpdateFaceQueuesForPlayerPosition()
 {
-	vector ofs;
-	float dist;
-	entity e, nexte, typegroup;
+	vector ofs = '0 0 0';
+	float dist = 0;
+	entity e = __NULL__, nexte = __NULL__, typegroup = __NULL__;
 //	entity firstmovedchunk = __NULL__;
 	
 	vector currentplayerchunkpos = GetNearChunkOrg(view_org);
@@ -250,7 +249,7 @@ void UpdateFaceQueuesForPlayerPosition()
 		ofs = e.origin - currentplayerchunkpos;
 		dist = ofs*ofs;
 		
-		if(dist <= proximitydist)
+		if(dist <= proximitydist)	// this moves facegroups from the slow bg queue to the fast local queue if the player gets closer to them
 		{
 		//	if(!firstmovedchunk)
 		//		firstmovedchunk = e;

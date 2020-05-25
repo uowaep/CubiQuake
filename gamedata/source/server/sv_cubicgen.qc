@@ -19,8 +19,8 @@ int CheckNullChunk(int *cluster_data, int chunkslot0)
 
 int WriteChunk(vector chunkpos, int *cdata)
 {
-	float file;
-	int count, chunkslot0, slot, newwrite;
+	float file = 0;
+	int count = 0, chunkslot0 = 0, slot = 0, newwrite = 0;
 	int *cluster_data;
 	
 	vector clusterpos = GetNearClusterOrg(chunkpos);	
@@ -68,8 +68,8 @@ int ChunkGen_SetCubic(int *cdata, int type, int cubicslot0)
 
 void GenChunk_Sky(vector chunkpos, int *cdata)
 {
-	vector pos;
-	int cubicslot0;
+	vector pos = '0 0 0';
+	int cubicslot0 = 0;
 	
 	for(pos_x = 0; pos_x < chunksize; pos_x++)
 		for(pos_y = 0; pos_y < chunksize; pos_y++)
@@ -79,8 +79,8 @@ void GenChunk_Sky(vector chunkpos, int *cdata)
 
 void GenChunk_Surface(vector chunkpos, int *cdata)
 {
-	int type, cubicslot0;
-	vector pos;
+	int type = 0, cubicslot0 = 0;
+	vector pos = '0 0 0';
 
 	int zheight = floor(chunksize*0.5);
 	float slopevariance = 0;
@@ -106,8 +106,8 @@ void GenChunk_Surface(vector chunkpos, int *cdata)
 
 void GenChunk_Solid(vector chunkpos, int *cdata)
 {
-	vector pos;
-	int cubicslot0, blocktype;
+	vector pos = 0;
+	int cubicslot0 = 0, blocktype = 0;
 	
 	for(pos_x = 0; pos_x < chunksize; pos_x++)
 		for(pos_y = 0; pos_y < chunksize; pos_y++)
@@ -149,7 +149,7 @@ void QueueChunk(vector pos)
 	|| pos_z > worlddim_z*0.5 || pos_z < worlddim_z*-0.5)
 		return;			
 	
-	int id;
+	int id = 0;
 	int chunkid = GetChunkOriginRef(pos, __FUNC__);	
 
 	int numtokens = tokenize(chunkgenqueue_string);
@@ -186,12 +186,11 @@ void QueueChunk(vector pos)
 
 	// ADD TO GEN QUEUE
 	chunkgenqueue_string = strcat(chunkgenqueue_string, itos(chunkid), " ");
-	
 }
 
 void GenerateChunks_Wasteland(vector chunkpos)
 {
-	vector ofs, nearchunkpos;
+	vector ofs = '0 0 0', nearchunkpos = '0 0 0';
 	
 	// Write chunk to disk here
 	if(!GenSpawnChunk_Wasteland(chunkpos))
@@ -219,17 +218,14 @@ void GenerateChunks_Wasteland(vector chunkpos)
 
 void GenCubicVisibility()
 {
-	int cullbits, nearcullbits, chunkslot0, cubicslot0B, i, cubicnum, clusterid, cubicslot0, chunk_numvisiblecubics, nearclusterid, nearchunkid, nearcubicid;
-	int partialside = 0;
-	vector nearcubicorg, nearchunkorg, nearclusterorg, clusterorg, chunkorg;
+	int cullbits = 0, nearcullbits = 0, chunkslot0 = 0, cubicslot0B = 0, i = 0, cubicnum = 0, clusterid = 0, cubicslot0 = 0, chunk_numvisiblecubics = 0, nearclusterid = 0, nearchunkid = 0, nearcubicid = 0, partialside = 0;
+	vector nearcubicorg = '0 0 0', nearchunkorg = '0 0 0', nearclusterorg = '0 0 0', clusterorg = '0 0 0', chunkorg = '0 0 0';
 	int maxvised = 1;
-	float file, fileB;
-	entity e;
-	
+	float file = 0, fileB = 0;
+	entity e = __NULL__;
 	vector ofs = '0 0 0';
 	vector cubicchunkorg = '0 0 0';
-	int numvised = 0;
-	int totalvisiblecubicsincluster = 0;
+	int numvised = 0, totalvisiblecubicsincluster = 0;
 	int *cluster_data = __NULL__;
 	int *cluster_dataB = __NULL__;
 	
@@ -303,7 +299,7 @@ void GenCubicVisibility()
 					nearclusterorg = GetNearClusterOrg(nearchunkorg);
 					nearclusterid = GetClusterRef(nearclusterorg);					
 					nearchunkid = GetChunkRef(nearchunkorg-nearclusterorg);
-					nearcubicid = GetCubicRef(nearcubicorg-nearchunkorg);
+					nearcubicid = GetCubicRef(nearcubicorg-nearchunkorg, __FUNC__);
 					
 					fileB = 0;
 					
@@ -368,9 +364,9 @@ void GenCubicVisibility()
 
 void GenerateWorld_Wasteland() // FIXME: the wasteland and flatland generators use a string for the queue still :P
 {
-	string s, token;
-	int id, tokenlen;
-	vector pos;
+	string s = __NULL__, token = __NULL__;
+	int id = 0, tokenlen = 0;
+	vector pos = '0 0 0';
 
 	numchunksgeneratedthisframe = 0;
 	
@@ -479,9 +475,9 @@ int RotateBlockRotationYaw(int rotation)
 
 void RotateChunkYaw(int *cdata)
 {
-	int i, tempi, slot0, val;
+	int i = 0, tempi = 0, slot0 = 0, val = 0;
 	int *tempcdata = memalloc(sizeof(int)*(numprefabgenvaluesinchunk+numslotsforchunkincluster));
-	vector ipos, tpos;
+	vector ipos = '0 0 0', tpos = '0 0 0';
 	
 	tempcdata[PREFABCHUNKSLOT_CHUNKSIDETYPE_0] = cdata[PREFABCHUNKSLOT_CHUNKSIDETYPE_0];
 	tempcdata[PREFABCHUNKSLOT_CHUNKSIDETYPE_0+1] = cdata[PREFABCHUNKSLOT_CHUNKSIDETYPE_0+2];
@@ -526,7 +522,7 @@ void RotateChunkYaw(int *cdata)
 		tpos_y = ipos_x*-1;
 		tpos_z = ipos_z;
 
-		tempi = numprecubicvaluesinchunk+numprefabgenvaluesinchunk + GetCubicRef(tpos)*numvaluespercubic;
+		tempi = numprecubicvaluesinchunk+numprefabgenvaluesinchunk + GetCubicRef(tpos, __FUNC__)*numvaluespercubic;
 
 		slot0 = numprecubicvaluesinchunk+numprefabgenvaluesinchunk + i*numvaluespercubic;
 		
@@ -547,7 +543,7 @@ void RotateChunkYaw(int *cdata)
 
 void FixCullBits(int *cdata)
 {
-	int i, slot0;
+	int i = 0, slot0 = 0;
 
 	for(i = 0; i < pow(chunksize, 3); i++)
 	{
@@ -602,11 +598,11 @@ void FixCullBits(int *cdata)
 
 void SetupPrefabs()
 {
-	string s, filename;
+	string s = __NULL__, filename = __NULL__;
 	entity prefab;
-	int i, rotation;
+	int i = 0, rotation = 0;
 	int *chunk_data;
-	float file;
+	float file = 0;
 	
 	float h = search_begin("data/prefabs/worldgen/*", FALSE, FALSE);
 	float n = search_getsize(h);
@@ -672,7 +668,7 @@ void SetupPrefabs()
 
 void RemovePrefabs()
 {
-	entity prefab, nexte;
+	entity prefab = __NULL__, nexte = __NULL__;
 	
 	for(prefab = list_prefabtypechain; prefab; prefab = nexte)
 	{
@@ -715,18 +711,18 @@ int SubtractConnectionFromGenChunk(entity chunk)
 
 int GenerateChunks_Dungeon(entity forechunk, vector chunkpos, int forceopen, int forcesolid, int suppresschance, int vertical)
 {
-	float file, totalchance;
-	vector groupmins, groupmaxs, ofs, nearchunkpos, nearclusterpos;
-	int count, forechunkside, insidedungeon, groupdoesntfit, foundpassage, foundchunk, expandingpassage, createpassage, newchunksidecount, oppositeside, nearchunkref, chunkslot0, sidecount, prefabside_type, prefabside_fit, matchside_type, matchside_fit, matchside_flags, matchside_rotation, matchside_zone, matchside_prefabchunkflags, nummatchingprefabs, forcedconnectiontype, nomatch, requireone, connecting_requireone;
-	string filename;
+	float file = 0, totalchance = 0;
+	vector groupmins = '0 0 0', groupmaxs = '0 0 0', ofs = '0 0 0', nearchunkpos = '0 0 0', nearclusterpos = '0 0 0';
+	int count = 0, forechunkside = 0, insidedungeon = 0, groupdoesntfit = 0, foundpassage = 0, foundchunk = 0, expandingpassage = 0, createpassage = 0, newchunksidecount = 0, oppositeside = 0, nearchunkref = 0, chunkslot0 = 0, sidecount = 0, prefabside_type = 0, prefabside_fit = 0, matchside_type = 0, matchside_fit = 0, matchside_flags = 0, matchside_rotation = 0, matchside_zone = 0, matchside_prefabchunkflags = 0, nummatchingprefabs = 0, forcedconnectiontype = 0, nomatch = 0, requireone = 0, connecting_requireone = 0;
+	string filename = __NULL__;
 	int *cluster_data;
-	int side_type[6];
-	int side_fit[6];
-	int side_flags[6];
-	int side_rotation[6];
-	int side_zone[6];
-	int side_prefabchunkflags[6];
-	entity nearchunk, prefab, nexte, chunk, useprefab, lastent, e, stepchunk;
+	int side_type[6] = {0};
+	int side_fit[6] = {0};
+	int side_flags[6] = {0};
+	int side_rotation[6] = {0};
+	int side_zone[6] = {0};
+	int side_prefabchunkflags[6] = {0};
+	entity nearchunk = __NULL__, prefab = __NULL__, nexte = __NULL__, chunk = __NULL__, useprefab = __NULL__, e = __NULL__, stepchunk = __NULL__,lastent = __NULL__;
 	float grouppadding = 0;//chunksize*cubicradius*2*2;
 
 	// ANALYZING THE SPACE
@@ -1332,7 +1328,7 @@ void TruncateChunks()
 	if(!truncatearea)
 		return;
 	
-	int count;
+	int count = 0;
 	
 	for(entity chunk = list_unconnectedchunkchain; chunk; chunk = chunk.unconnectedchunkchain)
 	{
@@ -1350,12 +1346,9 @@ void TruncateChunks()
 
 void GenerateWorld_Prefabs()
 {
-	int sidecount, sidetype;
-	int chunkgen = FALSE;
-	int foundfit = FALSE;
-	int vertical = 0;
+	int sidecount = 0, sidetype = 0, chunkgen = FALSE, foundfit = FALSE, vertical = 0;
 	vector ofs = '0 0 0';
-	entity nexte, chunk;
+	entity nexte = __NULL__, chunk = __NULL__;
 	
 	numchunksgeneratedthisframe = 0;
 	

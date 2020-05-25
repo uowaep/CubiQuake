@@ -1,6 +1,6 @@
 string GetNameForConnectionType(int type)
 {
-	string s;
+	string s = __NULL__;
 	
 	switch(type)
 	{
@@ -101,7 +101,7 @@ entity ModifySideButton(entity e, vector org, int bttntype, float bttnscale, vec
 
 void UpdateModifySideButtonOrgs()
 {
-	entity e;
+	entity e = __NULL__;
 	
 	if(!modifyside_selection_side[0])
 		return;
@@ -164,7 +164,7 @@ void InitializeModifySides(vector org)
 
 void BuildFacesForPlacementTool()
 {
-	vector sel_mins, sel_maxs, pos;
+	vector sel_mins = '0 0 0', sel_maxs = '0 0 0', pos = '0 0 0';
 	int numcubicsinselection = 0;
 	
 	sel_maxs_z = editor_selection_maxs_z/(cubicradius*2);
@@ -197,7 +197,7 @@ void BuildFacesForPlacementTool()
 
 void RebuildSelectionFaces()
 {
-	entity nexte;
+	entity nexte = __NULL__;
 	for(entity facegroup = cubeselector.list_facegroupchain; facegroup; facegroup = nexte)
 	{
 		nexte = facegroup.facegroupchain;
@@ -213,7 +213,7 @@ void RebuildSelectionFaces()
 
 void Editor_ModifySide()
 {
-	int count;
+	int count = 0;
 
 	if(editor_infoedit || editor_toolsize > TOOLSIZE_EDITOR_CUBIC)
 		return;
@@ -543,8 +543,8 @@ void SpawnInfoEditChunkSides()
 
 void RemoveInfoEditChunkSides()
 {
-	entity e;
-	int count;
+	entity e = __NULL__;
+	int count = 0;
 	for(int sidecount = 0; sidecount < 6; sidecount++)
 	{
 		e = infoedit_selection_side[sidecount];
@@ -625,7 +625,7 @@ void ShrinkGroupSize(entity e)
 
 string GetConnectionFlagsString(int field)
 {
-	string s;
+	string s = __NULL__;
 	if(field & CFL_ALLOWROTATEDFIT)
 		s = "TRUE";
 	else
@@ -635,7 +635,7 @@ string GetConnectionFlagsString(int field)
 
 string GetChunkFlagsString(int field)
 {
-	string s;
+	string s = __NULL__;
 	if(field & CHFL_ALLOWSAMEZONEPASSAGE)
 		s = "TRUE";
 	else
@@ -771,7 +771,7 @@ void Editor_InfoEdit()
 	makevectors(view_ang);
 	
 	self.dimension_hit = 255&~1;
-	traceline(view_org, view_org + v_forward*cubicradius*2*(tooltracedist*2), MASK_NORMAL, self);
+	traceline(view_org, view_org + v_forward*cubicradius*2*(tooltracedist*2), MOVE_NORMAL, self);
 	self.dimension_hit = 255;
 
 	if(trace_ent)
@@ -852,13 +852,6 @@ void UpdateCubicInterface()
 	if(!client_initialized)
 		return;
 
-/*	if(!player_input[INPUT_ATTACK])
-	if(updatehudtooltime && time < updatehudtooltime)	// this breaks initial button clicks
-		return;
-	else
-		updatehudtooltime = time+0.2;		// TraceCubic kills fps, no need to update every single frame.  FIXME: use new trace code
-	*/
-	
 	editor_tool = getstati(STAT_TOOL);	
 	editor_infoedit = getstati(STAT_EDITOR_INFOEDIT);
 	editor_editchunk = getstati(STAT_EDITOR_EDITCHUNK);
@@ -949,10 +942,7 @@ void UpdateCubicInterface()
 				cubeselector.blocktype = editor_cubictype;
 				
 				if(editor_toolsize > TOOLSIZE_EDITOR_CUBIC)
-				{
 					cubeselector.scale = 4;
-					cubeselector.fatness = 2;
-				}
 				
 				if(toolonedge || editor_toolsize > TOOLSIZE_EDITOR_CUBIC)
 					cubeselector.colormod = '1 0 0';

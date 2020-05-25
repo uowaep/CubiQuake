@@ -1,7 +1,7 @@
 void BuildFaces_Custom(entity typegroup, vector cubicpos, int usecustom, float facescale)
 {
-	int facecount, facebit, count;
-	vector vertofs, texturecoords, sel_mins, sel_maxs;
+	int facecount = 0, facebit = 0, count = 0;
+	vector vertofs = '0 0 0', texturecoords = '0 0 0', sel_mins = '0 0 0', sel_maxs = '0 0 0';
 
 	float bufferthickness = 0.02;
 	

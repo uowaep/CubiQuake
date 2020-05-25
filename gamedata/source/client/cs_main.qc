@@ -102,36 +102,20 @@ float CSQC_InputEvent(float evtype, float scanx, float chary, float devid)
 
 // CSQC_Ent_Update : Called every frame that the server has indicated an update to the SSQC / CSQC entity has occured.
 // The only parameter reflects if the entity is "new" to the client, meaning it just came into the client's PVS.
+void Ent_Update_Wrap(float bIsNewEntity, int i) {}
 void CSQC_Ent_Update(float bIsNewEntity)
 {
 	// NOTE: self may be world here if CSQC_Ent_Spawn is defined
 	
-	float i;//, spawned;
-	
-	
-/*	if(self == world)
-	if(i == ENT_CHUNK)
-	{
-		if(list_ghostchunkchain)
-		{
-			self = list_ghostchunkchain;
-			GhostChunkChain_Remove(self);
-		}
-	}
-	
-	if(self == world)
-	{
-		self = spawn();
-		spawned = TRUE;
-	}*/
-	
-	i = readbyte();
+	int i = readbyte();
 
 	switch(i)
 	{
 		case ENT_CHUNK:			UpdateChunk();			break;
 		case ENT_CHUNKBLOAT:	UpdateChunkBloat();		break;
 	}
+	
+	Ent_Update_Wrap(bIsNewEntity, i);
 }
 
 // CSQC_Ent_Remove : Called when the server requests a SSQC / CSQC entity to be removed.  Essentially call remove(self) as well.

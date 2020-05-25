@@ -1,14 +1,14 @@
 int	PlayerIsInClusterList(entity player, entity cluster, entity chunk)
 {
-	entity e;
-	float sendtime;
+	entity e = __NULL__;
+	float sendtime = 0;
 	
 	for(int i = 0; i < maxplayers; i++)
 	{
 		e = cluster.cluster_playerlist[i];
 		if(e == player)
 		{
-			sendtime = chunk.chunk_playerdelay[i];
+			sendtime = chunk.chunk_playerdelay[i];	// FIXME: this isn't used
 			if(time >= sendtime)
 			{
 				chunk.chunk_playerdelay[i] = 0;
@@ -59,9 +59,8 @@ float InitializeHackSendFlags(entity viewer, float sendflags)
 
 void SendCubics(entity chunk, int bloatstage)
 {
-	int type, cullbits, sentcount;//, bloatcount;	
+	int type = 0, cullbits = 0, sentcount = 0, wouldsend = 0;//, bloatcount;	
 	int maxblocks = pow(chunksize, 3);
-	int wouldsend = 0;
 	
 	WriteShort(MSG_ENTITY, chunk.numvisiblecubics);
 	
@@ -188,11 +187,11 @@ void SaveModifiedClusterFiles()
 	if(numplayersloadingfiles > 0)
 		return;
 	
-	entity cluster, nextcluster, chunk, nextchunk;
-	string filename;
+	entity cluster = __NULL__, nextcluster = __NULL__, chunk = __NULL__, nextchunk = __NULL__;
+	string filename = __NULL__;
 	int *cluster_data = __NULL__;
-	int clusterchunkid, i, chunkslot0, cubicslot0;
-	float file;
+	int clusterchunkid = 0, i = 0, chunkslot0 = 0, cubicslot0 = 0;
+	float file = 0;
 	
 	for(cluster = list_saveclusterqueuechain; cluster; cluster = nextcluster)
 	{

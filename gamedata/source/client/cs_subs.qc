@@ -1,4 +1,4 @@
-void Remove(entity e)
+void CleanUp_Remove (entity e)
 {
 	#ifdef DEBUG
 	if(wasfreed(e))
@@ -13,6 +13,9 @@ void Remove(entity e)
 	
 	if(e.enttype == ENT_CHUNK)
 	{
+		if(e.list_chunklightchain)	// this unlights faces that were lit by lights that are now past the edge of the loaded world, but this also unlights faces near a chunk that was removed because it's last visible cubic was a light that was removed
+			ResetStaticLights(FALSE);
+		
 		ClearChunkValues(e, FALSE);
 		if(e.chunkinitialized)
 			FreeChunkAllocations(e);
@@ -38,7 +41,7 @@ void Remove(entity e)
 		memfill8(e.cubic_blockrotation, 0, sizeof(int)*pow(chunksize, 3));
 		memfill8(e.cubic_cullbits, 0, sizeof(int)*pow(chunksize, 3));
 	*/
-	
+
 		ChunkChain_Remove(e);
 	//	GhostChunkChain_Add(e);
 	//	return;
@@ -58,7 +61,12 @@ void Remove(entity e)
 	
 	QueueNearFaceBuildChain_Remove(e);
 	QueueFaceBuildChain_Remove(e);
-	QueueChunkBloatChain_Remove(e);
+	QueueChunkBloatChain_Remove(e);	
+}
+
+void Remove(entity e)
+{
+	CleanUp_Remove(e);
 	
 	// remove this entity
 	remove(e);

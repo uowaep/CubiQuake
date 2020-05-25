@@ -93,7 +93,7 @@ void Remove_self()	{	Remove(self);	}
 
 string zonecpy(string dst, string src) // if dst is not null or zoned, this will cause errors
 {
-	local string s;
+	local string s = __NULL__;
 
 	if(src != __NULL__)
 		s = strzone(src);
