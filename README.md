@@ -8,26 +8,16 @@ Use the F1-F4 Keys in-game for help!
 
 ### Recent Changes
 
-r144
-+ animation code is now shared between server and client
-+ fixed a large amount of compiler warnings
-+ set some developer into to use dprint
-+ added some comments to try to help understand the code
-+ fixed a wrong value during tracing in the prefab editor
-+ removed some unused code
-+ attempted to improve texture name lookup
-+ fixed issue with player toggling lighting (player torch) before the world is loaded
-+ added a function for modders to __wrap for access to cubiquake csqc lighting routines: void ApplyLighting_Wrap()
-+ added a similar function for access to CSQC_Ent_Update, specifically to aceess the "int i = readbyte();" value: void Ent_Update_Wrap(float bIsNewEntity, int i)
-+ added more similar functions to the server and client for entity removal cleanup, both with the same name: void CleanUp_Remove (entity e)
-+ fixed a bug with removing lights from an empty chunk not relighting faces
-+ consolidated collision bbox removal
-+ fixed a bug with collision boxes completely removing and respawning every frame instead of leaving each bbox in the world until it isn't being used
-+ expaded upon a specific dbug print related to referencing out of world bounds things
-+ fixed a bug with narrow cubics not removing bboxes
-+ added a function for modders to __wrap to effectively access StartFrame functionality before the RemoveUnusedCubicBBoxes() function is called: WorldLogic()
-+ players and other physical entities now clear bbox usage on removal
-+ actually fixed animation 
+r150
++ added a field in the default.cfg for the PDoD mod
++ editor strings allocate to memory
++ fixed multiple major issues with chunks abusing memory allocations for networking purposes, and causing random crashes and issues when updating to csqc
++ included PDoD files in progs.src files (commented out, makes updating core easier.)
++ simplified projectile example slightly
++ added a world boundary for entities, including the player, unless in NOCLIP mode.
++ the ClearCubicArea() function used with the editor can now be used outside of the editor
++ removed some redundant code
++ modified some debug prints
 
 ### Installation
 - Download CubiQuake https://github.com/uowaep/CubiQuake/archive/master.zip and extract the entire contents of the zip file into any directory. The directory you choose will be your main CubiQuake directory.
@@ -59,6 +49,38 @@ WARNING: If a server restarts, players need to reconnect to get the world to net
 - don't let players place things on players
 
 ### ChangeLog
+
+r150
++ added a field in the default.cfg for the PDoD mod (
++ editor strings allocate to memory
++ fixed multiple major issues with chunks abusing memory allocations for networking purposes, and causing random crashes and issues when updating to csqc
++ included PDoD files in progs.src files (commented out, makes updating core easier.)
++ simplified projectile example slightly
++ added a world boundary for entities, including the player, unless in NOCLIP mode.
++ the ClearCubicArea() function used with the editor can now be used outside of the editor
++ removed some redundant code
++ modified some debug prints
+
+r144
++ animation code is now shared between server and client
++ fixed a large amount of compiler warnings
++ set some developer into to use dprint
++ added some comments to try to help understand the code
++ fixed a wrong value during tracing in the prefab editor
++ removed some unused code
++ attempted to improve texture name lookup
++ fixed issue with player toggling lighting (player torch) before the world is loaded
++ added a function for modders to __wrap for access to cubiquake csqc lighting routines: void ApplyLighting_Wrap()
++ added a similar function for access to CSQC_Ent_Update, specifically to aceess the "int i = readbyte();" value: void Ent_Update_Wrap(float bIsNewEntity, int i)
++ added more similar functions to the server and client for entity removal cleanup, both with the same name: void CleanUp_Remove (entity e)
++ fixed a bug with removing lights from an empty chunk not relighting faces
++ consolidated collision bbox removal
++ fixed a bug with collision boxes completely removing and respawning every frame instead of leaving each bbox in the world until it isn't being used
++ expaded upon a specific dbug print related to referencing out of world bounds things
++ fixed a bug with narrow cubics not removing bboxes
++ added a function for modders to __wrap to effectively access StartFrame functionality before the RemoveUnusedCubicBBoxes() function is called: WorldLogic()
++ players and other physical entities now clear bbox usage on removal
++ actually fixed animation 
 
 r137
 + added a start menu and help menus to the console (access with F1-F4)
