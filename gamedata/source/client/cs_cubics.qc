@@ -234,6 +234,10 @@ void UpdateChunk()
 
 	if(sendflags & SFL_BUILD)
 	{
+//		if(sendflags & SFL_DAMAGED)
+//		if(!(sendflags & SFL_ISNEW))
+//			print("damaged chunk\n");
+		
 		UpdateChunkBuildData(self, sendflags, 0, clearmem);
 		
 		if(ref <= self.updateref && !(ref < 100 && self.updateref >= 100))
@@ -295,7 +299,8 @@ void UpdateChunk()
 		{
 			ClearChunkValues(self, TRUE);
 			LoadChunkCubics(self);
-		//	TriggerStaticLightReset(org);			
+		//	TriggerStaticLightReset(org);	
+			
 			QueueChunkFaceBuild(self, sendflags);
 
 			for(e = self.list_chunkbloatchain; e; e = nexte)
@@ -347,6 +352,10 @@ void UpdateChunkBloat()
 
 	if(sendflags & SFL_BUILD)
 	{
+//		if(sendflags & SFL_DAMAGED)
+//		if(!(sendflags & SFL_ISNEW))
+//			print("damaged bloat\n");		
+		
 		UpdateChunkBuildData(self, sendflags, self.bloatlevel, clearmem);
 
 		if(ref <= self.updateref && !(ref < 100 && self.updateref >= 100))
@@ -401,7 +410,8 @@ void UpdateChunkBloat()
 				chunk.findnetworkbloatent = FALSE;
 				ClearChunkValues(chunk, TRUE);
 				LoadChunkCubics(chunk);
-			//	TriggerStaticLightReset(org);				
+			//	TriggerStaticLightReset(org);		
+			
 				QueueChunkFaceBuild(chunk, chunk.recentsendflags);
 				
 				for(e = chunk.list_chunkbloatchain; e; e = nexte)

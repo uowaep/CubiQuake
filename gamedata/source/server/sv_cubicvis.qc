@@ -117,14 +117,14 @@ void SetCubicVisibility(entity chunk, int memslot)
 	originalchunk.cubic_cullbits[memslot] = cullbits + (originalcullbits & CULLBITS_PARTIAL_ALL);
 }
 
-void UpdateChunkAreaVisibility(entity chunk, vector cubicorg, int markmodified)
+void UpdateChunkAreaVisibility(entity chunk, vector cubicorg, int markmodified, int isdamaged)
 {
 	vector ofs = '0 0 0', nearcubicorg = '0 0 0', cubicchunkorg = '0 0 0';
 	
 	int cubicid = GetCubicRef(cubicorg-chunk.origin);
 	SetCubicVisibility(chunk, cubicid);
 	if(markmodified)
-		SetChunkAsModified(chunk);
+		SetChunkAsModified(chunk, isdamaged);
 	
 	entity originalchunk = chunk;
 	
@@ -150,7 +150,7 @@ void UpdateChunkAreaVisibility(entity chunk, vector cubicorg, int markmodified)
 		cubicid = GetCubicRef(nearcubicorg - chunk.origin);
 		SetCubicVisibility(chunk, cubicid);
 		if(chunk != originalchunk)
-			SetChunkAsModified(chunk);
+			SetChunkAsModified(chunk, isdamaged);
 	}
 }
 
@@ -171,7 +171,7 @@ void UpdateChunkAreaVisibility_OuterEdge(entity chunk)
 				cubicpos = cubicpos*cubicradius*2;
 				cubicpos += chunk.origin;
 				
-				UpdateChunkAreaVisibility(chunk, cubicpos, FALSE);
+				UpdateChunkAreaVisibility(chunk, cubicpos, FALSE, FALSE);
 			}	
 }
 
@@ -213,7 +213,7 @@ void UpdateClusterAreaVisibility_OuterEdge(entity cluster)
 					
 					for(cpos_y = 0; cpos_y < chunksize; cpos_y++)
 						for(cpos_z = 0; cpos_z < chunksize; cpos_z++)
-							UpdateChunkAreaVisibility(chunk, GetCubicOffsetFromGrid(cpos)+chunkorg, FALSE);
+							UpdateChunkAreaVisibility(chunk, GetCubicOffsetFromGrid(cpos)+chunkorg, FALSE, FALSE);
 				}
 				else
 				if(pos_x == clustersize-1)
@@ -223,7 +223,7 @@ void UpdateClusterAreaVisibility_OuterEdge(entity cluster)
 					
 					for(cpos_y = 0; cpos_y < chunksize; cpos_y++)
 						for(cpos_z = 0; cpos_z < chunksize; cpos_z++)
-							UpdateChunkAreaVisibility(chunk, GetCubicOffsetFromGrid(cpos)+chunkorg, FALSE);
+							UpdateChunkAreaVisibility(chunk, GetCubicOffsetFromGrid(cpos)+chunkorg, FALSE, FALSE);
 				}
 				
 				if(pos_y == 0)
@@ -237,7 +237,7 @@ void UpdateClusterAreaVisibility_OuterEdge(entity cluster)
 							continue;
 						
 						for(cpos_z = 0; cpos_z < chunksize; cpos_z++)
-							UpdateChunkAreaVisibility(chunk, GetCubicOffsetFromGrid(cpos)+chunkorg, FALSE);
+							UpdateChunkAreaVisibility(chunk, GetCubicOffsetFromGrid(cpos)+chunkorg, FALSE, FALSE);
 					}
 				}				
 				else
@@ -252,7 +252,7 @@ void UpdateClusterAreaVisibility_OuterEdge(entity cluster)
 							continue;
 						
 						for(cpos_z = 0; cpos_z < chunksize; cpos_z++)
-							UpdateChunkAreaVisibility(chunk, GetCubicOffsetFromGrid(cpos)+chunkorg, FALSE);
+							UpdateChunkAreaVisibility(chunk, GetCubicOffsetFromGrid(cpos)+chunkorg, FALSE, FALSE);
 					}
 				}				
 
@@ -270,7 +270,7 @@ void UpdateClusterAreaVisibility_OuterEdge(entity cluster)
 							if(cpos_y == checked_y-1)
 								continue;
 							
-							UpdateChunkAreaVisibility(chunk, GetCubicOffsetFromGrid(cpos)+chunkorg, FALSE);
+							UpdateChunkAreaVisibility(chunk, GetCubicOffsetFromGrid(cpos)+chunkorg, FALSE, FALSE);
 						}
 					}
 				}				
@@ -289,11 +289,11 @@ void UpdateClusterAreaVisibility_OuterEdge(entity cluster)
 							if(cpos_y == checked_y-1)
 								continue;
 							
-							UpdateChunkAreaVisibility(chunk, GetCubicOffsetFromGrid(cpos)+chunkorg, FALSE);
+							UpdateChunkAreaVisibility(chunk, GetCubicOffsetFromGrid(cpos)+chunkorg, FALSE, FALSE);
 						}
 					}
 				}
 				
-				SetChunkAsModified(chunk);
+				SetChunkAsModified(chunk, FALSE);
 			}	
 }

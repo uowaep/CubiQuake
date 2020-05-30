@@ -204,6 +204,9 @@ void CheckWorldBounds(entity e)
 	if(e.movetype == MOVETYPE_NOCLIP)
 		return;
 	
+	if(e.ignoreworldbounds)
+		return;
+	
 	// very edge of world
 	worldedgeoffset_x = worlddim_x*0.5 - cubicradius;
 	worldedgeoffset_y = worlddim_y*0.5 - cubicradius;
@@ -233,5 +236,14 @@ void CheckWorldBounds(entity e)
 		return;
 	}
 
-	setorigin(e, e.origin+ofs);
+// don't let anything out except players, but should unload objects when chunks unload too, which will happen anyway eventually but in the meantime the 10 second removal delay *should* prevent anything weird
+	if(e.removepastworldbounds)
+	if(ofs != '0 0 0')
+	{
+		Remove(e);
+		return;
+	}
+
+	if(ofs != '0 0 0')
+		setorigin(e, e.origin+ofs);
 }

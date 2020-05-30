@@ -27,7 +27,8 @@ void FireFireball(entity attacker)
 	ProjectileChain_Add(fb);
 }*/
 
-void ProjectileUpdate()
+// FIXME: obsolete, uses Obj Handlers, but Obj handling needs to move to the core
+/*void ProjectileUpdate()
 {
 	for(entity e = list_projectilechain; e; e = e.projectilechain)
 	{
@@ -36,8 +37,12 @@ void ProjectileUpdate()
 			print("ProjectileUpdate A wasfreed.\n");	
 		#endif
 		
+		
+		
+		
+		
 		LeaveSolidCubics(e, e.lastsolidcubicorigin);
 		SetSolidCubics(e, e.origin);
 		e.lastsolidcubicorigin = e.origin;
 	}
-}
+}*/

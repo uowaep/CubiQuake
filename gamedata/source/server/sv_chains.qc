@@ -107,9 +107,3 @@ entity		list_networkbloatupdatechain;
 .entity		networkbloatupdatechain_prev;
 void NetworkBloatUpdateChain_Add(entity e)		{	list_networkbloatupdatechain = LinkedList_Add(e, list_networkbloatupdatechain, networkbloatupdatechain, networkbloatupdatechain_prev);	}
 void NetworkBloatUpdateChain_Remove(entity e)	{	list_networkbloatupdatechain = LinkedList_Remove(e, list_networkbloatupdatechain, networkbloatupdatechain, networkbloatupdatechain_prev);	}
-
-entity		list_gibchain;
-.entity		gibchain;
-.entity		gibchain_prev;
-void GibChain_Add(entity e)		{	list_gibchain = LinkedList_Add(e, list_gibchain, gibchain, gibchain_prev);	}
-void GibChain_Remove(entity e)	{	list_gibchain = LinkedList_Remove(e, list_gibchain, gibchain, gibchain_prev);	}

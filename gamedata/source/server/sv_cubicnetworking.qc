@@ -118,7 +118,7 @@ float SendChunk(entity viewer, float sendflags)
 		return FALSE;
 
 	sendflags = InitializeHackSendFlags(viewer, sendflags);
-	
+
 	WriteByte(MSG_ENTITY, ENT_CHUNK);	
 	WriteLong(MSG_ENTITY, sendflags);
 	WriteByte(MSG_ENTITY, self.updateref);
@@ -193,10 +193,16 @@ void SetChunkSendFlags(entity chunk, float sendflags)
 	if(chunk.updateref > 255)
 		chunk.updateref = 1;
 	
+	if(chunk.damaged)
+	{
+		sendflags = sendflags | SFL_DAMAGED;
+		chunk.damaged = FALSE;
+	}
+	
 	chunk.SendFlags = chunk.SendFlags | sendflags;
-	chunk.bloatSendFlags = sendflags;
+	chunk.bloatSendFlags = chunk.bloatSendFlags | sendflags;
 
-	if(chunk.networkbloat_allocated)
+	if(chunk.networkbloat_allocated)	// don't bother if no bloats ents have ever been added
 		NetworkBloatUpdateChain_Add(chunk);	// do this after the queuesetvisiblecubicschain resolves because new bloat ents haven't spawned yet
 }
 
@@ -256,7 +262,7 @@ void SaveModifiedClusterFiles()
 	}
 }
 
-void SetChunkAsModified(entity chunk)
+void SetChunkAsModified(entity chunk, int isdamaged)
 {
 	entity cluster = GetClusterForLocation(__NULL__, GetNearClusterOrg(chunk.origin));	
 	
@@ -270,6 +276,8 @@ void SetChunkAsModified(entity chunk)
 	}
 	
 //	SetChunkSendFlags(chunk, SFL_BUILD);
+
+	chunk.damaged = isdamaged;
 	SetChunkSendFlags_BUILD_Chain_Add(chunk);
 	SaveClusterQueueChain_Add(cluster);
 	SaveChunkQueueChain_Add(cluster, chunk);	

@@ -1,5 +1,5 @@
 // VERSION
-string		cubic_revision	= "cubiquake r150";
+string		cubic_revision	= "cubiquake r153";
 
 // WORLD SETTINGS
 
@@ -247,8 +247,8 @@ void SetDependentViewValues()
 int		SFL_ISNEW		= 1;
 int		SFL_BUILD		= 2;
 int		SFL_INITIALIZE	= 4;
-
-int		SFL_UPDATE		= 16;
+int		SFL_DAMAGED		= 8;
+int		SFL_UPDATE		= 16;	// this is used, even though it doesn't look like it
 
 
 .int	enttype;
@@ -655,6 +655,8 @@ entity GetClusterForLocation(entity cluster, vector clusterorg)
 {
 	if(!clusters_allocated)
 		return __NULL__;
+
+	clusterorg = GetNearClusterOrg(clusterorg);	// incase clusterorg isn't exact
 
 	if(clusterorg_x > worlddim_x*0.5 || clusterorg_x < worlddim_x*-0.5
 	|| clusterorg_y > worlddim_y*0.5 || clusterorg_y < worlddim_y*-0.5

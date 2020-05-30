@@ -1,4 +1,0 @@
-Models from Quake (id Software):
-player.mdl
-h_player.mdl
-torch.mdl

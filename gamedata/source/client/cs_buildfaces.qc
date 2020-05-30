@@ -196,8 +196,12 @@ void QueueChunkFaceBuild(entity chunk, float sendflags)
 	float proximitydist = chunksize*cubicradius*2*autocvar_cq_bgload_dist;
 	proximitydist = proximitydist*proximitydist;
 	
-	if(dist <= proximitydist)
+	float isnew = (sendflags & SFL_ISNEW);
+	float sfldmgd = (sendflags & SFL_DAMAGED);
+	
+	if(dist <= proximitydist || (!isnew && sfldmgd))
 	{
+//		print("fast chain\n");
 		QueueNearFaceBuildChain_Add(chunk);
 		
 		if(!(sendflags & SFL_ISNEW))
@@ -206,7 +210,7 @@ void QueueChunkFaceBuild(entity chunk, float sendflags)
 		
 		return;
 	}
-
+//print("slow chain\n");
 	QueueFaceBuildChain_Add(chunk);
 	
 	entity e = __NULL__, lastchain = __NULL__, oldlist = __NULL__;

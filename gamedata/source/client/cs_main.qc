@@ -17,7 +17,7 @@ void CSQC_Init(float apilevel, string enginename, float engineversion)
 	InitializeClientSettings();
 	InitializeCubicInterface();	
 	InitializeClientLight();
-//	InitializeStrings();
+	InitializeStrings();
 	
 	print("You have entered the world.\n");
 }

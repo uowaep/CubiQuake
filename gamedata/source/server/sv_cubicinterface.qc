@@ -243,7 +243,7 @@ void LoadPrefab_Chunk(vector chunkorg)
 	
 	fclose(file);
 	UpdateChunkAreaVisibility_OuterEdge(chunk);
-	SetChunkAsModified(chunk);
+	SetChunkAsModified(chunk, FALSE);
 	
 	sprint(self, filename, " loaded.\n");
 }
@@ -365,7 +365,7 @@ void AddChunk(vector chunkorg, int type, int shape, int rotation)
 	}
 	
 	UpdateChunkAreaVisibility_OuterEdge(chunk);
-	SetChunkAsModified(chunk);
+	SetChunkAsModified(chunk, FALSE);
 }
 
 void ClearChunk(vector chunkorg)
@@ -394,7 +394,7 @@ void ClearChunk(vector chunkorg)
 	
 	UpdateChunkAreaVisibility_OuterEdge(chunk);
 	
-	SetChunkAsModified(chunk);
+	SetChunkAsModified(chunk, FALSE);
 }
 
 void CopyCubicData(vector org)
@@ -446,7 +446,7 @@ void AddCubic(vector org, int type, int shape, int rotation, int avoidexistingcu
 	
 	chunk.cubic_cullbits[i] = (chunk.cubic_cullbits[i] & CULLBITS_ALL) + GetPartialSideCullBitsForShape(type, shape, rotation);
 	
-	UpdateChunkAreaVisibility(chunk, org, TRUE);
+	UpdateChunkAreaVisibility(chunk, org, TRUE, FALSE);
 }
 
 void AddCubicArea(vector cubicorg, int type, int shape, int rotation, int avoidexistingcubics)
@@ -468,7 +468,47 @@ void AddCubicArea(vector cubicorg, int type, int shape, int rotation, int avoide
 			}
 }
 
-void ClearCubic(entity chunk, vector cubicorg)
+int CubicIsOnEdge(vector org)
+{
+	entity cluster = __NULL__;
+	vector nearcubicorg = '0 0 0', clusterorg = '0 0 0';
+	
+	cluster = GetClusterForLocation(__NULL__, org);
+	
+	if(!cluster)
+		return FALSE;
+	
+	if(cluster.removetime)
+		return FALSE;
+	
+	for(vector pos = '-1 -1 -1'; pos_x <= 1; pos_x++)
+		for(pos_y = -1; pos_y <= 1; pos_y++)
+			for(pos_z = -1; pos_z <= 1; pos_z++)
+			{
+				if(pos == '0 0 0')	// we already know this cubic is loaded
+					continue;
+				
+				nearcubicorg = org + pos*cubicradius*2;
+				cluster = GetClusterForLocation(__NULL__, nearcubicorg);
+				
+				// let's see if we can get away with only doing it to the primary cluster and not put it here yet
+				
+				if(cluster)	// if the cluster is loaded, then the cubic is
+					continue;
+					
+				clusterorg = GetNearClusterOrg(nearcubicorg);
+				if(clusterorg_x > worlddim_x*0.5 || clusterorg_x < worlddim_x*-0.5
+				|| clusterorg_y > worlddim_y*0.5 || clusterorg_y < worlddim_y*-0.5
+				|| clusterorg_z > worlddim_z*0.5 || clusterorg_z < worlddim_z*-0.5)
+					continue;
+					
+				return TRUE;
+			}
+			
+	return FALSE;
+}
+
+void ClearCubic(entity chunk, vector cubicorg, int isdamaged)
 {
 	if(!chunk)
 		return;
@@ -477,7 +517,11 @@ void ClearCubic(entity chunk, vector cubicorg)
 	
 	if(memslot == -1)
 		return;
-	
+
+	// let callers handle this because other things might depend on whether or not the cubic is cleared (gibs for example)
+//	if(CubicIsOnEdge(cubicorg))	// make sure the cubic next to it is loaded if it's not the edge of the world, else cancel the remove
+//		return;
+
 	int cullbits = chunk.cubic_cullbits[memslot];
 	if((cullbits & CULLBITS_ALL) != CULLBITS_ALL)
 		QueueSetNumVisibleCubics(chunk, chunk.numvisiblecubics-1);
@@ -489,7 +533,7 @@ void ClearCubic(entity chunk, vector cubicorg)
 	chunk.cubic_blocktype[memslot] = 0;
 	chunk.cubic_cullbits[memslot] = 0;
 	
-	UpdateChunkAreaVisibility(chunk, cubicorg, TRUE);
+	UpdateChunkAreaVisibility(chunk, cubicorg, TRUE, isdamaged);
 }
 
 void ClearCubicArea(entity player, entity chunk, vector cubicorg)
@@ -508,7 +552,7 @@ void ClearCubicArea(entity player, entity chunk, vector cubicorg)
 					continue;
 
 				chunk = GetChunkForLocation(__NULL__, org, __FUNC__);			
-				ClearCubic(chunk, org);
+				ClearCubic(chunk, org, FALSE);
 			}
 }
 
@@ -710,7 +754,7 @@ int ModifyBlock(int modificationtype, int(int) func1, vector(int, int) func2, in
 		self.editor_blockrotation = chunk.cubic_blockrotation[i] = func3(chunk.cubic_blockshape[i], chunk.cubic_blockrotation[i]);
 	
 	chunk.cubic_cullbits[i] = (chunk.cubic_cullbits[i] & CULLBITS_ALL) + GetPartialSideCullBitsForShape(chunk.cubic_blocktype[i], chunk.cubic_blockshape[i], chunk.cubic_blockrotation[i]);
-	UpdateChunkAreaVisibility(chunk, tracepos, TRUE);
+	UpdateChunkAreaVisibility(chunk, tracepos, TRUE, FALSE);
 	
 //	SetChunkSendFlags(chunk, SFL_BUILD);
 
@@ -749,7 +793,7 @@ void ApplyEditorValuesToCubic(vector org, int alwayscall)
 	|| chunk.cubic_blockrotation[i] != old_blockrotation
 	|| chunk.cubic_cullbits[i] != old_cullbits)
 	{
-		UpdateChunkAreaVisibility(chunk, org, TRUE);
+		UpdateChunkAreaVisibility(chunk, org, TRUE, FALSE);
 	//	SetChunkSendFlags_BUILD_Chain_Add(chunk);
 	//	SetChunkSendFlags(chunk, SFL_BUILD);
 	}
@@ -1066,7 +1110,7 @@ void Player_CubiQuakeControls()
 													vector cubicorg = GetNearestCubicOrigin(tracepos, chunksize_iseven);
 													
 													if(self.editor_blocktype >= baseobjecttypeid)
-														ClearCubic(chunk, cubicorg);
+														ClearCubic(chunk, cubicorg, FALSE);
 													else
 														ClearCubicArea(self, chunk, cubicorg);
 													break;

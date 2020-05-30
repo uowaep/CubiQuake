@@ -1046,7 +1046,7 @@ void InitializePlayers()
 void WorldLogic()
 {
 	InitializePlayers();
-	ProjectileUpdate();	// see sv_attacks.qc for examples
+//	ProjectileUpdate();	// see sv_attacks.qc for examples
 	SaveModifiedClusterFiles();
 	Player_WorldInterface();	
 }

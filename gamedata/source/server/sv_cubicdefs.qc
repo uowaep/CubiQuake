@@ -5,6 +5,7 @@
 .int		averagetype;
 .*entity	cluster_playerlist;
 
+.int		damaged;
 .int		occupantcount;
 .int		worldloaded;
 .int		loadingchunks;
@@ -91,10 +92,12 @@ int			gen_expandfit;
 int			gen_searchingforspace;
 int			lineargeneration;
 
-
 //int GetZoneIDForName(string zonename);
 
-.vector	lastsolidcubicorigin;
-.int	collisioncount;
-.int	physicssolidsset;
+.vector		lastsolidcubicorigin;
+.int		collisioncount;
+.int		physicssolidsset;
 void LeaveSolidCubics(entity e, vector org);
+
+.int		ignoreworldbounds;
+.int		removepastworldbounds;
