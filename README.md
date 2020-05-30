@@ -1,15 +1,64 @@
 ![alt text](https://raw.githubusercontent.com/uowaep/CubiQuake/master/cubiquake.png "CubiQuake")
 
-Cubic Game Framework for the FTEQW Engine __(Requires [FTEQW](http://fte.triptohell.info/downloads) revision 5424 or higher. 64bit strongly recommended.)__
+Cubic Game Framework for the FTEQW Engine __(Requires [FTEQW](http://fte.triptohell.info/downloads) 64bit strongly recommended.)__
 
 CubiQuake is a Quake modification. It can be played as is in creative mode to build worlds, but it is also a framework for Quake mod developers. It is designed for building cubic worlds, which popular culture commonly misreferences as voxels, hence the name. Cubiquake uses trisoup_simple to draw most surfaces, and dynamically spawns collision surfaces and calculates lighting as the player moves through the world. Multiple rotatable shapes are supported: cube, ramp, wedge. Each cubic/shape can use any texture or instead use models for more decorative applications such as the example torches. Ambient, static, and dynamic light all work. You do not need to be a modder to use CubiQuake as is. Just follow the installation and playing/generation instructions.
 
+Use the F1-F4 Keys in-game for help!
+
 ### Recent Changes
-I would do a complete wipe and reinstall. But do whatever.
 
-Readme is outdated. Use the F1-F4 Keys in-game for help!
+r144
++ animation code is now shared between server and client
++ fixed a large amount of compiler warnings
++ set some developer into to use dprint
++ added some comments to try to help understand the code
++ fixed a wrong value during tracing in the prefab editor
++ removed some unused code
++ attempted to improve texture name lookup
++ fixed issue with player toggling lighting (player torch) before the world is loaded
++ added a function for modders to __wrap for access to cubiquake csqc lighting routines: void ApplyLighting_Wrap()
++ added a similar function for access to CSQC_Ent_Update, specifically to aceess the "int i = readbyte();" value: void Ent_Update_Wrap(float bIsNewEntity, int i)
++ added more similar functions to the server and client for entity removal cleanup, both with the same name: void CleanUp_Remove (entity e)
++ fixed a bug with removing lights from an empty chunk not relighting faces
++ consolidated collision bbox removal
++ fixed a bug with collision boxes completely removing and respawning every frame instead of leaving each bbox in the world until it isn't being used
++ expaded upon a specific dbug print related to referencing out of world bounds things
++ fixed a bug with narrow cubics not removing bboxes
++ added a function for modders to __wrap to effectively access StartFrame functionality before the RemoveUnusedCubicBBoxes() function is called: WorldLogic()
++ players and other physical entities now clear bbox usage on removal
++ actually fixed animation 
 
-Happy 40th anniversary of the last Mt. St. Helens Explosion. 
+### Installation
+- Download CubiQuake https://github.com/uowaep/CubiQuake/archive/master.zip and extract the entire contents of the zip file into any directory. The directory you choose will be your main CubiQuake directory.
+- Download the appropriate client from FTEQW http://fte.triptohell.info/downloads and place it in your main CubiQuake directory. (64bit strongly recommended.)
+
+Note: If sharing the same FTE install with other mods, the default.fmf file should not be installed.
+
+### Updating
+Extract the new files into your install directory. It's always good idea to start from scratch when updating, but you shouldn't need to. If anything is broken try clearing the data dir first. If that doesn't help, start from a clean install. If that doesn't help run debug mode in FTEQCC and get some screenshots.
+
+### Starting CubiQuake
+- Start FTEQW.
+- Click on "Start World"
+
+### Multiplayer
+Multiplayer is working. Get the server from http://fte.triptohell.info/downloads. Use the cubiquakeserver.bat file or check the command line inside to run a dedicated server.
+
+WARNING: If a server restarts, players need to reconnect to get the world to network to them correctly. This is on the known issues list.
+
+### Known Issues
+- cubics/chunks/clusters can be placed on players
+- players spawn inside of eachother on server restart and don't network chunks correctly (join an existing server!)
+- players can get stuck in cubics if they move too fast for the loading speed (haven't seen this happen in a while)
+
+### ToDo
+- even more work on extended draw range performance
+- copy/paste multiple cubics via custom selection tool
+- make player light visible to other players
+- don't let players place things on players
+
+### ChangeLog
 
 r137
 + added a start menu and help menus to the console (access with F1-F4)
@@ -92,132 +141,102 @@ improved handling of server to client chunk information to recognize when a pack
 + performance improvement
 + probably other stuff...
 
-### Installation
-- Download CubiQuake https://github.com/uowaep/CubiQuake/archive/master.zip and extract the entire contents of the zip file into any directory. The directory you choose will be your main CubiQuake directory.
-- Download the appropriate client from FTEQW http://fte.triptohell.info/downloads and place it in your main CubiQuake directory. (64bit strongly recommended.)
-
-Note: If sharing the same FTE install with other mods, the default.fmf file should not be installed.
-
-### Updating
-Extract the new files into your install directory. It's always good idea to start from scratch when updating, but you shouldn't need to. If anything is broken try clearing the data dir first. If that doesn't help, start from a clean install. If that doesn't help run debug mode in FTEQCC and get some screenshots.
-
-### Starting CubiQuake
-- Start FTEQW.
-- Click on "Start World"
-
-### Multiplayer
-Multiplayer is working. Get the server from http://fte.triptohell.info/downloads. Use the cubiquakeserver.bat file or check the command line inside to run a dedicated server.
-
-WARNING: If a server restarts, players need to reconnect to get the world to network to them correctly. This is on the known issues list.
-
-### Known Issues
-- cubics/chunks/clusters can be placed on players
-- players spawn inside of eachother on server restart and don't network chunks correctly (join an existing server!)
-- players can get stuck in cubics if they move too fast for the loading speed (haven't seen this happen in a while)
-
-### ToDo
-- even more work on extended draw range performance
-- copy/paste multiple cubics via custom selection tool
-- make player light visible to other players
-- don't let players place things on players
-
-### ChangeLog
 r130
-- fixed issues with odd sized chunks, by fixing several related functions that were using bad syntax
-- increased chunk size from 6x6x6 to 7x7x7 (an odd value is good for designing prefabs with doorways centered.) This also effectively increases view range on default settings by about 7 cubics. Not a lot, but it's something.
-- increased max light radius because increasing chunk size allows lights to run at a larger radius without major performance issues
++ fixed issues with odd sized chunks, by fixing several related functions that were using bad syntax
++ increased chunk size from 6x6x6 to 7x7x7 (an odd value is good for designing prefabs with doorways centered.) This also effectively increases view range on default settings by about 7 cubics. Not a lot, but it's something.
++ increased max light radius because increasing chunk size allows lights to run at a larger radius without major performance issues
 
 r126
-- fixed: noclip was preventing the world from loading
++ fixed: noclip was preventing the world from loading
 
 r123
-- lots of bug fixes mostly involving stability and multiplayer
-- increased default ambient lights a little from '0.2 0.2 0.6' to '0.4 0.4 0.8'
-- disabled cl_predict_players to stop other players from jittering around
-- disabled r_fog_cullentities (just to avoid any potential interference. can test this later.)
-- chunks no longer allocate more than once during an update (potential leak fixed)
-- resetlights was still registered as a command, now removed
-- added a ton of debugging code for finding bad entity references
-- chunks are now networked correctly to the appropriate clients
-- when players disconnect they update their chunks to know they can remove if no other players are viewing them
-- the world loading loop now handles all players rather than each player using their own loop
-- fixed a bad reference to previously removed cubic collision bbox ents
-- fixed a bug where cubic collision bbox ents were trying to spawn outside of the world if the player gets too close to the edge
-- no longer ghosting clusters as it tends to break networking
-- renamed some functions to make more sense (Remove* to Clear* etc)
-- intervals between unloads are now global rather than per player (prevents server choking)
-- when removing clusters, chunk removal is no longer staggered as this was creating more potential bad entity references. this could be fixed, but isn't really necessary. the code is left in, just not used.
-- changed all references to self outside of self's initial function call in sv_cubics.qc to player
++ lots of bug fixes mostly involving stability and multiplayer
++ increased default ambient lights a little from '0.2 0.2 0.6' to '0.4 0.4 0.8'
++ disabled cl_predict_players to stop other players from jittering around
++ disabled r_fog_cullentities (just to avoid any potential interference. can test this later.)
++ chunks no longer allocate more than once during an update (potential leak fixed)
++ resetlights was still registered as a command, now removed
++ added a ton of debugging code for finding bad entity references
++ chunks are now networked correctly to the appropriate clients
++ when players disconnect they update their chunks to know they can remove if no other players are viewing them
++ the world loading loop now handles all players rather than each player using their own loop
++ fixed a bad reference to previously removed cubic collision bbox ents
++ fixed a bug where cubic collision bbox ents were trying to spawn outside of the world if the player gets too close to the edge
++ no longer ghosting clusters as it tends to break networking
++ renamed some functions to make more sense (Remove* to Clear* etc)
++ intervals between unloads are now global rather than per player (prevents server choking)
++ when removing clusters, chunk removal is no longer staggered as this was creating more potential bad entity references. this could be fixed, but isn't really necessary. the code is left in, just not used.
++ changed all references to self outside of self's initial function call in sv_cubics.qc to player
 
 r107
-- tested multiplayer. it works. (still needs to not send/draw out of range cubics loaded by other players)
-- added cubiquakeserver.bat to the main engine directory to run dedicated servers easily
-- added support for individual clients to save prefab files into their own directories on the server (be sure to set your "name" field)
-- use the "filename" cvar to set the desired prefab filename. it is set blank by default each game. use the cvar without any value to show the current filename
-- the "prefabname" cvar is no longer used
-- cvar "adminpass" added to prevent clients from calling commands such as resetview without permission
-- the map file is now a .map instead of a .hmp
-- added "start" command/alias to the console to avoid having to type out the map command
-- ambient light is now controlled on the server.
-- resetview now also resets ambient light levels (and draw ranges) across all clients
-- fixed a bug that was causing the server to try to initialize the client endlessly after using resetview
-- fixed some text prints to no longer broadcast to every player
-- removed resetlights command
++ tested multiplayer. it works. (still needs to not send/draw out of range cubics loaded by other players)
++ added cubiquakeserver.bat to the main engine directory to run dedicated servers easily
++ added support for individual clients to save prefab files into their own directories on the server (be sure to set your "name" field)
++ use the "filename" cvar to set the desired prefab filename. it is set blank by default each game. use the cvar without any value to show the current filename
++ the "prefabname" cvar is no longer used
++ cvar "adminpass" added to prevent clients from calling commands such as resetview without permission
++ the map file is now a .map instead of a .hmp
++ added "start" command/alias to the console to avoid having to type out the map command
++ ambient light is now controlled on the server.
++ resetview now also resets ambient light levels (and draw ranges) across all clients
++ fixed a bug that was causing the server to try to initialize the client endlessly after using resetview
++ fixed some text prints to no longer broadcast to every player
++ removed resetlights command
 
 r101
-- view distances can now be set in the console and modified during gameplay (they are server dependent though)
-- added console commands to modify view ranges: viewdist1, viewheight1, viewdist2, viewheight2, resetview
-- added some comments to default.cfg
++ view distances can now be set in the console and modified during gameplay (they are server dependent though)
++ added console commands to modify view ranges: viewdist1, viewheight1, viewdist2, viewheight2, resetview
++ added some comments to default.cfg
 
 r96
-- added ambient, static, and dynamic light
-- added a torch cubic object, using the torch model from Quake
-- T toggles a dynamic light around the client (impulse 150)
-- cvar ambientlight takes a vector ('0.2 0.2 0.6' in default.cfg)
-- [ and ] keys for cubic Y rotation are swapped in default.cfg
-- added console command "worlds" to list existing worlds
-- added console command "resetlights" for debugging (don't need it anymore, but don't need to remove it)
-- removed fog from the world.hmp map file
-- added a very basic shader to allow csqc to light/color polygons drawn with trisoup_simple
-- hacked in some animation code for the torch
-- added chunk entities that can use models/lights or any custom code
-- added cs_cubicobjects.qc for defining custom objects
-- removed some draw sorting code. wasn't helping as much as perceived ;)
-- added cluster matrix on client that is created as needed for chunks
-- moved most csqc defs to cs_cubicdefs.qc
-- moved most svqc defs to sv_cubicsdefs.qc
-- the cubic tool can now place custom entity type cubics along with normal trisoup_simple polygon cubics
-- added an arg to DrawFaceGroup() that is unnecessary. FIXME
-- worldsize is sent with the first set of chunk csqc/svqc entities before running InitGameVariables()
-- fixed a texture bug in wedge shape
-- now drawing engine crosshair
-- fixed a bug where chunks arriving out of order would arrive before worldsize is set on the client
-- added maxchunksloadedperframe and maxchunksghostedperframe to smooth out cluster/chunk load in/out
-- added maxlightradius setting. can be any value, but default is recommended for performance. (192 with default world settings)
-- added ambientlight setting using autocvar_ambientlight acting as the base light color
-- added lightupdatedelay_static settting. 0.5s default
-- added lightupdatedelay_dynamic setting. 0.02s default
--  iseven settings are now automatic
-- .lightradius .lightbrightness .lightcolor for lighting
-- fixed some bugs with placing chunks and clusters
-- added centerprint warning when trying to edit while chunks are loading
++ added ambient, static, and dynamic light
++ added a torch cubic object, using the torch model from Quake
++ T toggles a dynamic light around the client (impulse 150)
++ cvar ambientlight takes a vector ('0.2 0.2 0.6' in default.cfg)
++ [ and ] keys for cubic Y rotation are swapped in default.cfg
++ added console command "worlds" to list existing worlds
++ added console command "resetlights" for debugging (don't need it anymore, but don't need to remove it)
++ removed fog from the world.hmp map file
++ added a very basic shader to allow csqc to light/color polygons drawn with trisoup_simple
++ hacked in some animation code for the torch
++ added chunk entities that can use models/lights or any custom code
++ added cs_cubicobjects.qc for defining custom objects
++ removed some draw sorting code. wasn't helping as much as perceived ;)
++ added cluster matrix on client that is created as needed for chunks
++ moved most csqc defs to cs_cubicdefs.qc
++ moved most svqc defs to sv_cubicsdefs.qc
++ the cubic tool can now place custom entity type cubics along with normal trisoup_simple polygon cubics
++ added an arg to DrawFaceGroup() that is unnecessary. FIXME
++ worldsize is sent with the first set of chunk csqc/svqc entities before running InitGameVariables()
++ fixed a texture bug in wedge shape
++ now drawing engine crosshair
++ fixed a bug where chunks arriving out of order would arrive before worldsize is set on the client
++ added maxchunksloadedperframe and maxchunksghostedperframe to smooth out cluster/chunk load in/out
++ added maxlightradius setting. can be any value, but default is recommended for performance. (192 with default world settings)
++ added ambientlight setting using autocvar_ambientlight acting as the base light color
++ added lightupdatedelay_static settting. 0.5s default
++ added lightupdatedelay_dynamic setting. 0.02s default
++  iseven settings are now automatic
++ .lightradius .lightbrightness .lightcolor for lighting
++ fixed some bugs with placing chunks and clusters
++ added centerprint warning when trying to edit while chunks are loading
 
 r83
-- added wedge and wedgetip shapes
-- added more angles of rotation to shapes (All angles are possible now with non-symmetrical shapes.)
-- chunks are now drawn from closest to furthest for 25% ish FPS increase
-- greatly improved chunk and cluster lookup speed by using entity references rather than findradius()
-- chunk and cluster entities are re-used where possible to reduce allocations and memfree usage
-- moved face rendering functions to their own file in csqc
-- moved shape functions to their own files in csqc
-- no longer using dpcompat_findradiusarealinks cvar
-- changed some instances of world to NULL
-- removed some unused variables
++ added wedge and wedgetip shapes
++ added more angles of rotation to shapes (All angles are possible now with non-symmetrical shapes.)
++ chunks are now drawn from closest to furthest for 25% ish FPS increase
++ greatly improved chunk and cluster lookup speed by using entity references rather than findradius()
++ chunk and cluster entities are re-used where possible to reduce allocations and memfree usage
++ moved face rendering functions to their own file in csqc
++ moved shape functions to their own files in csqc
++ no longer using dpcompat_findradiusarealinks cvar
++ changed some instances of world to NULL
++ removed some unused variables
 
 r78
-- added ramp shape (with collision)
-- added 2 axis block rotation (textures stay aligned to the world) (keys: [ ] -+)
-- added texture tools (keys: mwheel)
-- added shape tool (keys: <>)
-- added revision text in upper right of screen
-- updated surface culling to handle rotated shapes and partial cube sides (triangles)
++ added ramp shape (with collision)
++ added 2 axis block rotation (textures stay aligned to the world) (keys: [ ] -+)
++ added texture tools (keys: mwheel)
++ added shape tool (keys: <>)
++ added revision text in upper right of screen
++ updated surface culling to handle rotated shapes and partial cube sides (triangles)
