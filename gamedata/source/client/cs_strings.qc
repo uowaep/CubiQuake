@@ -12,7 +12,7 @@ string	hudstring_editor_prefabchance;
 string	hudstring_editor_prefabchunkflags;
 string	hudstring_editor_totalcubics;
 
-/*void InitializeStrings()
+void InitializeStrings()
 {
 	int count;
 	
@@ -26,13 +26,15 @@ string	hudstring_editor_totalcubics;
 	{
 		hudstring_editor_chunkconnectionfit[count] = (string)memalloc(64);
 		hudstring_editor_chunkgroupsize[count] = (string)memalloc(64);
-		hudstring_editor_chunkconnectiontype[count] = (string)memalloc(64);
+//		hudstring_editor_chunkconnectiontype[count] = (string)memalloc(64);
 		hudstring_editor_chunkconnectionflags[count] = (string)memalloc(64);
 	}
 	
 	hudstring_editor_prefabzone = (string)memalloc(64);	
 	hudstring_editor_prefabchance = (string)memalloc(64);		
-}*/
+	hudstring_editor_prefabchunkflags = (string)memalloc(64);	
+	hudstring_editor_totalcubics = (string)memalloc(64);		
+}
 
 /*void SetString(string memstr, int val)
 {

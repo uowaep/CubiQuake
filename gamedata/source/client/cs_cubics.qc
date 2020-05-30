@@ -213,7 +213,7 @@ void UpdateChunk()
 			if(!clusters_allocated)
 			{
 				clusters_allocated = TRUE;
-				cluster_ent = memalloc(sizeof(entity)*maxclusters);		
+				cluster_ent = memalloc(sizeof(entity)*maxclusters);
 			}		
 			
 			int clusterid = GetClusterRef(GetNearClusterOrg(org));
@@ -225,7 +225,7 @@ void UpdateChunk()
 			if(!cluster)
 				cluster = SpawnCluster(clusterid);
 			
-			cluster.chunk_ent[GetChunkRef(self.origin-cluster.origin)] = self;
+			cluster.chunk_ent[GetChunkRef(self.origin-cluster.origin, __FUNC__)] = self;
 			cluster.numchunks++;
 			
 		//	TriggerStaticLightReset(org);
@@ -238,7 +238,7 @@ void UpdateChunk()
 		
 		if(ref <= self.updateref && !(ref < 100 && self.updateref >= 100))
 		{
-		//	print("Developer Notice: Caught out of order bloat.\n");
+			dprint("Developer Notice: Caught out of order bloat.\n");
 			return;
 		}
 		
@@ -351,7 +351,7 @@ void UpdateChunkBloat()
 
 		if(ref <= self.updateref && !(ref < 100 && self.updateref >= 100))
 		{
-		//	print("Developer Notice: Caught out of order bloat.\n");
+			dprint("Developer Notice: Caught out of order bloat.\n");
 			return;
 		}
 		self.updateref = ref;
@@ -363,13 +363,13 @@ void UpdateChunkBloat()
 		cluster = cluster_ent[clusterid];
 		
 		if(cluster)
-			chunk = cluster.chunk_ent[GetChunkRef(self.origin-cluster.origin)];
+			chunk = cluster.chunk_ent[GetChunkRef(self.origin-cluster.origin, __FUNC__)];
 		
 		if(chunk)
 		{
 			ChunkBloatChain_Remove(chunk, self);			
 			
-			for(e = chunk.list_chunkbloatchain; e; e = nexte)//e.chunkbloatchain)
+			for(e = chunk.list_chunkbloatchain; e; e = nexte)
 			{
 				nexte = e.chunkbloatchain;
 				
@@ -381,7 +381,6 @@ void UpdateChunkBloat()
 				ChunkBloatChain_Remove(chunk, e);
 			}
 			
-	//		if(chunk.findnetworkbloatent)
 			if(chunk.updateref == self.updateref)
 				addbloattochunk = TRUE;
 		}

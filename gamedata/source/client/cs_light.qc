@@ -59,8 +59,8 @@ void SetStaticLightResetTrigger(vector org)
 	if(!cluster)
 		cluster = SpawnCluster(GetClusterRef(clusterorg));
 	
-	int flagfield = cluster.chunk_flags[GetChunkRef(org-clusterorg)];
-	cluster.chunk_flags[GetChunkRef(org-clusterorg)] = flagfield | CHFL_TRIGGERSTATICLIGHTS;
+	int flagfield = cluster.chunk_flags[GetChunkRef(org-clusterorg, __FUNC__)];
+	cluster.chunk_flags[GetChunkRef(org-clusterorg, __FUNC__)] = flagfield | CHFL_TRIGGERSTATICLIGHTS;
 }
 
 void TriggerStaticLightReset(vector org)
@@ -71,7 +71,7 @@ void TriggerStaticLightReset(vector org)
 	if(!cluster)
 		return;
 
-	int chunkid = GetChunkRef(org-clusterorg);
+	int chunkid = GetChunkRef(org-clusterorg, __FUNC__);
 	int flagfield = cluster.chunk_flags[chunkid];
 	
 	if(flagfield & CHFL_TRIGGERSTATICLIGHTS)
@@ -86,9 +86,9 @@ void ClearStaticLightResetTrigger(vector org)
 	if(!cluster)
 		return;
 
-	int flagfield = cluster.chunk_flags[GetChunkRef(org-clusterorg)];
+	int flagfield = cluster.chunk_flags[GetChunkRef(org-clusterorg, __FUNC__)];
 	flagfield = flagfield - (flagfield & CHFL_TRIGGERSTATICLIGHTS);
-	cluster.chunk_flags[GetChunkRef(org-clusterorg)] = flagfield;
+	cluster.chunk_flags[GetChunkRef(org-clusterorg, __FUNC__)] = flagfield;
 }
 
 void ClearStaticLightResetTriggersForLight(entity light)
@@ -177,7 +177,7 @@ void SetVertLights(entity light, int isstatic)
 				|| target_z > worlddim_z*0.5 || target_z < worlddim_z*-0.5)
 					continue;
 				
-				chunk = GetChunkForLocation(__NULL__, target);
+				chunk = GetChunkForLocation(__NULL__, target, __FUNC__);
 
 				if(isstatic)
 					SetStaticLightResetTrigger(target);

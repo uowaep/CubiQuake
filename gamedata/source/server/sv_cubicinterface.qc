@@ -1,6 +1,6 @@
 void LoadPrefab_Cluster(vector clusterorg)
 {
-	entity cluster = GetChunkForLocation(__NULL__, clusterorg);
+	entity cluster = GetChunkForLocation(__NULL__, clusterorg, __FUNC__);
 	if(!cluster)
 		return;
 
@@ -32,12 +32,12 @@ void LoadPrefab_Cluster(vector clusterorg)
 				org *= chunksize*cubicradius*2;
 				org += clusterorg;
 				
-				chunk = GetChunkForLocation(__NULL__, org);
+				chunk = GetChunkForLocation(__NULL__, org, __FUNC__);
 	
-				chunkslot0 = numprechunkvaluesincluster + GetChunkRef(chunk.origin - clusterorg)*numslotsforchunkincluster;
+				chunkslot0 = numprechunkvaluesincluster + GetChunkRef(chunk.origin - clusterorg, __FUNC__)*numslotsforchunkincluster;
 	
 				chunk.chunkbits = cluster_data[chunkslot0+CHUNKSLOT_CHUNKBITS];
-				SetNumVisibleCubics(chunk, cluster_data[chunkslot0+CHUNKSLOT_NUMVISIBLECUBICS]);
+				QueueSetNumVisibleCubics(chunk, cluster_data[chunkslot0+CHUNKSLOT_NUMVISIBLECUBICS]);
 	
 				for(i = 0; i < pow(chunksize,3); i++)
 				{
@@ -91,9 +91,9 @@ void SavePrefab_Cluster(vector clusterorg)
 				org *= chunksize*cubicradius*2;
 				org += clusterorg;
 				
-				chunk = GetChunkForLocation(__NULL__, org);
+				chunk = GetChunkForLocation(__NULL__, org, __FUNC__);
 	
-				chunkslot0 = numprechunkvaluesincluster + GetChunkRef(chunk.origin - clusterorg)*numslotsforchunkincluster;
+				chunkslot0 = numprechunkvaluesincluster + GetChunkRef(chunk.origin - clusterorg, __FUNC__)*numslotsforchunkincluster;
 	
 				cluster_data[chunkslot0+CHUNKSLOT_CHUNKBITS] = chunk.chunkbits;
 				cluster_data[chunkslot0+CHUNKSLOT_NUMVISIBLECUBICS] = chunk.numvisiblecubics;
@@ -132,12 +132,12 @@ void AddCluster(vector clusterorg, int type, int shape, int rotation)
 				org *= chunksize*cubicradius*2;
 				org += clusterorg;
 				
-				chunk = GetChunkForLocation(__NULL__, org);
+				chunk = GetChunkForLocation(__NULL__, org, __FUNC__);
 				
 				if(!chunk)
 					continue;
 				
-				SetNumVisibleCubics(chunk, 0);
+				QueueSetNumVisibleCubics(chunk, 0);
 				
 				for(int i = 0; i < pow(chunksize, 3); i++)
 				{
@@ -165,12 +165,12 @@ void ClearCluster(vector clusterorg)
 		for(pos_y = 0; pos_y < clustersize; pos_y++)
 			for(pos_z = 0; pos_z < clustersize; pos_z++)
 			{	
-				chunk = GetChunkForLocation(__NULL__, GetChunkOffsetFromGrid(pos)+clusterorg);
+				chunk = GetChunkForLocation(__NULL__, GetChunkOffsetFromGrid(pos)+clusterorg, __FUNC__);
 				
 				if(!chunk)
 					return;
 				
-				SetNumVisibleCubics(chunk, 0);
+				QueueSetNumVisibleCubics(chunk, 0);
 				
 				for(int i = 0; i < pow(chunksize, 3); i++)
 				{
@@ -193,7 +193,7 @@ void ClearCluster(vector clusterorg)
 
 void LoadPrefab_Chunk(vector chunkorg)
 {
-	entity chunk = GetChunkForLocation(__NULL__, chunkorg);
+	entity chunk = GetChunkForLocation(__NULL__, chunkorg, __FUNC__);
 	if(!chunk)
 		return;
 
@@ -229,7 +229,7 @@ void LoadPrefab_Chunk(vector chunkorg)
 	sprint(self, "Loding chunk with zone: ", itos(chunk.prefabzone), "\n");
 
 	chunk.chunkbits = chunk_data[numprefabgenvaluesinchunk+CHUNKSLOT_CHUNKBITS];
-	SetNumVisibleCubics(chunk, chunk_data[numprefabgenvaluesinchunk+CHUNKSLOT_NUMVISIBLECUBICS]);
+	QueueSetNumVisibleCubics(chunk, chunk_data[numprefabgenvaluesinchunk+CHUNKSLOT_NUMVISIBLECUBICS]);
 	
 	for(i = 0; i < pow(chunksize, 3); i++)
 	{
@@ -250,7 +250,7 @@ void LoadPrefab_Chunk(vector chunkorg)
 
 void InfoEdit_Chunk(vector chunkorg)
 {
-	entity chunk = GetChunkForLocation(__NULL__, chunkorg);
+	entity chunk = GetChunkForLocation(__NULL__, chunkorg, __FUNC__);
 	for(int sidecount = 0; sidecount < numsideinfoslots; sidecount++)
 		self.infoedit_chunksidedata[sidecount] = chunk.infoedit_chunksidedata[sidecount];
 	
@@ -262,7 +262,7 @@ void InfoEdit_Chunk(vector chunkorg)
 	self.prefabchunkflags = chunk.prefabchunkflags;
 	
 	self.editor_infoedit = TRUE;
-	self.editor_editchunk = GetChunkOriginRef(chunkorg, __FUNC__);	
+	self.editor_editchunk = GetChunkOriginRef(chunkorg);	
 }
 
 void SetSelectionEdge(vector polarity, vector ofs)
@@ -296,7 +296,7 @@ void InitializeSelectionEdge()
 
 void SavePrefab_Chunk(vector chunkorg)
 {
-	entity chunk = GetChunkForLocation(__NULL__, chunkorg);
+	entity chunk = GetChunkForLocation(__NULL__, chunkorg, __FUNC__);
 	
 	if(!chunk)
 		return;
@@ -349,12 +349,12 @@ void AddChunk(vector chunkorg, int type, int shape, int rotation)
 		return;
 	}
 	
-	entity chunk = GetChunkForLocation(__NULL__, chunkorg);
+	entity chunk = GetChunkForLocation(__NULL__, chunkorg, __FUNC__);
 	
 	if(!chunk)
 		return;
 	
-	SetNumVisibleCubics(chunk, 0);
+	QueueSetNumVisibleCubics(chunk, 0);
 	
 	for(int i = 0; i < pow(chunksize, 3); i++)
 	{
@@ -370,12 +370,12 @@ void AddChunk(vector chunkorg, int type, int shape, int rotation)
 
 void ClearChunk(vector chunkorg)
 {
-	entity chunk = GetChunkForLocation(__NULL__, chunkorg);
+	entity chunk = GetChunkForLocation(__NULL__, chunkorg, __FUNC__);
 	
 	if(!chunk)
 		return;
 	
-	SetNumVisibleCubics(chunk, 0);
+	QueueSetNumVisibleCubics(chunk, 0);
 	
 	for(int i = 0; i < pow(chunksize, 3); i++)
 	{
@@ -399,11 +399,14 @@ void ClearChunk(vector chunkorg)
 
 void CopyCubicData(vector org)
 {
-	entity chunk = GetChunkForLocation(__NULL__, GetNearChunkOrg(org));
+	// tools can't be used out of bounds, so if this is used outside of a tool it needs to use a bounds check
+	
+	org = GetNearestCubicOrigin(org, chunksize_iseven);
+	entity chunk = GetChunkForLocation(__NULL__, org, __FUNC__);
 	if(!chunk)
 		return;
 	
-	int i = GetCubicRef(org-chunk.origin, __FUNC__);
+	int i = GetCubicRef(org-chunk.origin);
 	
 	self.editor_blocktype = chunk.cubic_blocktype[i];
 	self.editor_blockshape = chunk.cubic_blockshape[i];
@@ -416,7 +419,7 @@ void AddCubic(vector org, int type, int shape, int rotation, int avoidexistingcu
 		return;
 	
 	vector cubicchunkorg = GetNearChunkOrg(org);
-	entity chunk = GetChunkForLocation(__NULL__, cubicchunkorg);
+	entity chunk = GetChunkForLocation(__NULL__, cubicchunkorg, __FUNC__);
 	
 	if(!chunk)
 		return;
@@ -434,9 +437,9 @@ void AddCubic(vector org, int type, int shape, int rotation, int avoidexistingcu
 			return;
 
 	if(GetCubicStatus(chunk, org, FALSE) == -1)
-		SetNumVisibleCubics(chunk, chunk.numvisiblecubics+1);
+		QueueSetNumVisibleCubics(chunk, chunk.numvisiblecubics+1);
 
-	int i = GetCubicRef(org-cubicchunkorg, __FUNC__);
+	int i = GetCubicRef(org-cubicchunkorg);
 	chunk.cubic_blocktype[i] = type;
 	chunk.cubic_blockshape[i] = shape;
 	chunk.cubic_blockrotation[i] = GetFixedRotation(rotation, shape);
@@ -477,7 +480,7 @@ void ClearCubic(entity chunk, vector cubicorg)
 	
 	int cullbits = chunk.cubic_cullbits[memslot];
 	if((cullbits & CULLBITS_ALL) != CULLBITS_ALL)
-		SetNumVisibleCubics(chunk, chunk.numvisiblecubics-1);
+		QueueSetNumVisibleCubics(chunk, chunk.numvisiblecubics-1);
 	
 	entity bbox = GetCubicBBoxForLocation(cubicorg);
 	if(bbox)
@@ -489,11 +492,11 @@ void ClearCubic(entity chunk, vector cubicorg)
 	UpdateChunkAreaVisibility(chunk, cubicorg, TRUE);
 }
 
-void ClearCubicArea(entity chunk, vector cubicorg)
+void ClearCubicArea(entity player, entity chunk, vector cubicorg)
 {
 	vector org = '0 0 0';
-	vector edgemins = cubicorg + self.editor_selection_mins + '1 1 1'*cubicradius*2;
-	vector edgemaxs = cubicorg + self.editor_selection_maxs - '1 1 1'*cubicradius*2;
+	vector edgemins = cubicorg + player.editor_selection_mins + '1 1 1'*cubicradius*2;
+	vector edgemaxs = cubicorg + player.editor_selection_maxs - '1 1 1'*cubicradius*2;
 	
 	for(org_x = edgemins_x; org_x <= edgemaxs_x; org_x+=cubicradius*2)
 		for(org_y = edgemins_y; org_y <= edgemaxs_y; org_y+=cubicradius*2)
@@ -503,8 +506,8 @@ void ClearCubicArea(entity chunk, vector cubicorg)
 				|| org_y > worlddim_y*0.5 || org_y < worlddim_y*-0.5
 				|| org_z > worlddim_z*0.5 || org_z < worlddim_z*-0.5)
 					continue;
-				
-				chunk = GetChunkForLocation(__NULL__, GetNearChunkOrg(org));
+
+				chunk = GetChunkForLocation(__NULL__, org, __FUNC__);			
 				ClearCubic(chunk, org);
 			}
 }
@@ -680,7 +683,7 @@ int ModifyBlock(int modificationtype, int(int) func1, vector(int, int) func2, in
 	makevectors(self.v_angle);
 	vector targetpos = self.origin+self.view_ofs+v_forward*cubicradius*2*20;
 	vector tracepos = GetNearestCubicOrigin(TraceCubic(self.origin+self.view_ofs, targetpos, TRUE), chunksize_iseven);
-	entity chunk = GetChunkForLocation(__NULL__, GetNearChunkOrg(tracepos));
+	entity chunk = GetChunkForLocation(__NULL__, tracepos, __FUNC__);
 	
 	if(!chunk)
 		return FALSE;
@@ -688,7 +691,7 @@ int ModifyBlock(int modificationtype, int(int) func1, vector(int, int) func2, in
 	if(GetCubicStatus(chunk, tracepos, FALSE) == -1)
 		return FALSE;
 	
-	int i = GetCubicRef(tracepos-chunk.origin, __FUNC__);
+	int i = GetCubicRef(tracepos-chunk.origin);
 	
 	if(modificationtype == 0)
 		self.editor_blocktype = chunk.cubic_blocktype[i] = func1(chunk.cubic_blocktype[i]);
@@ -722,14 +725,14 @@ void ApplyEditorValuesToCubic(vector org, int alwayscall)
 
 	lasteditorvaluesorg = org;
 	
-	entity chunk = GetChunkForLocation(__NULL__, GetNearChunkOrg(org));
+	entity chunk = GetChunkForLocation(__NULL__, org, __FUNC__);
 	if(!chunk)
 		return;
 	
 	if(GetCubicStatus(chunk, org, FALSE) == -1)
 		return;
 	
-	int i = GetCubicRef(org-chunk.origin, __FUNC__);
+	int i = GetCubicRef(org-chunk.origin);
 	
 	int old_blocktype = chunk.cubic_blocktype[i];
 	int old_blockshape = chunk.cubic_blockshape[i];
@@ -898,7 +901,7 @@ void Player_CubiQuakeControls()
 	
 	if(self.impulse == 12)
 	{
-		eprint(GetChunkForLocation(__NULL__, self.playerclusterorg));
+		eprint(GetChunkForLocation(__NULL__, self.playerclusterorg, __FUNC__));
 	}
 	
 	// this lets us know when button0 is pressed vs held. 1 = pressed, 2 = held.
@@ -1059,13 +1062,13 @@ void Player_CubiQuakeControls()
 			{
 				switch(self.toolsize)
 				{
-					case TOOLSIZE_EDITOR_CUBIC:		entity chunk = GetChunkForLocation(__NULL__, GetNearChunkOrg(tracepos));
+					case TOOLSIZE_EDITOR_CUBIC:		entity chunk = GetChunkForLocation(__NULL__, tracepos, __FUNC__);
 													vector cubicorg = GetNearestCubicOrigin(tracepos, chunksize_iseven);
 													
 													if(self.editor_blocktype >= baseobjecttypeid)
 														ClearCubic(chunk, cubicorg);
 													else
-														ClearCubicArea(chunk, cubicorg);
+														ClearCubicArea(self, chunk, cubicorg);
 													break;
 													
 					case TOOLSIZE_EDITOR_CHUNK:		ClearChunk(GetNearChunkOrg(tracepos));											break;

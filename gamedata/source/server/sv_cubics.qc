@@ -1,6 +1,6 @@
 void GhostChunk(entity cluster, entity chunk)
 {
-	cluster.chunk_ent[GetChunkRef(chunk.origin-cluster.origin)] = __NULL__;
+	cluster.chunk_ent[GetChunkRef(chunk.origin-cluster.origin, __FUNC__)] = __NULL__;
 	
 	while(chunk.list_cubicbboxchain)
 	{
@@ -13,7 +13,7 @@ void GhostChunk(entity cluster, entity chunk)
 	}
 	
 	chunk.chunkbits = __NULL__;
-	SetNumVisibleCubics(chunk, 0);
+	QueueSetNumVisibleCubics(chunk, 0);
 	chunk.flags = 0;
 	chunk.enttype = 0;	
 	setorigin(chunk, '0 0 0');
@@ -100,7 +100,7 @@ void InitializeChunk(entity cluster, entity chunk)
 		if(chunk.numvisiblecubics)
 		{
 			chunk.SendEntity = SendChunk;
-			SetChunkSendFlags(chunk, SFL_ISNEW | SFL_BUILD, __FUNC__);
+			SetChunkSendFlags(chunk, SFL_ISNEW | SFL_BUILD);
 		}
 		
 		ChunkChain_Add(cluster, chunk);
@@ -129,7 +129,7 @@ void RemoveClustersForPlayerClients()
 					print("RemoveClustersForPlayerClients B wasfreed.\n");		
 				#endif
 				
-				SetChunkSendFlags(chunk, SFL_UPDATE, __FUNC__);	// this triggers an update and removes from the client w/o actually removing from the server
+				SetChunkSendFlags(chunk, SFL_UPDATE);	// this triggers an update and removes from the client w/o actually removing from the server
 			}
 			
 			RemoveClusterForAllClientsChain_Remove(cluster);
@@ -140,7 +140,7 @@ void RemoveClustersForPlayerClients()
 void RemoveChunkEnt(entity chunk, entity cluster)
 {
 	FreeChunkAllocations(chunk);
-	cluster.chunk_ent[GetChunkRef(chunk.origin-cluster.origin)] = __NULL__;
+	cluster.chunk_ent[GetChunkRef(chunk.origin-cluster.origin, __FUNC__)] = __NULL__;
 	
 	while(chunk.list_cubicbboxchain)
 	{
@@ -234,7 +234,7 @@ int AddPlayerToCluster(entity player, entity cluster, int chunkcount)
 
 	if(player.viewreset)
 	for(chunk = cluster.list_chunkchain; chunk; chunk = chunk.chunkchain)
-		SetChunkSendFlags(chunk, SFL_ISNEW | SFL_BUILD, __FUNC__);
+		SetChunkSendFlags(chunk, SFL_ISNEW | SFL_BUILD);
 	
 	for(int i = 0; i < maxplayers; i++)
 	{
@@ -496,7 +496,7 @@ entity LoadCluster(entity player, vector pos, int forceload)
 		#endif
 		
 		chunk.chunkbits = cluster_data[chunkslot0+CHUNKSLOT_CHUNKBITS];
-		SetNumVisibleCubics(chunk, cluster_data[chunkslot0+CHUNKSLOT_NUMVISIBLECUBICS]);
+		QueueSetNumVisibleCubics(chunk, cluster_data[chunkslot0+CHUNKSLOT_NUMVISIBLECUBICS]);
 		InitializeChunk(cluster, chunk);
 
 		for(count = 0; count < pow(chunksize, 3); count++)
@@ -763,12 +763,14 @@ void Player_WorldInterface()
 
 	for(player = list_playerchain; player; player = player.playerchain)
 	{
+		CheckWorldBounds(player);
+		
 		#ifdef DEBUG
 		if(wasfreed(player))
 			print("Player_WorldInterface A wasfreed.\n");	
 		#endif
 		
-		// CHECK WORLD BOUNDS
+		// CHECK WORLD BOUNDS	(for MOVETYPE_NOCLIP)
 		if(player.origin_x >= worlddim_x*0.5 || player.origin_x <= worlddim_x*-0.5
 		|| player.origin_y >= worlddim_y*0.5 || player.origin_y <= worlddim_y*-0.5
 		|| player.origin_z >= worlddim_z*0.5 || player.origin_z <= worlddim_z*-0.5)
@@ -865,7 +867,7 @@ void Player_WorldInterface()
 	for(e = list_setchunksendflags_BUILD_chain; e; e = nexte)
 	{
 		nexte = e.setchunksendflags_BUILD_chain;
-		SetChunkSendFlags(e, SFL_BUILD, __FUNC__);
+		SetChunkSendFlags(e, SFL_BUILD);
 		SetChunkSendFlags_BUILD_Chain_Remove(e);
 	}
 }
@@ -1066,5 +1068,7 @@ void StartFrame_Cubics()
 	{	
 		WorldLogic();
 		RemoveUnusedCubicBBoxes();
+		SetNumVisibleCubicsForChunks();
+		UpdateChunkNetworkEntities();
 	}
 }

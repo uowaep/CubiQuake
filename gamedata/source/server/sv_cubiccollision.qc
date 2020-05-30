@@ -35,7 +35,7 @@ void SetSolidCubic_Func(entity chunk, entity e, vector org)
 		setorigin(e, org);
 		e.effects = EF_NODRAW;
 		
-		int id = GetCubicRef(org-chunk.origin, __FUNC__);
+		int id = GetCubicRef(org-chunk.origin);
 		int shape = chunk.cubic_blockshape[id];
 		int rotation = chunk.cubic_blockrotation[id];
 		
@@ -160,7 +160,7 @@ void CallPhysicsFunctionForCubic(vector org, void(entity, entity, vector) func)
 					continue;
 
 				cubicchunkorg = GetNearChunkOrg(cubicorg);
-				chunk = GetChunkForLocation(__NULL__, cubicchunkorg);
+				chunk = GetChunkForLocation(__NULL__, cubicchunkorg, __FUNC__);
 				
 				if(!chunk)
 					continue;
@@ -195,4 +195,43 @@ entity GetCubicBBoxForLocation(vector cubicorg)
 			return bbox;
 
 	return __NULL__;	
+}
+
+void CheckWorldBounds(entity e)
+{
+	vector worldedgeoffset = '0 0 0', ofs = '0 0 0';
+	
+	if(e.movetype == MOVETYPE_NOCLIP)
+		return;
+	
+	// very edge of world
+	worldedgeoffset_x = worlddim_x*0.5 - cubicradius;
+	worldedgeoffset_y = worlddim_y*0.5 - cubicradius;
+	worldedgeoffset_z = worlddim_z*0.5 - cubicradius;	// z can potentially be different than x and y
+	
+	if(e.origin_x > worldedgeoffset_x)
+		ofs_x = worldedgeoffset_x - e.origin_x;
+
+	if(e.origin_x < worldedgeoffset_x*-1)
+		ofs_x = worldedgeoffset_x*-1 - e.origin_x;
+		
+	if(e.origin_y > worldedgeoffset_y)
+		ofs_y = worldedgeoffset_y - e.origin_y;
+	
+	if(e.origin_y < worldedgeoffset_y*-1)
+		ofs_y = worldedgeoffset_y*-1 - e.origin_y;
+
+	if(e.origin_z > worldedgeoffset_z)
+		ofs_z = worldedgeoffset_z - e.origin_z;
+
+	if(e.origin_z < worldedgeoffset_z*-1)
+	if(e.flags & FL_CLIENT)
+		ofs_z = worldedgeoffset_z*-1 - e.origin_z;	// players just slide around on the top of the void
+	else
+	{
+		Remove(e);		// other entities remove
+		return;
+	}
+
+	setorigin(e, e.origin+ofs);
 }

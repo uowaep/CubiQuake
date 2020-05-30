@@ -106,7 +106,7 @@ void SetFaceValues(vector cubicpos, vector vertofs, entity typegroup, int facebi
 	facegroup.verts[facegroup.numvertexes].st	= (vec2) {texturecoords_x, texturecoords_y};	// texture coords
 	facegroup.verts[facegroup.numvertexes].rgba	= (vec4) {typegroup.lightcolor_x, typegroup.lightcolor_y, typegroup.lightcolor_z, facealpha};	// color and alpha
 
-	facegroup.numvertexes++;	
+	facegroup.numvertexes++;
 }
 
 void SetVertexIndexes(int numvertsforface, entity typegroup, int facebit)

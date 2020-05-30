@@ -56,6 +56,7 @@ vector		lasteditorvaluesorg;
 
 .*entity	networkbloat;
 .int		networkbloat_allocated;
+.int		bloatSendFlags;
 
 int			autocvar_cq_maxchunksloadedperframe;
 float		chunkremovaldelay;

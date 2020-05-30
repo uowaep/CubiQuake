@@ -51,7 +51,7 @@ float CSQC_ConsoleCommand(string strMessage)
 		case "cq_zone":					nReturn = FALSE;	if(argv(1)) editor_chunkzone = stoi(argv(1));	print("Zone is: ", itos(editor_chunkzone), "\n");	break;
 		case "cq_chance":				nReturn = FALSE;	if(argv(1)) editor_chunkchance = stoi(argv(1));	print("Chance is: ", itos(editor_chunkchance), "\n");	break;		
 		case "cq_fit":					nReturn = FALSE;	if(argv(1)) editor_connectionfit = stoi(argv(1));	print("Fit is: ", itos(editor_connectionfit), "\n");	break;
-		case "cq_getchunkref":			nReturn = FALSE;	print(ftos(GetChunkOriginRef(GetNearChunkOrg(view_org), __FUNC__)), "\n");	break;
+		case "cq_getchunkref":			nReturn = FALSE;	print(ftos(GetChunkOriginRef(GetNearChunkOrg(view_org))), "\n");	break;
 		default:					nReturn = FALSE;	break;
 	}
 	

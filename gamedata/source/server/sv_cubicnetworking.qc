@@ -102,7 +102,7 @@ void SendCubics(entity chunk, int bloatstage)
 
 float SendChunk(entity viewer, float sendflags)
 {
-	int i = GetChunkOriginRef(self.origin, __FUNC__);
+	int i = GetChunkOriginRef(self.origin);
 	
 	if(!self.numvisiblecubics)
 		return FALSE; 
@@ -126,7 +126,7 @@ float SendChunk(entity viewer, float sendflags)
 	SendInitializeData(sendflags);
 	
 	if(sendflags & SFL_ISNEW)
-		WriteLong(MSG_ENTITY, GetChunkOriginRef(self.origin, __FUNC__));
+		WriteLong(MSG_ENTITY, GetChunkOriginRef(self.origin));
 	
 	if(sendflags & SFL_BUILD)
 		SendCubics(self, 0);
@@ -153,7 +153,7 @@ float SendChunkBloat(entity viewer, float sendflags)
 	
 	if(sendflags & SFL_ISNEW)
 	{
-		WriteLong(MSG_ENTITY, GetChunkOriginRef(self.origin, __FUNC__));
+		WriteLong(MSG_ENTITY, GetChunkOriginRef(self.origin));
 		WriteByte(MSG_ENTITY, self.bloatlevel);
 	}
 	
@@ -163,23 +163,41 @@ float SendChunkBloat(entity viewer, float sendflags)
 	return TRUE;
 }
 
-void SetChunkSendFlags(entity chunk, float sendflags, string funcname)
+void UpdateNetworkBloat(entity chunk)
+{
+	int numbloatents = ceil((float)chunk.numvisiblecubics/maxcubicupdates)-1;
+	for(int count = 0; count < numbloatents; count++)
+	{
+		chunk.networkbloat[count].updateref = chunk.updateref;		
+		chunk.networkbloat[count].SendFlags = chunk.networkbloat[count].SendFlags | chunk.bloatSendFlags;
+	}	
+}
+
+void UpdateChunkNetworkEntities()
+{
+	entity nexte = __NULL__;
+	
+	for(entity e = list_networkbloatupdatechain; e; e = nexte)
+	{
+		nexte = e.networkbloatupdatechain;
+		
+		UpdateNetworkBloat(e);
+		NetworkBloatUpdateChain_Remove(e);
+		e.bloatSendFlags = 0;
+	}
+}
+
+void SetChunkSendFlags(entity chunk, float sendflags)
 {
 	chunk.updateref++;
 	if(chunk.updateref > 255)
 		chunk.updateref = 1;
 	
 	chunk.SendFlags = chunk.SendFlags | sendflags;
+	chunk.bloatSendFlags = sendflags;
 
 	if(chunk.networkbloat_allocated)
-	{
-		int numbloatents = ceil((float)chunk.numvisiblecubics/maxcubicupdates)-1;
-		for(int count = 0; count < numbloatents; count++)
-		{
-			chunk.networkbloat[count].updateref = chunk.updateref;		
-			chunk.networkbloat[count].SendFlags = chunk.networkbloat[count].SendFlags | sendflags;
-		}
-	}	
+		NetworkBloatUpdateChain_Add(chunk);	// do this after the queuesetvisiblecubicschain resolves because new bloat ents haven't spawned yet
 }
 
 void SaveModifiedClusterFiles()
@@ -215,7 +233,7 @@ void SaveModifiedClusterFiles()
 			
 			nextchunk = chunk.savechunkqueuechain;
 			
-			clusterchunkid = GetChunkRef(chunk.origin-cluster.origin);
+			clusterchunkid = GetChunkRef(chunk.origin-cluster.origin, __FUNC__);
 			chunkslot0 = numprechunkvaluesincluster + clusterchunkid*numslotsforchunkincluster;
 
 			cluster_data[chunkslot0+CHUNKSLOT_NUMVISIBLECUBICS] = chunk.numvisiblecubics;

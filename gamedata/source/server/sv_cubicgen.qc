@@ -24,7 +24,7 @@ int WriteChunk(vector chunkpos, int *cdata)
 	int *cluster_data;
 	
 	vector clusterpos = GetNearClusterOrg(chunkpos);	
-	int chunkref = GetChunkRef(chunkpos-clusterpos);
+	int chunkref = GetChunkRef(chunkpos-clusterpos, __FUNC__);
 
 	string filename = strcat(worldpath, itos(GetClusterRef(clusterpos)));
 	file = fopen(filename, FILE_MMAP_RW, sizeof(*cluster_data)*clusterdataslots);
@@ -150,7 +150,7 @@ void QueueChunk(vector pos)
 		return;			
 	
 	int id = 0;
-	int chunkid = GetChunkOriginRef(pos, __FUNC__);	
+	int chunkid = GetChunkOriginRef(pos);	
 
 	int numtokens = tokenize(chunkgenqueue_string);
 	for(int count = 0; count < numtokens; count++)
@@ -162,7 +162,7 @@ void QueueChunk(vector pos)
 	
 	vector clusterorg = GetNearClusterOrg(pos);
 	int clusterid = GetClusterRef(clusterorg);
-	int chunkclusterid = GetChunkRef(pos-clusterorg);
+	int chunkclusterid = GetChunkRef(pos-clusterorg, __FUNC__);
 
 	// CHECK IF CHUNK ALREADY EXISTS ON FILE BEFORE ADDING TO GENERATION QUEUE
 	int chunkslot0;
@@ -298,8 +298,8 @@ void GenCubicVisibility()
 					nearchunkorg = GetNearChunkOrg(nearcubicorg);
 					nearclusterorg = GetNearClusterOrg(nearchunkorg);
 					nearclusterid = GetClusterRef(nearclusterorg);					
-					nearchunkid = GetChunkRef(nearchunkorg-nearclusterorg);
-					nearcubicid = GetCubicRef(nearcubicorg-nearchunkorg, __FUNC__);
+					nearchunkid = GetChunkRef(nearchunkorg-nearclusterorg, __FUNC__);
+					nearcubicid = GetCubicRef(nearcubicorg-nearchunkorg);
 					
 					fileB = 0;
 					
@@ -424,7 +424,7 @@ void GenerateChunks_Dirt(vector chunkpos)
 	if(file != -1)
 	{
 		int *cluster_data = (int*)fgets(file);
-		int chunkslot0 = numprechunkvaluesincluster + GetChunkRef(chunkpos-clusterpos)*numslotsforchunkincluster;
+		int chunkslot0 = numprechunkvaluesincluster + GetChunkRef(chunkpos-clusterpos, __FUNC__)*numslotsforchunkincluster;
 			
 		if(!CheckNullChunk(cluster_data, chunkslot0))
 		{
@@ -522,7 +522,7 @@ void RotateChunkYaw(int *cdata)
 		tpos_y = ipos_x*-1;
 		tpos_z = ipos_z;
 
-		tempi = numprecubicvaluesinchunk+numprefabgenvaluesinchunk + GetCubicRef(tpos, __FUNC__)*numvaluespercubic;
+		tempi = numprecubicvaluesinchunk+numprefabgenvaluesinchunk + GetCubicRef(tpos)*numvaluespercubic;
 
 		slot0 = numprecubicvaluesinchunk+numprefabgenvaluesinchunk + i*numvaluespercubic;
 		
@@ -822,7 +822,7 @@ int GenerateChunks_Dungeon(entity forechunk, vector chunkpos, int forceopen, int
 			if(file != -1)
 			{
 				cluster_data = (int*)fgets(file);
-				nearchunkref = GetChunkRef(nearchunkpos-nearclusterpos);
+				nearchunkref = GetChunkRef(nearchunkpos-nearclusterpos, __FUNC__);
 				chunkslot0 = numprechunkvaluesincluster + nearchunkref*numslotsforchunkincluster;
 					
 				if(CheckNullChunk(cluster_data, chunkslot0))
@@ -1038,7 +1038,7 @@ int GenerateChunks_Dungeon(entity forechunk, vector chunkpos, int forceopen, int
 								if(file != -1)
 								{
 									cluster_data = (int*)fgets(file);
-									nearchunkref = GetChunkRef(nearchunkpos-nearclusterpos);
+									nearchunkref = GetChunkRef(nearchunkpos-nearclusterpos, __FUNC__);
 									chunkslot0 = numprechunkvaluesincluster + nearchunkref*numslotsforchunkincluster;
 										
 									if(!CheckNullChunk(cluster_data, chunkslot0))

@@ -1,6 +1,7 @@
-void SetNumVisibleCubics(entity chunk, int val)
+void SetNumVisibleCubics(entity chunk)
 {
 	int count = 0;
+	int val = chunk.numvisiblecubics;
 	int numbloatents = ceil((float)val/maxcubicupdates)-1;
 	
 //	chunk.updateref++;
@@ -20,7 +21,7 @@ void SetNumVisibleCubics(entity chunk, int val)
 		chunk.networkbloat[count] = __NULL__;
 	}
 	
-	chunk.numvisiblecubics = val;
+//	chunk.numvisiblecubics = val;
 	
 	if(val > maxcubicupdates)
 	{
@@ -40,6 +41,26 @@ void SetNumVisibleCubics(entity chunk, int val)
 			}
 		}
 	}
+}
+
+// this list is here so we can remove and spawn chunk network (bloat) ents during an update a single time, intead of once for each cubic modified in some cases
+void SetNumVisibleCubicsForChunks()
+{
+	entity nexte = __NULL__;
+	
+	for(entity e = list_setnumvisiblecubicschain; e; e = nexte)
+	{
+		nexte = e.setnumvisiblecubicschain;
+		
+		SetNumVisibleCubics(e);
+		SetNumVisibleCubicsChain_Remove(e);
+	}
+}
+
+void QueueSetNumVisibleCubics(entity chunk, int val)
+{
+	chunk.numvisiblecubics = val;
+	SetNumVisibleCubicsChain_Add(chunk);
 }
 
 void SetCubicVisibility(entity chunk, int memslot)
@@ -71,7 +92,7 @@ void SetCubicVisibility(entity chunk, int memslot)
 		
 		nearcubicorg = cubicorg + ofs*cubicradius*2;
 		cubicchunkorg = GetNearChunkOrg(nearcubicorg);
-		chunk = GetChunkForLocation(__NULL__, cubicchunkorg);
+		chunk = GetChunkForLocation(__NULL__, cubicchunkorg, __FUNC__);
 		
 		
 		if(!chunk)	// this needs to be split up or not?
@@ -79,7 +100,7 @@ void SetCubicVisibility(entity chunk, int memslot)
 		else
 		if(GetCubicStatus(chunk, nearcubicorg, TRUE) != -1)
 		{
-			nearcullbits = chunk.cubic_cullbits[GetCubicRef(nearcubicorg-chunk.origin, __FUNC__)];			
+			nearcullbits = chunk.cubic_cullbits[GetCubicRef(nearcubicorg-chunk.origin)];			
 			if(!(nearcullbits & partialside))
 				cullbits = cullbits | bitshift(1, sidecount);
 		}
@@ -87,11 +108,11 @@ void SetCubicVisibility(entity chunk, int memslot)
 
 	if((cullbits & CULLBITS_ALL) == CULLBITS_ALL)
 	if((originalcullbits & CULLBITS_ALL) != CULLBITS_ALL)		
-		SetNumVisibleCubics(originalchunk, originalchunk.numvisiblecubics-1);
+		QueueSetNumVisibleCubics(originalchunk, originalchunk.numvisiblecubics-1);
 	
 	if((cullbits & CULLBITS_ALL) != CULLBITS_ALL)
 	if((originalcullbits & CULLBITS_ALL) == CULLBITS_ALL)
-		SetNumVisibleCubics(originalchunk, originalchunk.numvisiblecubics+1);
+		QueueSetNumVisibleCubics(originalchunk, originalchunk.numvisiblecubics+1);
 
 	originalchunk.cubic_cullbits[memslot] = cullbits + (originalcullbits & CULLBITS_PARTIAL_ALL);
 }
@@ -100,7 +121,7 @@ void UpdateChunkAreaVisibility(entity chunk, vector cubicorg, int markmodified)
 {
 	vector ofs = '0 0 0', nearcubicorg = '0 0 0', cubicchunkorg = '0 0 0';
 	
-	int cubicid = GetCubicRef(cubicorg-chunk.origin, __FUNC__);
+	int cubicid = GetCubicRef(cubicorg-chunk.origin);
 	SetCubicVisibility(chunk, cubicid);
 	if(markmodified)
 		SetChunkAsModified(chunk);
@@ -121,12 +142,12 @@ void UpdateChunkAreaVisibility(entity chunk, vector cubicorg, int markmodified)
 		
 		nearcubicorg = cubicorg + ofs*cubicradius*2;
 		cubicchunkorg = GetNearChunkOrg(nearcubicorg);
-		chunk = GetChunkForLocation(chunk, cubicchunkorg);
+		chunk = GetChunkForLocation(chunk, cubicchunkorg, __FUNC__);
 		
 		if(!chunk)
 			continue;
 		
-		cubicid = GetCubicRef(nearcubicorg - chunk.origin, __FUNC__);
+		cubicid = GetCubicRef(nearcubicorg - chunk.origin);
 		SetCubicVisibility(chunk, cubicid);
 		if(chunk != originalchunk)
 			SetChunkAsModified(chunk);
@@ -178,7 +199,7 @@ void UpdateClusterAreaVisibility_OuterEdge(entity cluster)
 			for(pos_z = 0; pos_z < clustersize; pos_z++)
 			{
 				chunkorg = GetChunkOffsetFromGrid(pos)+cluster.origin;	
-				chunk = GetChunkForLocation(__NULL__, chunkorg);	
+				chunk = GetChunkForLocation(__NULL__, chunkorg, __FUNC__);	
 				
 				if(!chunk)
 					continue;

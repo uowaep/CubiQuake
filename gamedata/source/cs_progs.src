@@ -42,3 +42,26 @@
 
 //
 // CUBIQUAKE CORE END
+
+// PDOD MOD START
+//
+/*
+#include "pdod/shared_server_client/pdod_sh_sv_cs_defs.qc"
+#include "pdod/shared_server_client/pdod_sh_sv_cs_chains.qc"
+#include "pdod/client/pdod_cs_defs.qc"
+#include "pdod/client/pdod_cs_chains.qc"
+
+#include "pdod/shared_server_client/pdod_sh_sv_cs_precaches.qc"
+#include "pdod/shared_server_client/pdod_sh_sv_cs_ai.qc"
+#include "pdod/shared_server_client/pdod_sh_sv_cs_weapons.qc"
+#include "pdod/client/pdod_cs_subs.qc"
+#include "pdod/client/pdod_cs_lights.qc"
+#include "pdod/client/pdod_cs_hud.qc"
+#include "pdod/client/pdod_cs_vwep.qc"
+#include "pdod/client/pdod_cs_prediction.qc"
+#include "pdod/client/pdod_cs_ai.qc"
+#include "pdod/client/pdod_cs_objects.qc"
+#include "pdod/client/pdod_cs_networking.qc"
+*/
+//
+// PDOD MOD END

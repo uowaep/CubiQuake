@@ -6,8 +6,7 @@
 		return;
 
 	// do stuff
-	
-	LeaveSolidCubics(self, self.lastsolidcubicorigin);
+
 	Remove(self);
 }
 

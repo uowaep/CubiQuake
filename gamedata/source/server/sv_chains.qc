@@ -96,3 +96,20 @@ entity		list_prefabtypechain;
 void PrefabTypeChain_Add(entity e)		{	list_prefabtypechain = LinkedList_Add(e, list_prefabtypechain, prefabtypechain, prefabtypechain_prev);	}
 void PrefabTypeChain_Remove(entity e)	{	list_prefabtypechain = LinkedList_Remove(e, list_prefabtypechain, prefabtypechain, prefabtypechain_prev);	}
 
+entity		list_setnumvisiblecubicschain;
+.entity		setnumvisiblecubicschain;
+.entity		setnumvisiblecubicschain_prev;
+void SetNumVisibleCubicsChain_Add(entity e)		{	list_setnumvisiblecubicschain = LinkedList_Add(e, list_setnumvisiblecubicschain, setnumvisiblecubicschain, setnumvisiblecubicschain_prev);	}
+void SetNumVisibleCubicsChain_Remove(entity e)	{	list_setnumvisiblecubicschain = LinkedList_Remove(e, list_setnumvisiblecubicschain, setnumvisiblecubicschain, setnumvisiblecubicschain_prev);	}
+
+entity		list_networkbloatupdatechain;
+.entity		networkbloatupdatechain;
+.entity		networkbloatupdatechain_prev;
+void NetworkBloatUpdateChain_Add(entity e)		{	list_networkbloatupdatechain = LinkedList_Add(e, list_networkbloatupdatechain, networkbloatupdatechain, networkbloatupdatechain_prev);	}
+void NetworkBloatUpdateChain_Remove(entity e)	{	list_networkbloatupdatechain = LinkedList_Remove(e, list_networkbloatupdatechain, networkbloatupdatechain, networkbloatupdatechain_prev);	}
+
+entity		list_gibchain;
+.entity		gibchain;
+.entity		gibchain_prev;
+void GibChain_Add(entity e)		{	list_gibchain = LinkedList_Add(e, list_gibchain, gibchain, gibchain_prev);	}
+void GibChain_Remove(entity e)	{	list_gibchain = LinkedList_Remove(e, list_gibchain, gibchain, gibchain_prev);	}

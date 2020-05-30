@@ -1,5 +1,5 @@
 // VERSION
-string		cubic_revision	= "cubiquake r144";
+string		cubic_revision	= "cubiquake r150";
 
 // WORLD SETTINGS
 
@@ -449,13 +449,13 @@ vector GetClusterOffset(float refid)
 	return ofs;
 }
 
-int GetChunkOriginRef(vector ofs, string caller)
+int GetChunkOriginRef(vector ofs)
 {
 	if(ofs_x > worlddim_x*0.5 || ofs_x < worlddim_x*-0.5
 	|| ofs_y > worlddim_y*0.5 || ofs_y < worlddim_y*-0.5
 	|| ofs_z > worlddim_z*0.5 || ofs_z < worlddim_z*-0.5)
 	{
-		print("Warning: Looking for chunk id out of world bounds.\n", caller, "\n");
+		print("Warning: Looking for chunk id out of world bounds.\n");
 		return -1;	
 	}	
 	
@@ -480,13 +480,13 @@ vector GetChunkOrigin(float refid)
 	return ofs;
 }
 
-int GetChunkRef(vector ofs)
+int GetChunkRef(vector ofs, string funcname)
 {
 	if(ofs_x > clusterdim_x*0.5 || ofs_x < clusterdim_x*-0.5
 	|| ofs_y > clusterdim_y*0.5 || ofs_y < clusterdim_y*-0.5
 	|| ofs_z > clusterdim_z*0.5 || ofs_z < clusterdim_z*-0.5)
 	{
-		print("Warning: Looking for chunk id out of bounds from cluster.\n");
+		print("Warning: Looking for chunk id out of bounds from cluster. func: ", funcname, "\n");
 		return -1;	
 	}	
 	
@@ -508,13 +508,13 @@ vector GetChunkOffset(float refid)
 	return ofs;
 }
 
-int GetCubicRef(vector ofs, string funcname)
+int GetCubicRef(vector ofs)
 {
 	if(ofs_x > chunkdim_x*0.5 || ofs_x < chunkdim_x*-0.5
 	|| ofs_y > chunkdim_y*0.5 || ofs_y < chunkdim_y*-0.5
 	|| ofs_z > chunkdim_z*0.5 || ofs_z < chunkdim_z*-0.5)
 	{
-		print("Warning: Looking for cubic id out of bounds from chunk. funcname: ", funcname, "\n");
+		print("Warning: Looking for cubic id out of bounds from chunk.\n");
 		return -1;	
 	}	
 	
@@ -542,7 +542,7 @@ int	GetCubicStatus(entity chunk, vector cubicorg, int ignorenonsolids)
 	if(!chunk)
 		return -1;
 	
-	int memslot = GetCubicRef(cubicorg-chunk.origin, __FUNC__);
+	int memslot = GetCubicRef(cubicorg-chunk.origin);
 	int type = chunk.cubic_blocktype[memslot];
 
 	if(type > 0)
@@ -681,7 +681,7 @@ entity GetClusterForLocation(entity cluster, vector clusterorg)
 //#endif
 
 //#ifdef SSQC
-entity GetChunkForLocation(entity chunk, vector cubicchunkorg)
+entity GetChunkForLocation(entity chunk, vector cubicchunkorg, string funcname) 
 {
 	if(!clusters_allocated)
 		return __NULL__;
@@ -690,6 +690,8 @@ entity GetChunkForLocation(entity chunk, vector cubicchunkorg)
 	|| cubicchunkorg_y > worlddim_y*0.5 || cubicchunkorg_y < worlddim_y*-0.5
 	|| cubicchunkorg_z > worlddim_z*0.5 || cubicchunkorg_z < worlddim_z*-0.5)
 		return __NULL__;
+	
+	cubicchunkorg = GetNearChunkOrg(cubicchunkorg);	// this probably isn't necessary, test it
 	
 	int clusterref = GetClusterRef(GetNearClusterOrg(cubicchunkorg));
 	
@@ -706,7 +708,7 @@ entity GetChunkForLocation(entity chunk, vector cubicchunkorg)
 	if(!cluster)
 		return __NULL__;
 	
-	chunk = cluster.chunk_ent[GetChunkRef(cubicchunkorg-cluster.origin)];	
+	chunk = cluster.chunk_ent[GetChunkRef(cubicchunkorg-cluster.origin, strcat(funcname, " > ", __FUNC__))];
 	
 	#ifdef DEBUG
 	if(wasfreed(chunk))
@@ -755,7 +757,7 @@ int	CubicSharesSide(entity chunk, vector cubicorg)
 		nearcubicorg = cubicorg + ofs*cubicradius*2;
 		nearchunkorg = GetNearChunkOrg(nearcubicorg);
 		if(!chunk || nearchunkorg != chunk.origin)
-			nearchunk = GetChunkForLocation(__NULL__, nearchunkorg);
+			nearchunk = GetChunkForLocation(__NULL__, nearchunkorg, __FUNC__);
 		else
 			nearchunk = chunk;
 		
@@ -792,7 +794,7 @@ int CubicSharesCulledSide(entity chunk, vector cubicorg)
 		nearcubicorg = cubicorg + ofs*cubicradius*2;
 		nearchunkorg = GetNearChunkOrg(nearcubicorg);
 		if(!chunk || nearchunkorg != chunk.origin)
-			nearchunk = GetChunkForLocation(__NULL__, nearchunkorg);
+			nearchunk = GetChunkForLocation(__NULL__, nearchunkorg, __FUNC__);
 		else
 			nearchunk = chunk;
 		
@@ -842,7 +844,7 @@ int CubicSharesEdges(vector cubicorg, vector start)	// FIXME: this isn't used an
 		if((ofs_z >= 0 && forwardvec_z >= 0) || (ofs_z <= 0 && forwardvec_z <= 0))
 		{
 			nearcubicorg = GetNearestCubicOrigin(cubicorg+ofs*cubicradius*2, chunksize_iseven);
-			if(GetCubicStatus(GetChunkForLocation(__NULL__, GetNearChunkOrg(nearcubicorg)), nearcubicorg, FALSE) != -1)
+			if(GetCubicStatus(GetChunkForLocation(__NULL__, nearcubicorg, __FUNC__), nearcubicorg, FALSE) != -1)
 			{
 				foundsharededges++;
 			
@@ -917,7 +919,7 @@ vector TraceCubic(vector start, vector end, int getinside)
 	while((gridpos-start)*(gridpos-start) < raylendot)
 	{
 		chunkpos = GetNearChunkOrg(gridpos);
-		chunk = GetChunkForLocation(__NULL__, chunkpos);
+		chunk = GetChunkForLocation(__NULL__, chunkpos, __FUNC__);
 	
 		if(GetCubicStatus(chunk, gridpos, FALSE) != -1)
 		{
@@ -977,12 +979,12 @@ vector TraceCubic2(vector start, vector end, int getinside)
 	
 		if(cubicorg != lastcubicorg)
 		{
-			chunk = GetChunkForLocation(__NULL__, GetNearChunkOrg(pos));			
+			chunk = GetChunkForLocation(__NULL__, pos, __FUNC__);			
 			
 			if(chunk)
 			{
 				#ifdef SSQC
-				cullbits = chunk.cubic_cullbits[GetCubicRef(cubicorg-chunk.origin, __FUNC__)];
+				cullbits = chunk.cubic_cullbits[GetCubicRef(cubicorg-chunk.origin)];
 				if((cullbits & CULLBITS_ALL) == CULLBITS_ALL)
 				{
 					if(getinside)
@@ -1004,7 +1006,7 @@ vector TraceCubic2(vector start, vector end, int getinside)
 						{
 							cubicorg = NearestNearCubicOrg(cubicorg, start);	// closest cubic from the first solid cubic found
 
-							if(GetCubicStatus(GetChunkForLocation(__NULL__, GetNearChunkOrg(cubicorg)), cubicorg, FALSE) == -1)	// check if nearest is located at an empty cubic 
+							if(GetCubicStatus(GetChunkForLocation(__NULL__, cubicorg, __FUNC__), cubicorg, FALSE) == -1)	// check if nearest is located at an empty cubic 
 								return cubicorg;	// cubic was empty so trace ends there
 							else
 								return NearestNearCubicOrg(cubicorg, start);	// cubic was not empty so set trace 1 cubic closer

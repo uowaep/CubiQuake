@@ -82,7 +82,7 @@ void BuildChunkFaces(entity chunk, int distant)
 		if(cubiccount >= pow(chunksize, 3))
 		{
 			dprint("Warning: Lost chunk data over the network.\n");
-			localcmd(strcat("cmd cq_resendchunk ", itos(GetChunkOriginRef(chunk.origin, __FUNC__)), "\n"));
+			localcmd(strcat("cmd cq_resendchunk ", itos(GetChunkOriginRef(chunk.origin)), "\n"));
 			break;
 		}
 		

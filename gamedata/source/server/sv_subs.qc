@@ -42,6 +42,9 @@ void CleanUp_Remove (entity e)
 	
 	LeaveSolidCubics(e, e.lastsolidcubicorigin);
 	e.physicssolidsset = FALSE;
+	
+	SetNumVisibleCubicsChain_Remove(e);
+	NetworkBloatUpdateChain_Remove(e);
 }
 
 void Remove(entity e)
@@ -55,7 +58,7 @@ void SetAmbientLight();
 void UninitializePlayers();
 void SetSelectionEdge(vector polarity, vector offset);
 void InitializeSelectionEdge();
-void SetChunkSendFlags(entity chunk, float sendflags, string funcname);
+void SetChunkSendFlags(entity chunk, float sendflags);
 
 void SV_ParseClientCommand (string s)
 {
@@ -75,8 +78,8 @@ void SV_ParseClientCommand (string s)
 	if(c == "cq_resendchunk")
 	{
 		dprint("Resending chunk.\n");
-		chunk = GetChunkForLocation(__NULL__, GetChunkOrigin(stoi(argv(1))));
-		SetChunkSendFlags(chunk, SFL_BUILD, __FUNC__);
+		chunk = GetChunkForLocation(__NULL__, GetChunkOrigin(stoi(argv(1))), __FUNC__);
+		SetChunkSendFlags(chunk, SFL_BUILD);
 	}
 	else
 	if(c == "cq_setselectionedge")
@@ -115,7 +118,7 @@ void SV_ParseClientCommand (string s)
 	{
 		if(self.editor_infoedit)
 		{		
-			chunk = GetChunkForLocation(__NULL__, GetChunkOrigin(self.editor_editchunk));
+			chunk = GetChunkForLocation(__NULL__, GetChunkOrigin(self.editor_editchunk), __FUNC__);
 			chunk.prefabzone = stoi(argv(1));
 			self.prefabzone = chunk.prefabzone;
 		}
@@ -125,7 +128,7 @@ void SV_ParseClientCommand (string s)
 	{
 		if(self.editor_infoedit)
 		{
-			chunk = GetChunkForLocation(__NULL__, GetChunkOrigin(self.editor_editchunk));
+			chunk = GetChunkForLocation(__NULL__, GetChunkOrigin(self.editor_editchunk), __FUNC__);
 			chunk.prefabchance = stoi(argv(1));
 			self.prefabchance = chunk.prefabchance;
 		}
@@ -135,7 +138,7 @@ void SV_ParseClientCommand (string s)
 	{
 		if(self.editor_infoedit)
 		{
-			chunk = GetChunkForLocation(__NULL__, GetChunkOrigin(self.editor_editchunk));
+			chunk = GetChunkForLocation(__NULL__, GetChunkOrigin(self.editor_editchunk), __FUNC__);
 			chunk.prefabchunkflags = stoi(argv(1));
 			self.prefabchunkflags = chunk.prefabchunkflags;
 		}
@@ -147,7 +150,7 @@ void SV_ParseClientCommand (string s)
 		{
 			sidenum = stoi(argv(1));
 			int connectiontype = stoi(argv(2));
-			chunk = GetChunkForLocation(__NULL__, GetChunkOrigin(self.editor_editchunk));
+			chunk = GetChunkForLocation(__NULL__, GetChunkOrigin(self.editor_editchunk), __FUNC__);
 			chunk.infoedit_chunksidedata[sidenum] = connectiontype;
 			self.infoedit_chunksidedata[sidenum] = connectiontype;
 		}
@@ -159,7 +162,7 @@ void SV_ParseClientCommand (string s)
 		{
 			sidenum = stoi(argv(1));
 			int connectionfit = stoi(argv(2));
-			chunk = GetChunkForLocation(__NULL__, GetChunkOrigin(self.editor_editchunk));
+			chunk = GetChunkForLocation(__NULL__, GetChunkOrigin(self.editor_editchunk), __FUNC__);
 			chunk.infoedit_chunksidedata[PREFABCHUNKSLOT_CONNECTIONFIT_0+sidenum] = connectionfit;
 			self.infoedit_chunksidedata[PREFABCHUNKSLOT_CONNECTIONFIT_0+sidenum] = connectionfit;
 			sprint(self, "Side ", itos(sidenum), " set to fit id: ", itos(connectionfit), "\n");
@@ -172,7 +175,7 @@ void SV_ParseClientCommand (string s)
 		{
 			sidenum = stoi(argv(1));
 			int connectionflags = stoi(argv(2));
-			chunk = GetChunkForLocation(__NULL__, GetChunkOrigin(self.editor_editchunk));
+			chunk = GetChunkForLocation(__NULL__, GetChunkOrigin(self.editor_editchunk), __FUNC__);
 			chunk.infoedit_chunksidedata[PREFABCHUNKSLOT_CONNECTIONFLAGS_0+sidenum] = connectionflags;
 			self.infoedit_chunksidedata[PREFABCHUNKSLOT_CONNECTIONFLAGS_0+sidenum] = connectionflags;
 		//	sprint(self, "Side ", itos(sidenum), " connection flags set to: ", itos(connectionflags), "\n");
@@ -185,7 +188,7 @@ void SV_ParseClientCommand (string s)
 		{
 			sidenum = stoi(argv(1));
 			int groupsize = stoi(argv(2));
-			chunk = GetChunkForLocation(__NULL__, GetChunkOrigin(self.editor_editchunk));
+			chunk = GetChunkForLocation(__NULL__, GetChunkOrigin(self.editor_editchunk), __FUNC__);
 			chunk.infoedit_chunksidedata[PREFABCHUNKSLOT_GROUPSIZE_0+sidenum] = groupsize;
 			self.infoedit_chunksidedata[PREFABCHUNKSLOT_GROUPSIZE_0+sidenum] = groupsize;
 		//	sprint(self, "Side ", itos(sidenum), " set to group size: ", itos(groupsize), "\n");

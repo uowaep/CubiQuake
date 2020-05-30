@@ -13,6 +13,9 @@ void CleanUp_Remove (entity e)
 	
 	if(e.enttype == ENT_CHUNK)
 	{
+		while(e.list_chunkbloatchain)
+			ChunkBloatChain_Remove(e, e.list_chunkbloatchain);
+		
 		if(e.list_chunklightchain)	// this unlights faces that were lit by lights that are now past the edge of the loaded world, but this also unlights faces near a chunk that was removed because it's last visible cubic was a light that was removed
 			ResetStaticLights(FALSE);
 		
@@ -23,9 +26,9 @@ void CleanUp_Remove (entity e)
 		entity cluster = GetClusterForLocation(__NULL__, GetNearClusterOrg(e.origin));
 		if(cluster)
 		{
-			cluster.chunk_ent[GetChunkRef(e.origin-cluster.origin)] = __NULL__;
+			cluster.chunk_ent[GetChunkRef(e.origin-cluster.origin, __FUNC__)] = __NULL__;
 			cluster.numchunks -= 1;
-			
+
 			if(!cluster.numchunks)
 			if(!cluster.islit)
 				GhostCluster(cluster);
@@ -53,7 +56,7 @@ void CleanUp_Remove (entity e)
 			FreeChunkAllocations(e);
 		QueueChunkBloatChain_Remove(e);
 		
-		entity chunk = GetChunkForLocation(__NULL__, e.origin);
+		entity chunk = GetChunkForLocation(__NULL__, e.origin, __FUNC__);
 		if(chunk)
 			ChunkBloatChain_Remove(chunk, e);
 
@@ -61,7 +64,7 @@ void CleanUp_Remove (entity e)
 	
 	QueueNearFaceBuildChain_Remove(e);
 	QueueFaceBuildChain_Remove(e);
-	QueueChunkBloatChain_Remove(e);	
+//	QueueChunkBloatChain_Remove(e);
 }
 
 void Remove(entity e)
