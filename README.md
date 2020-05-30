@@ -8,16 +8,14 @@ Use the F1-F4 Keys in-game for help!
 
 ### Recent Changes
 
-r150
-+ added a field in the default.cfg for the PDoD mod
-+ editor strings allocate to memory
-+ fixed multiple major issues with chunks abusing memory allocations for networking purposes, and causing random crashes and issues when updating to csqc
-+ included PDoD files in progs.src files (commented out, makes updating core easier.)
-+ simplified projectile example slightly
-+ added a world boundary for entities, including the player, unless in NOCLIP mode.
-+ the ClearCubicArea() function used with the editor can now be used outside of the editor
-+ removed some redundant code
-+ modified some debug prints
+r153
++ moved core files to a .pk3 to make modding cleaner
++ added a flag for networking so distant chunks rebuild the same frame they update when damaged
++ actually allocate editor strings
++ removed projectile handlers to be updated to use more general object code
++ added a flag to remove certain objects that cross any world bounds (default would remove if the lower z boundary is crossed)
++ fixed a bug that was using setorigin on shared collision entities every frame on the server
++ fixed an issue with using ClearCubic() on cubics at the edge of the view range
 
 ### Installation
 - Download CubiQuake https://github.com/uowaep/CubiQuake/archive/master.zip and extract the entire contents of the zip file into any directory. The directory you choose will be your main CubiQuake directory.
@@ -49,6 +47,15 @@ WARNING: If a server restarts, players need to reconnect to get the world to net
 - don't let players place things on players
 
 ### ChangeLog
+
+r153
++ moved core files to a .pk3 to make modding cleaner
++ added a flag for networking so distant chunks rebuild the same frame they update when damaged
++ actually allocate editor strings
++ removed projectile handlers to be updated to use more general object code
++ added a flag to remove certain objects that cross any world bounds (default would remove if the lower z boundary is crossed)
++ fixed a bug that was using setorigin on shared collision entities every frame on the server
++ fixed an issue with using ClearCubic() on cubics at the edge of the view range
 
 r150
 + added a field in the default.cfg for the PDoD mod (
