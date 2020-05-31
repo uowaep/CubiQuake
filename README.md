@@ -8,6 +8,9 @@ Use the F1-F4 Keys in-game for help!
 
 ### Recent Changes
 
+r155
++ players now try to spawn in an open space along x0 y0 in the starting chunk near '0 0 0'
+
 r153
 + moved core files to a .pk3 to make modding cleaner
 + added a flag for networking so distant chunks rebuild the same frame they update when damaged
@@ -47,6 +50,9 @@ WARNING: If a server restarts, players need to reconnect to get the world to net
 - don't let players place things on players
 
 ### ChangeLog
+
+r155
++ players now try to spawn in an open space along x0 y0 in the starting chunk near '0 0 0'
 
 r153
 + moved core files to a .pk3 to make modding cleaner
