@@ -19,7 +19,7 @@ void ClientDisconnect()
 void PlayerPreThink()
 {
 	Player_CubiQuakeControls();
-	
+//	print(vtos(self.origin), "\n");
 	// code here
 	
 	

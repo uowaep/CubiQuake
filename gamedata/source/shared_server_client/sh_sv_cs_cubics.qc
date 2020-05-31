@@ -1,5 +1,5 @@
 // VERSION
-string		cubic_revision	= "cubiquake r153";
+string		cubic_revision	= "cubiquake r155";
 
 // WORLD SETTINGS
 

@@ -1031,16 +1031,51 @@ void InitServerCubics()
 
 void InitializePlayers()
 {
+	int count = 0, free = 0;
+	vector org = '0 0 0', cubicpos = '0 0 0';
+	entity chunk = __NULL__;
+	float playercubicheight;
+	
 	for(entity e = list_playerchain; e; e = e.playerchain)
-	if(e.waitingtospawn)
-	if(e.worldloaded)
-	if(!e.loadingchunks)
-	if(!e.loadingbackgroundchunks)
-	{
-		e.waitingtospawn = FALSE;
-		if(e.movetype != MOVETYPE_NOCLIP)
-			e.movetype = MOVETYPE_WALK;
-	}
+		if(e.waitingtospawn)
+		if(e.worldloaded)
+		if(!e.loadingchunks)
+		if(!e.loadingbackgroundchunks)
+		{
+			e.waitingtospawn = FALSE;
+			if(e.movetype != MOVETYPE_NOCLIP)
+				e.movetype = MOVETYPE_WALK;
+			
+			playercubicheight = ceil((e.maxs_z-e.mins_z)/(cubicradius*2));	// who knows, some players may end up shorter than others somehow
+			org = GetNearChunkOrg('0 0 0');
+			org_z += (chunksize-1)*cubicradius;
+			cubicpos = org;
+			
+			for(count = 0; count < chunksize; count++)
+			{
+				cubicpos_z = org_z - count*cubicradius*2;
+				chunk = GetChunkForLocation(__NULL__, cubicpos, __FUNC__);
+				if(GetCubicStatus(chunk, cubicpos, TRUE) == -1)
+					free++;
+				else
+				if(free >= playercubicheight)
+				{
+					cubicpos_z += cubicradius*2;
+					break;
+				}
+				else
+					free = 0;
+			}
+
+			free = 0;
+
+			org = cubicpos;
+			org_z -= cubicradius;
+			org_z -= e.mins_z;
+			org_z += 1;
+			
+			setorigin(e, org);
+		}
 }
 
 void WorldLogic()
