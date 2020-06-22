@@ -8,17 +8,38 @@ Use the F1-F4 Keys in-game for help!
 
 ### Recent Changes
 
-r155
-+ players now try to spawn in an open space along x0 y0 in the starting chunk near '0 0 0'
+Complete reinstall recommended. A health stat has been added to cubics, and breaks existing worlds. Old prefabs still work. They can be backed up and salvaged before wiping everything!
 
-r153
-+ moved core files to a .pk3 to make modding cleaner
-+ added a flag for networking so distant chunks rebuild the same frame they update when damaged
-+ actually allocate editor strings
-+ removed projectile handlers to be updated to use more general object code
-+ added a flag to remove certain objects that cross any world bounds (default would remove if the lower z boundary is crossed)
-+ fixed a bug that was using setorigin on shared collision entities every frame on the server
-+ fixed an issue with using ClearCubic() on cubics at the edge of the view range
+r158
++ set sky to use r_fastsky 1 by default and replaced placeholder sky with blank images
++ changed default cq_chunksperpassage from 7 to 5
++ chunks now save at 30 second increments by default (instead of the moment they are modified), and are saved on unload, mapchange, or quit
++ facegroup allocations are no longer freed, but instead kept around to be used by newly build chunks in csqc. this improved performance of chunk loading and updating by a large margin, and cubic building speed via cq_maxcubicsperbuild and cq_maxdamagecubicsperbuild (new) have been increased/set to 64 (normally 16)
++ cq_maxfacegroupsperbuild set to 64 for good measure
++ added cq_lights_models. 0 by default. set to 1 to enable engine lights for models
++ added radiant lighting. use cq_ambientlight_radiance and cq_lights_radiance to modify
++ changed default ambient light (while making skies in PDoD)
++ set r_shadow_realtime_dlight 1, r_shadow_realtime_dlight_shadows 0, and r_shadow_realtime_world_shadows 0
++ some fog settings, ignore these
++ pr_gc_threaded 1 just because
++ several minor tweaks to reduce hiccups
++ added cubic health and support and textures for 9 levels of damage for cubics 10% to 90% health (can do damage in PDoD, but added support to core)
++ added support for chunk textures to be modified dynamically without resending the entire chunk to the clients (dmg textures for example)
++ fixed bug with ambient light
++ facegroups no longer group different facing sides together
++ hardware mouse support via mousepos variable
++ fixed trace point for player client vs server
++ cubic objects can now be rotated
++ editor cubic object alpha set to 1 for visibility
++ added support for modifying ambient light and ambient light position dynamically (just don't do it every frame)
++ added mod support for csqc input SetInputID_Wrap_Prior()
++ added mod support for skies/environments/whatever DrawSky_Wrap()
++ changed cq_gen_type 1 (wasteland) to only use 3 blocktypes
++ made wasteland floor more flat to represent old streets/floors (the old generator was just an experiment, but looks kinda like an old city to me now)
++ rotation is no longer sent to the client for cube shapes
++ players no longert get their origin set at the floor at map start if they are in noclip mode
++ improved/utilized linked list append support (mainly for build queues)
++ increased available input keys for mods to 50 (numinputkeys variable)
 
 ### Installation
 - Download CubiQuake https://github.com/uowaep/CubiQuake/archive/master.zip and extract the entire contents of the zip file into any directory. The directory you choose will be your main CubiQuake directory.
@@ -50,6 +71,37 @@ WARNING: If a server restarts, players need to reconnect to get the world to net
 - don't let players place things on players
 
 ### ChangeLog
+
+r158
++ set sky to use r_fastsky 1 by default and replaced placeholder sky with blank images
++ changed default cq_chunksperpassage from 7 to 5
++ chunks now save at 30 second increments by default (instead of the moment they are modified), and are saved on unload, mapchange, or quit
++ facegroup allocations are no longer freed, but instead kept around to be used by newly build chunks in csqc. this improved performance of chunk loading and updating by a large margin, and cubic building speed via cq_maxcubicsperbuild and cq_maxdamagecubicsperbuild (new) have been increased/set to 64 (normally 16)
++ cq_maxfacegroupsperbuild set to 64 for good measure
++ added cq_lights_models. 0 by default. set to 1 to enable engine lights for models
++ added radiant lighting. use cq_ambientlight_radiance and cq_lights_radiance to modify
++ changed default ambient light (while making skies in PDoD)
++ set r_shadow_realtime_dlight 1, r_shadow_realtime_dlight_shadows 0, and r_shadow_realtime_world_shadows 0
++ some fog settings, ignore these
++ pr_gc_threaded 1 just because
++ several minor tweaks to reduce hiccups
++ added cubic health and support and textures for 9 levels of damage for cubics 10% to 90% health (can do damage in PDoD, but added support to core)
++ added support for chunk textures to be modified dynamically without resending the entire chunk to the clients (dmg textures for example)
++ fixed bug with ambient light
++ facegroups no longer group different facing sides together
++ hardware mouse support via mousepos variable
++ fixed trace point for player client vs server
++ cubic objects can now be rotated
++ editor cubic object alpha set to 1 for visibility
++ added support for modifying ambient light and ambient light position dynamically (just don't do it every frame)
++ added mod support for csqc input SetInputID_Wrap_Prior()
++ added mod support for skies/environments/whatever DrawSky_Wrap()
++ changed cq_gen_type 1 (wasteland) to only use 3 blocktypes
++ made wasteland floor more flat to represent old streets/floors (the old generator was just an experiment, but looks kinda like an old city to me now)
++ rotation is no longer sent to the client for cube shapes
++ players no longert get their origin set at the floor at map start if they are in noclip mode
++ improved/utilized linked list append support (mainly for build queues)
++ increased available input keys for mods to 50 (numinputkeys variable)
 
 r155
 + players now try to spawn in an open space along x0 y0 in the starting chunk near '0 0 0'
