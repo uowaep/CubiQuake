@@ -1,7 +1,7 @@
 /////////////
 // SLAB START
 
-void BuildFaces_Slab_Universal(entity typegroup, int rotation, int cullbits, int subbits, vector cubicpos, int facegroupsize, int rotationtype, float facescale)
+void BuildFaces_Slab_Universal(entity typegroup, int rotation, int cullbits, int subbits, vector cubicpos, int facegroupsize, int rotationtype, float facescale, int listid)
 {
 	int facecount = 0, facebit = 0, count = 0, rampface = 0;
 	vector vertofs = '0 0 0', texturecoords = '0 0 0';
@@ -24,6 +24,8 @@ void BuildFaces_Slab_Universal(entity typegroup, int rotation, int cullbits, int
 
 		if(SkipFace_Ramp(facecount, facebit, cullbits, subbits, rampface, -1))	// the ramp function works the same as a wedge tip would
 			continue;
+
+		facebit = RotateFaceBits(facebit, rotation);
 
 		for(count = 0; count < 4; count++)	// vertexes
 		{
@@ -213,26 +215,26 @@ void BuildFaces_Slab_Universal(entity typegroup, int rotation, int cullbits, int
 					texturecoords_y = 0.5;
 			}
 		
-			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords, facescale);
+			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords, facescale, listid);
 		}
 
 		SetVertexIndexes(4, typegroup, facebit);
 	}	
 }
 
-void BuildFaces_Slab(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale)
+void BuildFaces_Slab(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale, int listid)
 {
-	BuildFaces_Slab_Universal(typegroup, rotation, cullbits, CULLBITS_U | CULLBITS_W | CULLBITS_N | CULLBITS_S | CULLBITS_E, cubicpos, facegroupsize, 0, facescale);
+	BuildFaces_Slab_Universal(typegroup, rotation, cullbits, CULLBITS_U | CULLBITS_W | CULLBITS_N | CULLBITS_S | CULLBITS_E, cubicpos, facegroupsize, 0, facescale, listid);
 }
 
-void BuildFaces_Slab_CW(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale)
+void BuildFaces_Slab_CW(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale, int listid)
 {
-	BuildFaces_Slab_Universal(typegroup, rotation, cullbits, CULLBITS_U | CULLBITS_W | CULLBITS_D | CULLBITS_S | CULLBITS_E, cubicpos, facegroupsize, 1, facescale);
+	BuildFaces_Slab_Universal(typegroup, rotation, cullbits, CULLBITS_U | CULLBITS_W | CULLBITS_D | CULLBITS_S | CULLBITS_E, cubicpos, facegroupsize, 1, facescale, listid);
 }
 
-void BuildFaces_Slab_UD(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale)
+void BuildFaces_Slab_UD(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale, int listid)
 {
-	BuildFaces_Slab_Universal(typegroup, rotation, cullbits, CULLBITS_D | CULLBITS_W | CULLBITS_N | CULLBITS_S | CULLBITS_E, cubicpos, facegroupsize, 2, facescale);
+	BuildFaces_Slab_Universal(typegroup, rotation, cullbits, CULLBITS_D | CULLBITS_W | CULLBITS_N | CULLBITS_S | CULLBITS_E, cubicpos, facegroupsize, 2, facescale, listid);
 }
 
 // SLAB END

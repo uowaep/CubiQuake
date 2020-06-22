@@ -1,4 +1,4 @@
-void BuildFaces_Custom(entity typegroup, vector cubicpos, int usecustom, float facescale)
+void BuildFaces_Custom(entity typegroup, vector cubicpos, int usecustom, float facescale, int listid)
 {
 	int facecount = 0, facebit = 0, count = 0;
 	vector vertofs = '0 0 0', texturecoords = '0 0 0', sel_mins = '0 0 0', sel_maxs = '0 0 0';
@@ -83,7 +83,7 @@ void BuildFaces_Custom(entity typegroup, vector cubicpos, int usecustom, float f
 				case 3:	texturecoords = '1 1 0';	break;
 			}
 			
-			SetFaceValues(cubicpos, vertofs, typegroup, facebit, 1, texturecoords, 1);
+			SetFaceValues(cubicpos, vertofs, typegroup, facebit, 1, texturecoords, 1, listid);
 		}
 
 		SetVertexIndexes(4, typegroup, facebit);

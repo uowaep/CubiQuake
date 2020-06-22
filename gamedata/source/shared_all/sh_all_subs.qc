@@ -23,7 +23,7 @@ entity LinkedList_Remove(entity e, entity list, .entity entchain, .entity entpar
 
 entity LinkedList_Add(entity e, entity list, .entity entchain, .entity entparent)
 {
-	if(e.entchain || e.entparent || e == list)
+	if(e.entchain || e.entparent || e == list)	// already in list
 		return list;
 
 	if(list)
@@ -37,9 +37,11 @@ entity LinkedList_Add(entity e, entity list, .entity entchain, .entity entparent
 	return list;
 }
 
+// this function :)
+entity list_lastent;
 entity LinkedList_Append(entity e, entity list, entity lastent, .entity entchain, .entity entparent)
 {
-	if(e.entchain || e.entparent || e == list)
+	if(e.entchain || e.entparent || e == list)	// already in list
 		return list;
 
 	if(list)
@@ -50,6 +52,7 @@ entity LinkedList_Append(entity e, entity list, entity lastent, .entity entchain
 	else
 		list = e;
 	
+	list_lastent = e;
 	return list;
 }
 
@@ -91,7 +94,7 @@ void FreeBufferString(float handle, float index)	{	bufstr_free(handle-1, index);
 void Remove(entity e);
 void Remove_self()	{	Remove(self);	}
 
-string zonecpy(string dst, string src) // if dst is not null or zoned, this will cause errors
+string zonecpy(string dst, string src) // if dst is not null or zoned, this will cause errors (do not use in FTE)
 {
 	local string s = __NULL__;
 
@@ -187,6 +190,16 @@ float IsAssignedFunction(void() func)
 		return TRUE;
 		
 	return FALSE;
+}
+
+float FixAngle(float ang)
+{
+	if(ang > 180)
+		ang -= 360;
+	if(ang <= -180)
+		ang += 360;
+	
+	return ang;
 }
 
 float AngleDifference(float angA, float angB)

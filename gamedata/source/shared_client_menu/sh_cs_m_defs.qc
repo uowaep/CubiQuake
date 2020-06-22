@@ -1,4 +1,4 @@
-int		numinputkeys = 5;
+int		numinputkeys = 50;	// just so mods don't need to mess with it, if you need more than 50 then, just set it in your mod.
 int		player_input[numinputkeys];
 
 int		INPUT_ATTACK	= 0;

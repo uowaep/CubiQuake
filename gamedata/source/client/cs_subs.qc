@@ -19,7 +19,7 @@ void CleanUp_Remove (entity e)
 		if(e.list_chunklightchain)	// this unlights faces that were lit by lights that are now past the edge of the loaded world, but this also unlights faces near a chunk that was removed because it's last visible cubic was a light that was removed
 			ResetStaticLights(FALSE);
 		
-		ClearChunkValues(e, FALSE);
+		ClearChunkValues(e, FALSE, TRUE);
 		if(e.chunkinitialized)
 			FreeChunkAllocations(e);
 
@@ -31,7 +31,13 @@ void CleanUp_Remove (entity e)
 
 			if(!cluster.numchunks)
 			if(!cluster.islit)
+			{
+//				cluster_ent[GetClusterRef(cluster.origin)] = __NULL__;
+//				memfree(cluster.chunk_ent);
+//				memfree(cluster.chunk_flags);
+//				Remove(cluster);
 				GhostCluster(cluster);
+			}
 		}
 
 /*		e.numvisiblecubics = 0;
@@ -43,6 +49,7 @@ void CleanUp_Remove (entity e)
 		memfill8(e.cubic_blockshape, 0, sizeof(int)*pow(chunksize, 3));
 		memfill8(e.cubic_blockrotation, 0, sizeof(int)*pow(chunksize, 3));
 		memfill8(e.cubic_cullbits, 0, sizeof(int)*pow(chunksize, 3));
+		memfill8(e.cubic_health, 0, sizeof(int)*pow(chunksize, 3));
 	*/
 
 		ChunkChain_Remove(e);
@@ -62,9 +69,16 @@ void CleanUp_Remove (entity e)
 
 	}
 	
+	if(e.staticlno)
+	{
+		dynamiclight_set(e.staticlno, LFIELD_RADIUS, 0);
+		e.staticlno = 0;
+	}
+	
 	QueueNearFaceBuildChain_Remove(e);
 	QueueFaceBuildChain_Remove(e);
-//	QueueChunkBloatChain_Remove(e);
+	QueueDamageFaceBuildChain_Remove(e);
+//	QueueDamageFaceRebuildChain_Remove(e);
 }
 
 void Remove(entity e)

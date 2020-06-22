@@ -7,6 +7,13 @@ void SetModelForCubicObject(entity cubic, int type, int setbboxsize)
 	
 	if(setbboxsize)
 		setsize(cubic, '-1 -1 -1'*cubicradius, '1 1 1'*cubicradius);
+	
+	
+}
+
+void SetYawForCubicObject(entity cubic, float rotation)
+{
+	cubic.angles_y = ((rotation/4)-floor(rotation/4))*4*90;
 }
 
 float Predraw_Torch()

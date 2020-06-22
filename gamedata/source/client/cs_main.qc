@@ -58,25 +58,8 @@ float CSQC_ConsoleCommand(string strMessage)
 	return nReturn;
 }
 
-// CSQC_InputEvent : Used to perform actions based on any key pressed or released by the client.
-// Return value should be 1 if CSQC handled the key press, otherwise return 0 to have the key passed to the engine.
-float CSQC_InputEvent(float evtype, float scanx, float chary, float devid)
+int SetInputID_Wrap_Prior(string bind, int inputid, float evtype, float scankey, int returnvalue)
 {
-	int inputid = -1;
-	int bSkipKey = FALSE;
-	
-//	print(ftos(evtype), ", ", ftos(scanx), ", ", ftos(chary), ", ", ftos(devid), "\n");
-
-	string bind = getkeybind(scanx);
-	
-	switch(bind)
-	{
-		case "+attack":			inputid = INPUT_ATTACK;		break;
-		case "impulse 99":		inputid = INPUT_BUTTON1;	break;
-		case "+speed":			inputid = INPUT_SPEED;		break;
-//		case "impulse 98":		inputid = INPUT_TOOLDIM;	break;
-	}
-
 	if(inputid >= 0)
 	{
 		if(evtype == 0)
@@ -87,7 +70,37 @@ float CSQC_InputEvent(float evtype, float scanx, float chary, float devid)
 		else
 		if(evtype == 1)
 			player_input[inputid] = FALSE;
-	}		
+	}
+	
+	return returnvalue;
+}
+
+// CSQC_InputEvent : Used to perform actions based on any key pressed or released by the client.
+// Return value should be 1 if CSQC handled the key press, otherwise return 0 to have the key passed to the engine.
+float CSQC_InputEvent(float evtype, float scanx, float chary, float devid)
+{
+	int inputid = -1;
+	int bSkipKey = FALSE;
+	
+//	print(ftos(evtype), ", ", ftos(scanx), ", ", ftos(chary), ", ", ftos(devid), "\n");
+
+	if(evtype == 0 || evtype == 1)
+	{
+		string bind = getkeybind(scanx);
+
+		switch(bind)
+		{
+			case "+attack":			inputid = INPUT_ATTACK;		break;
+			case "impulse 99":		inputid = INPUT_BUTTON1;	break;
+			case "+speed":			inputid = INPUT_SPEED;		break;
+	//		case "impulse 98":		inputid = INPUT_TOOLDIM;	break;
+		}
+
+		bSkipKey = SetInputID_Wrap_Prior(bind, inputid, evtype, scanx, FALSE);	
+	}
+	else
+	if(evtype == 3)	// 2 is software mouse 3 is hardware
+		mousepos = [scanx, chary, 0];
 	
 	return bSkipKey;
 }
@@ -150,13 +163,19 @@ float CSQC_Parse_CenterPrint(string strMessage)
 // CSQC_Parse_TempEntity : Handles all temporary entity network data in the CSQC layer.
 // You must ALWAYS first acquire the temporary ID, which is sent as a byte.
 // Return value should be 1 if CSQC handled the temporary entity, otherwise return 0 to have the engine process the event.
+void Parse_Event_Wrap(int i) {}
 void CSQC_Parse_Event()
 {
 	// Acquire TE ID
 	local float nTEID;
 		nTEID = readbyte();
 		
-//	switch(nTEID)
-//	{
-//	}
+	switch(nTEID)
+	{
+		// going to try to just update the shared ent's existing data w/o updating the shared ent. the actual chunk shared ents are big and clunky and span multiple ents. better not to update them unless updating geometry is required. still need to include health on initial chunk send though.
+		
+		case EVENT_CUBICHEALTH:		UpdateCubicHealth();		break;		
+	}
+	
+	Parse_Event_Wrap(nTEID);
 }

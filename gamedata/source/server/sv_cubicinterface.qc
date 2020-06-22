@@ -45,7 +45,7 @@ void LoadPrefab_Cluster(vector clusterorg)
 
 					chunk.cubic_blocktype[i] = cluster_data[cubicslot0+CUBICSLOT_TYPE];
 					chunk.cubic_blockshape[i] = cluster_data[cubicslot0+CUBICSLOT_SHAPE];
-					chunk.cubic_blockrotation[i] = GetFixedRotation(cluster_data[cubicslot0+CUBICSLOT_ROTATION], chunk.cubic_blockshape[i]);
+					chunk.cubic_blockrotation[i] = GetFixedRotation(chunk.cubic_blocktype[i], cluster_data[cubicslot0+CUBICSLOT_ROTATION], chunk.cubic_blockshape[i]);
 					chunk.cubic_cullbits[i] = cluster_data[cubicslot0+CUBICSLOT_CULLBITS];
 				}
 			}
@@ -104,7 +104,7 @@ void SavePrefab_Cluster(vector clusterorg)
 
 					cluster_data[cubicslot0+CUBICSLOT_TYPE] = chunk.cubic_blocktype[i];
 					cluster_data[cubicslot0+CUBICSLOT_SHAPE] = chunk.cubic_blockshape[i];
-					cluster_data[cubicslot0+CUBICSLOT_ROTATION] = GetFixedRotation(chunk.cubic_blockrotation[i], chunk.cubic_blockshape[i]);
+					cluster_data[cubicslot0+CUBICSLOT_ROTATION] = GetFixedRotation(chunk.cubic_blocktype[i], chunk.cubic_blockrotation[i], chunk.cubic_blockshape[i]);
 					cluster_data[cubicslot0+CUBICSLOT_CULLBITS] = chunk.cubic_cullbits[i];
 				}
 			}
@@ -143,8 +143,9 @@ void AddCluster(vector clusterorg, int type, int shape, int rotation)
 				{
 					chunk.cubic_blocktype[i] = type;
 					chunk.cubic_blockshape[i] = shape;
-					chunk.cubic_blockrotation[i] = GetFixedRotation(rotation, shape);						
+					chunk.cubic_blockrotation[i] = GetFixedRotation(type, rotation, shape);						
 					chunk.cubic_cullbits[i] = CULLBITS_ALL;
+					chunk.cubic_health[i] = 100;
 				}
 			}
 	
@@ -185,6 +186,7 @@ void ClearCluster(vector clusterorg)
 					chunk.cubic_blockshape[i] = 0;
 					chunk.cubic_blockrotation[i] = 0;
 					chunk.cubic_cullbits[i] = 0;
+					chunk.cubic_health[i] = 0;
 				}
 			}
 			
@@ -237,13 +239,13 @@ void LoadPrefab_Chunk(vector chunkorg)
 
 		chunk.cubic_blocktype[i] = chunk_data[cubicslot0+CUBICSLOT_TYPE];
 		chunk.cubic_blockshape[i] = chunk_data[cubicslot0+CUBICSLOT_SHAPE];
-		chunk.cubic_blockrotation[i] = GetFixedRotation(chunk_data[cubicslot0+CUBICSLOT_ROTATION], chunk.cubic_blockshape[i]);		
+		chunk.cubic_blockrotation[i] = GetFixedRotation(chunk.cubic_blocktype[i], chunk_data[cubicslot0+CUBICSLOT_ROTATION], chunk.cubic_blockshape[i]);		
 		chunk.cubic_cullbits[i] = chunk_data[cubicslot0+CUBICSLOT_CULLBITS];
 	}
 	
 	fclose(file);
 	UpdateChunkAreaVisibility_OuterEdge(chunk);
-	SetChunkAsModified(chunk, FALSE);
+	SetChunkAsModified(chunk, FALSE, TRUE);
 	
 	sprint(self, filename, " loaded.\n");
 }
@@ -332,7 +334,7 @@ void SavePrefab_Chunk(vector chunkorg)
 
 		chunk_data[cubicslot0+CUBICSLOT_TYPE] = chunk.cubic_blocktype[i];
 		chunk_data[cubicslot0+CUBICSLOT_SHAPE] = chunk.cubic_blockshape[i];
-		chunk_data[cubicslot0+CUBICSLOT_ROTATION] = GetFixedRotation(chunk.cubic_blockrotation[i], chunk.cubic_blockshape[i]);		
+		chunk_data[cubicslot0+CUBICSLOT_ROTATION] = GetFixedRotation(chunk.cubic_blocktype[i], chunk.cubic_blockrotation[i], chunk.cubic_blockshape[i]);		
 		chunk_data[cubicslot0+CUBICSLOT_CULLBITS] = chunk.cubic_cullbits[i];
 	}
 	
@@ -360,12 +362,13 @@ void AddChunk(vector chunkorg, int type, int shape, int rotation)
 	{
 		chunk.cubic_blocktype[i] = type;
 		chunk.cubic_blockshape[i] = shape;
-		chunk.cubic_blockrotation[i] = GetFixedRotation(rotation, shape);		
+		chunk.cubic_blockrotation[i] = GetFixedRotation(type, rotation, shape);		
 		chunk.cubic_cullbits[i] = CULLBITS_ALL;
+		chunk.cubic_health[i] = 100;
 	}
 	
 	UpdateChunkAreaVisibility_OuterEdge(chunk);
-	SetChunkAsModified(chunk, FALSE);
+	SetChunkAsModified(chunk, FALSE, TRUE);
 }
 
 void ClearChunk(vector chunkorg)
@@ -390,11 +393,12 @@ void ClearChunk(vector chunkorg)
 		chunk.cubic_blockshape[i] = 0;
 		chunk.cubic_blockrotation[i] = 0;
 		chunk.cubic_cullbits[i] = 0;
+		chunk.cubic_health[i] = 0;
 	}
 	
 	UpdateChunkAreaVisibility_OuterEdge(chunk);
 	
-	SetChunkAsModified(chunk, FALSE);
+	SetChunkAsModified(chunk, FALSE, TRUE);
 }
 
 void CopyCubicData(vector org)
@@ -442,9 +446,9 @@ void AddCubic(vector org, int type, int shape, int rotation, int avoidexistingcu
 	int i = GetCubicRef(org-cubicchunkorg);
 	chunk.cubic_blocktype[i] = type;
 	chunk.cubic_blockshape[i] = shape;
-	chunk.cubic_blockrotation[i] = GetFixedRotation(rotation, shape);
-	
+	chunk.cubic_blockrotation[i] = GetFixedRotation(type, rotation, shape);
 	chunk.cubic_cullbits[i] = (chunk.cubic_cullbits[i] & CULLBITS_ALL) + GetPartialSideCullBitsForShape(type, shape, rotation);
+	chunk.cubic_health[i] = 100;
 	
 	UpdateChunkAreaVisibility(chunk, org, TRUE, FALSE);
 }
@@ -508,7 +512,7 @@ int CubicIsOnEdge(vector org)
 	return FALSE;
 }
 
-void ClearCubic(entity chunk, vector cubicorg, int isdamaged)
+void ClearCubic(entity chunk, vector cubicorg, int fastredraw)
 {
 	if(!chunk)
 		return;
@@ -531,9 +535,12 @@ void ClearCubic(entity chunk, vector cubicorg, int isdamaged)
 		Remove(bbox);	// this is just a bbox entity
 	
 	chunk.cubic_blocktype[memslot] = 0;
+	chunk.cubic_blockshape[memslot] = 0;	
+	chunk.cubic_blockrotation[memslot] = 0;	
 	chunk.cubic_cullbits[memslot] = 0;
+	chunk.cubic_health[memslot] = 0;
 	
-	UpdateChunkAreaVisibility(chunk, cubicorg, TRUE, isdamaged);
+	UpdateChunkAreaVisibility(chunk, cubicorg, TRUE, fastredraw);
 }
 
 void ClearCubicArea(entity player, entity chunk, vector cubicorg)
@@ -943,7 +950,7 @@ void Player_CubiQuakeControls()
 		ClearEditInfo();
 	}
 	
-	if(self.impulse == 12)
+	if(self.impulse == 20)
 	{
 		eprint(GetChunkForLocation(__NULL__, self.playerclusterorg, __FUNC__));
 	}

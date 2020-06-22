@@ -24,6 +24,7 @@ void GhostChunk(entity cluster, entity chunk)
 	memfill8(chunk.cubic_blockshape, 0, sizeof(int)*pow(chunksize, 3));
 	memfill8(chunk.cubic_blockrotation, 0, sizeof(int)*pow(chunksize, 3));
 	memfill8(chunk.cubic_cullbits, 0, sizeof(int)*pow(chunksize, 3));
+	memfill8(chunk.cubic_health, 0, sizeof(int)*pow(chunksize, 3));
 	
 	ChunkChain_Remove(cluster, chunk);
 	GhostChunkChain_Add(chunk);
@@ -104,6 +105,88 @@ void InitializeChunk(entity cluster, entity chunk)
 		}
 		
 		ChunkChain_Add(cluster, chunk);
+	}
+}
+
+int SaveClusterChunks(entity cluster, int numsaved, int saveall)
+{
+	entity chunk = __NULL__, nextchunk = __NULL__;
+	string filename = __NULL__;
+	int *cluster_data = __NULL__;
+	int clusterchunkid = 0, i = 0, chunkslot0 = 0, cubicslot0 = 0;
+	float file = 0;	
+	
+	filename = strcat(worldpath, itos(GetClusterRef(cluster.origin)));
+	file = fopen(filename, FILE_MMAP_RW, sizeof(*cluster_data)*clusterdataslots);
+	cluster_data = (int*)fgets(file);
+	
+	for(chunk = cluster.list_savechunkqueuechain; (saveall || numsaved < autocvar_cq_chunksave_numperinterval) && chunk; chunk = nextchunk)
+	{
+		#ifdef DEBUG
+		if(wasfreed(chunk))
+			print("SaveModifiedClusterFiles B wasfreed.\n");	
+		#endif
+		
+		nextchunk = chunk.savechunkqueuechain;
+		
+		clusterchunkid = GetChunkRef(chunk.origin-cluster.origin, __FUNC__);
+		chunkslot0 = numprechunkvaluesincluster + clusterchunkid*numslotsforchunkincluster;
+
+		cluster_data[chunkslot0+CHUNKSLOT_NUMVISIBLECUBICS] = chunk.numvisiblecubics;
+		
+		for(i = 0; i < pow(chunksize, 3); i++)
+		{
+			cubicslot0 = chunkslot0+numprecubicvaluesinchunk+i*numvaluespercubic;
+
+			cluster_data[cubicslot0+CUBICSLOT_TYPE] = chunk.cubic_blocktype[i];
+			cluster_data[cubicslot0+CUBICSLOT_SHAPE] = chunk.cubic_blockshape[i];
+			cluster_data[cubicslot0+CUBICSLOT_ROTATION] = GetFixedRotation(chunk.cubic_blocktype[i], chunk.cubic_blockrotation[i], chunk.cubic_blockshape[i]);
+			cluster_data[cubicslot0+CUBICSLOT_CULLBITS] = chunk.cubic_cullbits[i];	
+			cluster_data[cubicslot0+CUBICSLOT_HEALTH] = chunk.cubic_health[i];	
+		}
+
+	//	print("chunk saved\n");
+		SaveChunkQueueChain_Remove(cluster, chunk);
+		numsaved++;
+	}
+	
+	fclose(file);
+	
+	if(!cluster.list_savechunkqueuechain)
+		SaveClusterQueueChain_Remove(cluster);	
+	
+	return numsaved;
+}
+
+void SaveModifiedClusterFiles(int saveall)
+{
+	if(!saveall)
+	{
+		if(numplayersloadingfiles > 0)
+			return;
+		
+		// this should only happen occasionally, only force saves on exit and cluster removal/unload
+		
+		if(time < clustersavetime)
+			return;
+	}
+
+	int numsaved = 0;
+	
+	clustersavetime = time+autocvar_cq_chunksave_interval;	// set this cvar to 0 if you want to save everything instantly
+	
+	entity cluster = __NULL__, nextcluster = __NULL__;
+	
+	for(cluster = list_saveclusterqueuechain; (saveall || numsaved < autocvar_cq_chunksave_numperinterval) && cluster; cluster = nextcluster)
+	{
+		#ifdef DEBUG
+		if(wasfreed(cluster))
+			print("SaveModifiedClusterFiles A wasfreed.\n");	
+		#endif
+		
+		nextcluster = cluster.saveclusterqueuechain;
+		
+		numsaved += SaveClusterChunks(cluster, numsaved, saveall);
 	}
 }
 
@@ -207,6 +290,8 @@ void RemoveUnoccupiedClusters(int numframesbetweenunloads)
 			#endif
 		}			
 		
+		SaveClusterChunks(cluster, 0, TRUE);
+		
 		for(; chunk; chunk = nextchunk) // ghost/remove the whole cluster now
 		{
 			nextchunk = chunk.chunkchain;
@@ -224,7 +309,14 @@ void RemoveUnoccupiedClusters(int numframesbetweenunloads)
 			}*/
 		}
 		GhostCluster(cluster);
-//		Remove(cluster);
+
+/*		memfree(cluster.chunk_ent);
+		memfree(cluster.cluster_playerlist);
+		
+		UnoccupiedClusterChain_Remove(cluster);
+		RemoveClusterForAllClientsChain_Remove(cluster);
+		cluster_ent[GetClusterRef(cluster.origin)] = __NULL__;
+		Remove(cluster);*/
 	}
 }
 
@@ -486,6 +578,7 @@ entity LoadCluster(entity player, vector pos, int forceload)
 			chunk.cubic_blockshape = memalloc(sizeof(int)*pow(chunksize, 3));
 			chunk.cubic_blockrotation = memalloc(sizeof(int)*pow(chunksize, 3));
 			chunk.cubic_cullbits = memalloc(sizeof(int)*pow(chunksize, 3));
+			chunk.cubic_health = memalloc(sizeof(int)*pow(chunksize, 3));
 		}
 
 		cluster.chunk_ent[i] = chunk;
@@ -505,8 +598,9 @@ entity LoadCluster(entity player, vector pos, int forceload)
 			
 			chunk.cubic_blocktype[count] = cluster_data[cubicslot0+CUBICSLOT_TYPE];
 			chunk.cubic_blockshape[count] = cluster_data[cubicslot0+CUBICSLOT_SHAPE];
-			chunk.cubic_blockrotation[count] = GetFixedRotation(cluster_data[cubicslot0+CUBICSLOT_ROTATION], chunk.cubic_blockshape[count]);
+			chunk.cubic_blockrotation[count] = GetFixedRotation(chunk.cubic_blocktype[count], cluster_data[cubicslot0+CUBICSLOT_ROTATION], chunk.cubic_blockshape[count]);
 			chunk.cubic_cullbits[count] = cluster_data[cubicslot0+CUBICSLOT_CULLBITS];
+			chunk.cubic_health[count] = cluster_data[cubicslot0+CUBICSLOT_HEALTH];
 		}
 		
 		if(!forceload)
@@ -585,7 +679,8 @@ void SetClusterOccupancyForPlayer(entity player, vector org)
 					cluster.occupantcount++;
 					cluster.removetime = 0;
 
-					RemoveClusterForClientChain_Remove(cluster);
+					// don't add this to the all player's chain. if no other players are adding it to the chain, then it will remove the cluster.
+					RemoveClusterForClientChain_Remove(cluster);	
 					UnoccupiedClusterChain_Remove(cluster);
 				}
 			}		
@@ -793,7 +888,7 @@ void Player_WorldInterface()
 			player.loadingbackgroundchunks = TRUE;
 			
 			if(player.worldloaded)
-				UnloadWorldForPlayer(player, player.playerclusterorg, FALSE);
+				UnloadWorldForPlayer(player, player.playerclusterorg, FALSE);	// removeclusterforclientchain is set inside
 			
 			vector newclusterorg = GetNearClusterOrg(player.origin);
 			SetClusterOccupancyForPlayer(player, newclusterorg);
@@ -802,7 +897,7 @@ void Player_WorldInterface()
 			player.viewreset = FALSE;
 			
 			// the purpose of this per player chain being separate from the all player chain, then feeding into it is to cull it per player before adding it to the main chain.
-			// chunks that would be removed from the chain may still need to be updated for other players, hence the bigger chain.
+			// chunks that would be removed from the individual player's chain may still need to be updated for other players, hence the bigger chain.
 			for(e = list_removeclusterforclientchain; e; e = nexte)
 			{
 				#ifdef DEBUG
@@ -1043,38 +1138,41 @@ void InitializePlayers()
 		if(!e.loadingbackgroundchunks)
 		{
 			e.waitingtospawn = FALSE;
+			
 			if(e.movetype != MOVETYPE_NOCLIP)
+			{	
 				e.movetype = MOVETYPE_WALK;
-			
-			playercubicheight = ceil((e.maxs_z-e.mins_z)/(cubicradius*2));	// who knows, some players may end up shorter than others somehow
-			org = GetNearChunkOrg('0 0 0');
-			org_z += (chunksize-1)*cubicradius;
-			cubicpos = org;
-			
-			for(count = 0; count < chunksize; count++)
-			{
-				cubicpos_z = org_z - count*cubicradius*2;
-				chunk = GetChunkForLocation(__NULL__, cubicpos, __FUNC__);
-				if(GetCubicStatus(chunk, cubicpos, TRUE) == -1)
-					free++;
-				else
-				if(free >= playercubicheight)
+				
+				playercubicheight = ceil((e.maxs_z-e.mins_z)/(cubicradius*2));	// who knows, some players may end up shorter than others somehow
+				org = GetNearChunkOrg('0 0 0');
+				org_z += (chunksize-1)*cubicradius;
+				cubicpos = org;
+				
+				for(count = 0; count < chunksize; count++)
 				{
-					cubicpos_z += cubicradius*2;
-					break;
+					cubicpos_z = org_z - count*cubicradius*2;
+					chunk = GetChunkForLocation(__NULL__, cubicpos, __FUNC__);
+					if(GetCubicStatus(chunk, cubicpos, TRUE) == -1)
+						free++;
+					else
+					if(free >= playercubicheight)
+					{
+						cubicpos_z += cubicradius*2;
+						break;
+					}
+					else
+						free = 0;
 				}
-				else
-					free = 0;
+
+				free = 0;
+
+				org = cubicpos;
+				org_z -= cubicradius;
+				org_z -= e.mins_z;
+				org_z += 1;
+				
+				setorigin(e, org);
 			}
-
-			free = 0;
-
-			org = cubicpos;
-			org_z -= cubicradius;
-			org_z -= e.mins_z;
-			org_z += 1;
-			
-			setorigin(e, org);
 		}
 }
 
@@ -1082,7 +1180,7 @@ void WorldLogic()
 {
 	InitializePlayers();
 //	ProjectileUpdate();	// see sv_attacks.qc for examples
-	SaveModifiedClusterFiles();
+	SaveModifiedClusterFiles(FALSE);
 	Player_WorldInterface();	
 }
 

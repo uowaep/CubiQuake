@@ -60,7 +60,12 @@ vector		lasteditorvaluesorg;
 .int		bloatSendFlags;
 
 int			autocvar_cq_maxchunksloadedperframe;
+float		autocvar_cq_chunksave_interval;
+int			autocvar_cq_chunksave_numperinterval;
 float		chunkremovaldelay;
+
+float		clustersavetime;
+
 
 // generation
 .int		infoedit_chunksidedata[numsideinfoslots];	// using an array instead of pointers so we can send this info to csqc as stats
@@ -75,7 +80,8 @@ int			worldgen_filled;
 .int		genzone;
 int			genstep;
 int			genpaused;
-int			numzones = 2;
+int			numrandomtextureblocktypes = 3;
+int			numzones = 2;	// FIXME make this dynamic
 entity		prefab_zonefill[numzones];
 int			gen_type;
 int			GEN_TYPE_FLAT			= 0;

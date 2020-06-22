@@ -1,7 +1,7 @@
 //////////////////
 // WEDGE START
 
-void BuildFaces_Wedge(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale)
+void BuildFaces_Wedge(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale, int listid)
 {
 	int facecount = 0, facebit = 0, count = 0, numvertsforface = 0;
 	vector vertofs = '0 0 0', texturecoords = '0 0 0';
@@ -15,6 +15,8 @@ void BuildFaces_Wedge(entity typegroup, int rotation, int cullbits, vector cubic
 
 		if(SkipFace_Ramp(facecount, facebit, cullbits, subbits, 0, -1))	// the ramp function works for wedges
 			continue;
+
+		facebit = RotateFaceBits(facebit, rotation);
 
 		numvertsforface = GetNumVertsForFace(facecount, 4,4,4,4,4,4);
 		
@@ -46,14 +48,14 @@ void BuildFaces_Wedge(entity typegroup, int rotation, int cullbits, vector cubic
 			else
 				texturecoords = SetDefaultTextureCoordsForFace(facecount, count, vertofs);
 			
-			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords, facescale);
+			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords, facescale, listid);
 		}
 
 		SetVertexIndexes(numvertsforface, typegroup, facebit);
 	}	
 }
 
-void BuildFaces_Wedge_CW(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale)
+void BuildFaces_Wedge_CW(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale, int listid)
 {
 	int facecount = 0, facebit = 0, count = 0, numvertsforface = 0;
 	vector vertofs = '0 0 0', texturecoords = '0 0 0';
@@ -67,6 +69,8 @@ void BuildFaces_Wedge_CW(entity typegroup, int rotation, int cullbits, vector cu
 
 		if(SkipFace_Ramp(facecount, facebit, cullbits, subbits, 2, -1))
 			continue;
+
+		facebit = RotateFaceBits(facebit, rotation);
 
 		numvertsforface = GetNumVertsForFace(facecount, 4,4,4,4,4,4);
 		
@@ -122,14 +126,14 @@ void BuildFaces_Wedge_CW(entity typegroup, int rotation, int cullbits, vector cu
 			else
 				texturecoords = SetDefaultTextureCoordsForFace(facecount, count, vertofs);
 			
-			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords, facescale);
+			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords, facescale, listid);
 		}
 
 		SetVertexIndexes(numvertsforface, typegroup, facebit);
 	}	
 }
 
-void BuildFaces_Wedge_UD(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale)
+void BuildFaces_Wedge_UD(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale, int listid)
 {
 	int facecount = 0, facebit = 0, count = 0, numvertsforface = 0;
 	vector vertofs = '0 0 0', texturecoords = '0 0 0';
@@ -143,6 +147,8 @@ void BuildFaces_Wedge_UD(entity typegroup, int rotation, int cullbits, vector cu
 
 		if(SkipFace_Ramp(facecount, facebit, cullbits, subbits, 5, -1))	// the ramp function works for wedges
 			continue;
+
+		facebit = RotateFaceBits(facebit, rotation);
 
 		numvertsforface = GetNumVertsForFace(facecount, 4,4,4,4,4,4);
 		
@@ -174,14 +180,14 @@ void BuildFaces_Wedge_UD(entity typegroup, int rotation, int cullbits, vector cu
 			else
 				texturecoords = SetDefaultTextureCoordsForFace(facecount, count, vertofs);
 			
-			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords, facescale);
+			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords, facescale, listid);
 		}
 
 		SetVertexIndexes(numvertsforface, typegroup, facebit);
 	}	
 }
 
-void BuildFaces_Wedge_CCW(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale)
+void BuildFaces_Wedge_CCW(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale, int listid)
 {
 	int facecount = 0, facebit = 0, count = 0, numvertsforface = 0;
 	vector vertofs = '0 0 0', texturecoords = '0 0 0';
@@ -195,6 +201,8 @@ void BuildFaces_Wedge_CCW(entity typegroup, int rotation, int cullbits, vector c
 
 		if(SkipFace_Ramp(facecount, facebit, cullbits, subbits, 4, -1))
 			continue;
+
+		facebit = RotateFaceBits(facebit, rotation);
 
 		numvertsforface = GetNumVertsForFace(facecount, 4,4,4,4,4,4);
 		
@@ -250,14 +258,14 @@ void BuildFaces_Wedge_CCW(entity typegroup, int rotation, int cullbits, vector c
 			else
 				texturecoords = SetDefaultTextureCoordsForFace(facecount, count, vertofs);
 			
-			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords, facescale);
+			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords, facescale, listid);
 		}
 
 		SetVertexIndexes(numvertsforface, typegroup, facebit);
 	}	
 }
 
-void BuildFaces_Wedge_FW(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale)
+void BuildFaces_Wedge_FW(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale, int listid)
 {
 	int facecount = 0, facebit = 0, count = 0, numvertsforface = 0;
 	vector vertofs = '0 0 0', texturecoords = '0 0 0';
@@ -271,6 +279,8 @@ void BuildFaces_Wedge_FW(entity typegroup, int rotation, int cullbits, vector cu
 
 		if(SkipFace_Ramp(facecount, facebit, cullbits, subbits, 3, -1))	// the ramp function works for wedges
 			continue;
+
+		facebit = RotateFaceBits(facebit, rotation);
 
 		numvertsforface = GetNumVertsForFace(facecount, 4,4,4,4,4,4);
 		
@@ -326,14 +336,14 @@ void BuildFaces_Wedge_FW(entity typegroup, int rotation, int cullbits, vector cu
 			else
 				texturecoords = SetDefaultTextureCoordsForFace(facecount, count, vertofs);
 			
-			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords, facescale);
+			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords, facescale, listid);
 		}
 
 		SetVertexIndexes(numvertsforface, typegroup, facebit);
 	}	
 }
 
-void BuildFaces_Wedge_BW(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale)
+void BuildFaces_Wedge_BW(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale, int listid)
 {
 	int facecount = 0, facebit = 0, count = 0, numvertsforface = 0;
 	vector vertofs = '0 0 0', texturecoords = '0 0 0';
@@ -347,6 +357,8 @@ void BuildFaces_Wedge_BW(entity typegroup, int rotation, int cullbits, vector cu
 
 		if(SkipFace_Ramp(facecount, facebit, cullbits, subbits, 1, -1))	// the ramp function works for wedges
 			continue;
+
+		facebit = RotateFaceBits(facebit, rotation);
 
 		numvertsforface = GetNumVertsForFace(facecount, 4,4,4,4,4,4);
 		
@@ -402,7 +414,7 @@ void BuildFaces_Wedge_BW(entity typegroup, int rotation, int cullbits, vector cu
 			else
 				texturecoords = SetDefaultTextureCoordsForFace(facecount, count, vertofs);
 			
-			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords, facescale);
+			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords, facescale, listid);
 		}
 
 		SetVertexIndexes(numvertsforface, typegroup, facebit);

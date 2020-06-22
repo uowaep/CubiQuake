@@ -12,9 +12,14 @@ int		client_initialized;
 // cubics/chunks
 .*trisoup_simple_vert_t 	verts;
 .*int 	vertex_indexes;
+.*vector	verts_ambientrgb;
 .*vector	verts_staticrgb;
 .int	numvertexes;
 .int	numtrisets;
+//.int	settingvertex;
+//.int	settingnumtrisets;
+//.int	settingindex;
+
 .int	numchunks;
 .string	texturename;
 .int	blocktype;
@@ -23,6 +28,24 @@ int		client_initialized;
 .int	chunkid;
 .entity	parentchunk;
 .float	recentsendflags;
+.int	numdamagedcubics;
+.int	allocsize_verts;
+.int	allocsize_indexes;
+.int	markedforremoval;
+.int	drawingdamage;
+.entity	typegroupent;
+
+int		DRAWLIST_CHUNK	= 0;
+int		DRAWLIST_DMG	= 1;
+int		DRAWLIST_EDIT	= 3;
+
+int		buildfacesforframe;
+int		facesbuiltforframe;
+
+int		FACEBUILD_NEAR	= 1;
+int		FACEBUILD_FAR	= 2;
+int		FACEBUILD_DMG	= 4;
+
 
 // cluster fields
 .*int	chunk_flags;
@@ -30,20 +53,33 @@ int		CHFL_TRIGGERSTATICLIGHTS	= 1;
 
 // faces
 int FACE_TOP	= 1;
+
+int FACE_WEST	= 2;
+int FACE_SOUTH	= 4;
+int FACE_EAST	= 8;
+int FACE_NORTH	= 16;
+
 int	FACE_SIDE	= 30; // FACE_SIDE is multiple bits containing the WEST, SOUTH, EAST. and NORTH bits. (2+4+8+16) These correspond with the CULLBITS_ bits.
 int	FACE_BOTTOM	= 32;
+
+int	FACE_ALL	= 64;	// doesn't work the same as FACE_SIDE. this is just a bit
 
 .int	queuedforfacebuild;
 float	autocvar_cq_bgload_dist;
 
-int		autocvar_cq_maxcubicsperbuild;
-int		autocvar_cq_maxfacegroupsperbuild;
 int		autocvar_cq_framesperfacebuild;
+int		autocvar_cq_maxfacegroupsperbuild;
+
+int		autocvar_cq_maxcubicsperbuild;
 int		numcubicsbuiltforframe;
 int		buildchunkfaces_builtcount;
 int		buildchunkfaces_cubiccount;
-entity	buildchunkfaces_chunk;
 
+int		autocvar_cq_maxdamagecubicsperbuild;
+int		numdamagecubicsbuiltforframe;
+int		buildchunkdamagefaces_builtcount;
+int		buildchunkdamagefaces_cubiccount;
+//entity	buildaltface_chunk;
 
 // chunk loading
 .int	findnetworkbloatent;
@@ -54,17 +90,26 @@ entity	buildchunkfaces_chunk;
 float	autocvar_cq_lights_static_updateinterval;
 float	autocvar_cq_lights_dynamic_updateinterval;
 float	autocvar_cq_clientlightradius;
+float	autocvar_cq_lights_radiance;
+vector	autocvar_cq_ambientlight;
+float	autocvar_cq_ambientlight_radiance;
+float	autocvar_cq_ambientlight_darknessratio;
+int		autocvar_cq_lights_models;
+int		cq_lights_models_old;
 
 entity	clientlight;
 int		clientlight_state;
 
 int		ambientlightset;
+vector	ambientlight_modified;
+vector	ambientlight_position;
 int		relightstatic;
 int		relightdynamic;
 float	static_relighttime;
 float	dynamic_relighttime;
 .int	islit;
 .int	resetlights;
+.int	staticlno;
 
 // editor
 entity	cubeselector;
@@ -125,3 +170,8 @@ int BTTN_INFOEDIT_CHUNKCHANCE_INCREASE	= 10;
 int BTTN_INFOEDIT_CHUNKCHANCE_DECREASE	= 11;
 int	BTTN_INFOEDIT_ALLOWSAMEZONEPASSAGE	= 12;
 int	BTTN_MODIFYSIDE_SIZE				= 13;
+
+
+// interface
+vector	mousepos;
+int		mouseposinitialized;

@@ -19,7 +19,7 @@ int SkipFace_Ramp(int facecount, int facebit, int cullbits, int subbits, int ram
 	return FALSE;
 }
 
-void BuildFaces_Ramp(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale)
+void BuildFaces_Ramp(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale, int listid)
 {
 	int facecount = 0, facebit = 0, count = 0, numvertsforface = 0;
 	vector vertofs = '0 0 0', texturecoords = '0 0 0';
@@ -33,6 +33,8 @@ void BuildFaces_Ramp(entity typegroup, int rotation, int cullbits, vector cubicp
 
 		if(SkipFace_Ramp(facecount, facebit, cullbits, subbits, 0, 1))
 			continue;
+
+		facebit = RotateFaceBits(facebit, rotation);
 
 		numvertsforface = GetNumVertsForFace(facecount, 4,0,3,4,3,4);
 		
@@ -65,14 +67,14 @@ void BuildFaces_Ramp(entity typegroup, int rotation, int cullbits, vector cubicp
 			else
 				texturecoords = SetDefaultTextureCoordsForFace(facecount, count, vertofs);
 			
-			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords, facescale);
+			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords, facescale, listid);
 		}
 
 		SetVertexIndexes(numvertsforface, typegroup, facebit);
 	}	
 }
 
-void BuildFaces_Ramp_CW(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale)
+void BuildFaces_Ramp_CW(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale, int listid)
 {
 	int facecount = 0, facebit = 0, count = 0, numvertsforface = 0;
 	vector vertofs = '0 0 0', texturecoords = '0 0 0';
@@ -86,6 +88,8 @@ void BuildFaces_Ramp_CW(entity typegroup, int rotation, int cullbits, vector cub
 
 		if(SkipFace_Ramp(facecount, facebit, cullbits, subbits, 2, 1))
 			continue;
+
+		facebit = RotateFaceBits(facebit, rotation);
 
 		numvertsforface = GetNumVertsForFace(facecount, 3,0,4,4,4,3);
 		
@@ -102,14 +106,14 @@ void BuildFaces_Ramp_CW(entity typegroup, int rotation, int cullbits, vector cub
 	
 			vertofs = RotateVertOFS(vertofs, rotation);
 			texturecoords = SetDefaultTextureCoordsForFace(facecount, count, vertofs);
-			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords, facescale);
+			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords, facescale, listid);
 		}
 
 		SetVertexIndexes(numvertsforface, typegroup, facebit);
 	}	
 }
 
-void BuildFaces_Ramp_UD(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale)
+void BuildFaces_Ramp_UD(entity typegroup, int rotation, int cullbits, vector cubicpos, int facegroupsize, float facescale, int listid)
 {
 	int facecount = 0, facebit = 0, count = 0, numvertsforface = 0;
 	vector vertofs = '0 0 0', texturecoords = '0 0 0';
@@ -123,6 +127,8 @@ void BuildFaces_Ramp_UD(entity typegroup, int rotation, int cullbits, vector cub
 
 		if(SkipFace_Ramp(facecount, facebit, cullbits, subbits, 5, 1))
 			continue;
+
+		facebit = RotateFaceBits(facebit, rotation);
 
 		numvertsforface = GetNumVertsForFace(facecount, 4,0,3,4,3,4);
 		
@@ -155,7 +161,7 @@ void BuildFaces_Ramp_UD(entity typegroup, int rotation, int cullbits, vector cub
 			else
 				texturecoords = SetDefaultTextureCoordsForFace(facecount, count, vertofs);
 			
-			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords, facescale);
+			SetFaceValues(cubicpos, vertofs, typegroup, facebit, facegroupsize, texturecoords, facescale, listid);
 		}
 
 		SetVertexIndexes(numvertsforface, typegroup, facebit);

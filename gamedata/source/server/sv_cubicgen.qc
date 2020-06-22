@@ -58,6 +58,7 @@ int ChunkGen_SetCubic(int *cdata, int type, int cubicslot0)
 	cdata[cubicslot0+CUBICSLOT_SHAPE]		= BLOCKSHAPE_CUBE;
 	cdata[cubicslot0+CUBICSLOT_ROTATION]	= BLOCKROTATION_E;
 	cdata[cubicslot0+CUBICSLOT_CULLBITS]	= 0;
+	cdata[cubicslot0+CUBICSLOT_HEALTH]		= 100;
 	
 	cubicslot0 += numvaluespercubic;
 	
@@ -82,6 +83,34 @@ void GenChunk_Surface(vector chunkpos, int *cdata)
 	int type = 0, cubicslot0 = 0;
 	vector pos = '0 0 0';
 
+	float potholechance = 0.05;
+	int zheight = floor(chunksize*0.5);
+	float slopevariance = 0;
+	float slopechangerate = 0.2;
+
+	for(pos_x = 0; pos_x < chunksize; pos_x++)
+		for(pos_y = 0; pos_y < chunksize; pos_y++)
+		{
+			slopevariance += slopechangerate - random()*slopechangerate*2;
+			zheight = bound(1, zheight+floor(random()*slopevariance), chunksize-1);
+		
+			for(pos_z = 0; pos_z < chunksize; pos_z++)
+			{
+				if( (pos_z == zheight && random() < potholechance ) || pos_z > zheight)
+					type = 0;
+				else
+					type = max(1, ceil(random()*numrandomtextureblocktypes));
+				
+				cubicslot0 = ChunkGen_SetCubic(cdata, type, cubicslot0);
+			}
+		}
+}
+
+void GenChunk_Surface_Old(vector chunkpos, int *cdata)
+{
+	int type = 0, cubicslot0 = 0;
+	vector pos = '0 0 0';
+
 	int zheight = floor(chunksize*0.5);
 	float slopevariance = 0;
 	float slopechangerate = 0.2;
@@ -97,7 +126,7 @@ void GenChunk_Surface(vector chunkpos, int *cdata)
 				if( (pos_z == zheight && !rint(random()) ) || pos_z > zheight)
 					type = 0;
 				else
-					type = max(1, ceil(random()*numtextureblocktypes));
+					type = max(1, ceil(random()*numrandomtextureblocktypes));
 				
 				cubicslot0 = ChunkGen_SetCubic(cdata, type, cubicslot0);
 			}
@@ -116,7 +145,7 @@ void GenChunk_Solid(vector chunkpos, int *cdata)
 				if(gen_type == GEN_TYPE_FLAT)
 					blocktype = 1;
 				else
-					blocktype = max(1, ceil(random()*numtextureblocktypes));
+					blocktype = max(1, ceil(random()*numrandomtextureblocktypes));
 				
 				cubicslot0 = ChunkGen_SetCubic(cdata, blocktype, cubicslot0);
 			}

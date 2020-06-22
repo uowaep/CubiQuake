@@ -1,11 +1,19 @@
-void ClearChunkValues(entity chunk, int clearstaticlighttriggers)
+void ClearChunkValues(entity chunk, int clearstaticlighttriggers, int removing)
 {
-	entity light = __NULL__;
+	entity light = __NULL__, nexte = __NULL__;
 
 //	chunk.findnetworkbloatent = FALSE;
 	
-	while(chunk.list_typegroupchain)
-		RemoveTypeGroup(chunk, chunk.list_typegroupchain);
+	for(entity e = chunk.list_typegroupchain; e; e = nexte)
+	{
+		nexte = e.typegroupchain;
+		
+	//	if(!removing)
+	//	if(e.blocktype <= BLOCKTYPE_DMG_10 && e.blocktype >= BLOCKTYPE_DMG_90)
+	//		continue;
+		
+		RemoveTypeGroup(chunk, e);
+	}
 	
 	while(chunk.list_chunklightchain)
 	{
@@ -26,7 +34,7 @@ void ClearChunkValues(entity chunk, int clearstaticlighttriggers)
 // chunk can also be a chunk bloat ent for storing data in queue
 void UpdateChunkBuildData(entity chunk, float sendflags, int bloatstage, int clearmem)
 {
-	int memslot = 0, type = 0;//, bloatcount;
+	int memslot = 0, type = 0, getrotation = 0;//, bloatcount;
 	int maxblocks = pow(chunksize, 3);
 	
 	chunk.numvisiblecubics = readshort();
@@ -37,11 +45,12 @@ void UpdateChunkBuildData(entity chunk, float sendflags, int bloatstage, int cle
 		memfill8(chunk.cubic_blockshape, 0, sizeof(int)*pow(chunksize, 3));
 		memfill8(chunk.cubic_blockrotation, 0, sizeof(int)*pow(chunksize, 3));
 		memfill8(chunk.cubic_cullbits, 0, sizeof(int)*pow(chunksize, 3));
+		memfill8(chunk.cubic_health, 0, sizeof(int)*pow(chunksize, 3));
 	}
 	
 	for(float count = 0; count < min(maxcubicupdates, chunk.numvisiblecubics-(maxcubicupdates*bloatstage)); count++)
 	{
-		memslot = readshort();
+		memslot = readlong();//readshort();
 		
 //		memslot = 0;		
 //		for(bloatcount = 0; bloatcount < maxblocks/255; bloatcount++)
@@ -60,24 +69,46 @@ void UpdateChunkBuildData(entity chunk, float sendflags, int bloatstage, int cle
 		if(!NonSolidType(type))
 		{
 			chunk.cubic_blockshape[memslot] = readbyte();			
-			chunk.cubic_blockrotation[memslot] = readbyte();
 			chunk.cubic_cullbits[memslot] = readbyte();
+			chunk.cubic_health[memslot] = readbyte();
+			
+			if(chunk.cubic_blockshape[memslot] != BLOCKSHAPE_CUBE)
+				getrotation = TRUE;
 		}	
+		else
+			getrotation = TRUE;
+		
+		if(getrotation)
+			chunk.cubic_blockrotation[memslot] = readbyte();	
+		
+		getrotation = FALSE;
 	}		
 }
 
+// for adding new cubic objects like the torch to mods
+int LoadCubic_Wrap_Pre(entity chunk, int memslot, int type, int returnvalue)
+{
+	return returnvalue;
+}
+
+void LoadCubic_Wrap_Post(entity chunk, int memslot, int type, entity modelent){}
+
 void LoadCubic(entity chunk, int memslot, int type)
 {
-	entity typegroup, light;	
+	entity typegroup = __NULL__, modelent = __NULL__;	
+	
+	if(LoadCubic_Wrap_Pre(chunk, memslot, type, FALSE))
+		return;
 	
 	switch(type)
 	{
 		// EXAMPLE CUBIC OBJECT : Light
-		case BLOCKTYPE_TORCH:	light = SetChunkLight(chunk, memslot, type);	 // adds a light to the chunk of specified type (BLOCKTYPE_TORCH in this case)
-								light.lightcolor = '1 0.9 0.7';				// overrides default value set in SetChunkLight()
-								SetAnimation(light, 0, 6, 0.1, TRUE, FALSE, TRUE);	// Sets up the animation for this model.
-								light.predraw = Predraw_Torch;	// set predraw func if necessary
-								light.parentchunk = chunk;
+		case BLOCKTYPE_TORCH:	modelent = SetChunkLight(chunk, memslot, type);	 // adds a light to the chunk of specified type (BLOCKTYPE_TORCH in this case)
+								modelent.lightcolor = '1 0.9 0.7';				// overrides default value set in SetChunkLight()
+								modelent.lightbrightness = 4;
+								SetAnimation(modelent, 0, 6, 0.1, TRUE, FALSE, TRUE);	// Sets up the animation for this model.
+								modelent.predraw = Predraw_Torch;	// set predraw func if necessary
+								modelent.parentchunk = chunk;
 								break;
 		
 		// default trisoup_simple cubic
@@ -87,11 +118,13 @@ void LoadCubic(entity chunk, int memslot, int type)
 								if(!typegroup)	// texture set group for chunk
 								{
 									CreateTypeGroup(chunk, type);
-									chunk.list_typegroupchain.lightcolor = ambientlight;		// NOTE: the .list_ chain entity is always the last added to the list (but this should only be trusted if it was just added)
+								//	chunk.list_typegroupchain.lightcolor = ambientlight;		// NOTE: the .list_ chain entity is always the last added to the list (but this should only be trusted if it was just added)
 								}
 								
 								break;
 	}	
+	
+	LoadCubic_Wrap_Post(chunk, memslot, type, modelent);
 }
 
 void CopyBloatChunkValuesToChunk(entity bloatent, entity chunk, int bloatstage)
@@ -110,6 +143,7 @@ void CopyBloatChunkValuesToChunk(entity bloatent, entity chunk, int bloatstage)
 				chunk.cubic_blockshape[memslot] = bloatent.cubic_blockshape[memslot];			
 				chunk.cubic_blockrotation[memslot] = bloatent.cubic_blockrotation[memslot];
 				chunk.cubic_cullbits[memslot] = bloatent.cubic_cullbits[memslot];
+				chunk.cubic_health[memslot] = bloatent.cubic_health[memslot];
 			}	
 			
 			slotcount++;
@@ -121,16 +155,24 @@ void LoadChunkCubics(entity chunk)
 {
 	int loadcount = 0, type = 0;
 	
+	chunk.numdamagedcubics = 0;
+	
 	for(int memslot = 0; loadcount < chunk.numvisiblecubics && memslot < pow(chunksize, 3); memslot++)
 	{
 		type = chunk.cubic_blocktype[memslot];
 		
 		if(type)
 		{
+			if(chunk.cubic_health[memslot] > 0 && chunk.cubic_health[memslot] <= maxdmghealth)
+				chunk.numdamagedcubics++;
+			
 			LoadCubic(chunk, memslot, type);
 			loadcount++;
 		}
 	}
+	
+//	ClearChunkDamageFaces(chunk);
+//	BuildChunkDamageFaces(chunk);
 }
 
 void ReadInitializeData(float sendflags)
@@ -148,6 +190,7 @@ void ReadInitializeData(float sendflags)
 		ambientlight_x = readcoord();
 		ambientlight_y = readcoord();
 		ambientlight_z = readcoord();
+		ambientlight_modified = autocvar_cq_ambientlight;
 		maxcubicupdates = readbyte();
 		SetDependentViewValues();
 		ambientlightset = FALSE;
@@ -156,9 +199,55 @@ void ReadInitializeData(float sendflags)
 		{
 			InitGameVariables();
 			client_initialized = TRUE;
+			localcmd("cmd cq_initialized\n");	// tell the server to stop sending init info
 		}
+	}
+}
+
+void UpdateCubicHealth()
+{
+	int nobuild = FALSE;
+	int chunkid = readlong();
+	int cubicid = readlong();
+	int cubichealth = readbyte();
+
+	vector chunkorg = GetChunkOrigin(chunkid);
+	int clusterid = GetClusterRef(GetNearClusterOrg(chunkorg));
+	entity cluster = cluster_ent[clusterid];
 		
-		localcmd("cmd cq_initialized\n");	// tell the server to stop sending init info
+	if(!cluster)
+		return;
+
+	entity chunk = cluster.chunk_ent[GetChunkRef(chunkorg-cluster.origin, __FUNC__)];
+	
+	if(!chunk)
+		return;
+	
+	if(chunk.findnetworkbloatent)	// updating via network
+		return;
+	
+	int oldhealth = chunk.cubic_health[cubicid];
+	chunk.cubic_health[cubicid] = cubichealth;
+
+	if(oldhealth > 0 && oldhealth <= maxdmghealth && cubichealth > maxdmghealth)
+		chunk.numdamagedcubics--;	// was previously drawing damage, is no longer
+	else
+	if((oldhealth > maxdmghealth || oldhealth == 0) && cubichealth > 0 && cubichealth <= maxdmghealth)
+		chunk.numdamagedcubics++;	// was not drawing damage for this cubic earlier, is now
+
+	if(chunk.queuedamagefacebuildchain || chunk.queuedamagefacebuildchain_prev || chunk == list_queuedamagefacebuildchain)	// already rebuilding
+		return;
+
+	if(!chunk.drawingdamage)
+		return;
+
+	int oldlvl = GetFaceTypeForDamage(oldhealth);//ceil(oldhealth/dmghealthincrementsize);
+	int newlvl = GetFaceTypeForDamage(cubichealth);//ceil(cubichealth/dmghealthincrementsize);
+		
+	if(oldlvl != newlvl)		
+	{
+		RemoveDamageFacesForCubic(chunk, cubicid, oldhealth);	// removes old shader
+		AddDamageFacesForCubic(chunk, cubicid);	// need to allocate extra slots, and reallocate / rebuild with extra slots when those slots are full.
 	}
 }
 
@@ -200,6 +289,7 @@ void UpdateChunk()
 			self.cubic_blockshape = memalloc(sizeof(int)*pow(chunksize, 3));
 			self.cubic_blockrotation = memalloc(sizeof(int)*pow(chunksize, 3));		
 			self.cubic_cullbits = memalloc(sizeof(int)*pow(chunksize, 3));
+			self.cubic_health = memalloc(sizeof(int)*pow(chunksize, 3));
 			clearmem = FALSE;
 			
 			org = GetChunkOrigin(i);
@@ -250,6 +340,9 @@ void UpdateChunk()
 
 		QueueNearFaceBuildChain_Remove(self);
 		QueueFaceBuildChain_Remove(self);
+		QueueDamageFaceBuildChain_Remove(self);
+	//	QueueDamageFaceRebuildChain_Remove(self);
+		
 		self.findnetworkbloatent = FALSE;
 
 		int numbloatents = ceil((float)self.numvisiblecubics/maxcubicupdates)-1;
@@ -262,6 +355,9 @@ void UpdateChunk()
 			{
 				QueueNearFaceBuildChain_Remove(e);
 				QueueFaceBuildChain_Remove(e);
+				QueueDamageFaceBuildChain_Remove(e);
+	//			QueueDamageFaceRebuildChain_Remove(e);
+				// FIXME: also don't remove faces from bloats so early (damage face removal would be here)
 				
 				if(e.updateref == self.updateref)
 					continue;
@@ -282,7 +378,6 @@ void UpdateChunk()
 				{
 					numbloatentsfound++;
 					CopyBloatChunkValuesToChunk(e, self, e.bloatlevel);
-				//	QueueFaceBuildChain_Remove(e);
 					QueueChunkBloatChain_Remove(e);
 					ChunkBloatChain_Add(self, e);
 				}
@@ -297,7 +392,7 @@ void UpdateChunk()
 
 		if(!self.findnetworkbloatent)
 		{
-			ClearChunkValues(self, TRUE);
+			ClearChunkValues(self, TRUE, FALSE);
 			LoadChunkCubics(self);
 		//	TriggerStaticLightReset(org);	
 			
@@ -339,6 +434,7 @@ void UpdateChunkBloat()
 			self.cubic_blockshape = memalloc(sizeof(int)*pow(chunksize, 3));
 			self.cubic_blockrotation = memalloc(sizeof(int)*pow(chunksize, 3));		
 			self.cubic_cullbits = memalloc(sizeof(int)*pow(chunksize, 3));
+			self.cubic_health = memalloc(sizeof(int)*pow(chunksize, 3));
 			clearmem = FALSE;
 			
 			self.enttype = ENT_CHUNKBLOAT;
@@ -361,12 +457,15 @@ void UpdateChunkBloat()
 		if(ref <= self.updateref && !(ref < 100 && self.updateref >= 100))
 		{
 			dprint("Developer Notice: Caught out of order bloat.\n");
-			return;
+			return;	// this information is out of date. ignore it all. (it has been read to avoid a crash in UpdateChunkBuildData)
 		}
 		self.updateref = ref;
 		
 		QueueNearFaceBuildChain_Remove(self);
 		QueueFaceBuildChain_Remove(self);
+		QueueDamageFaceBuildChain_Remove(self);
+	//	QueueDamageFaceRebuildChain_Remove(self);
+		// FIXME: same as main chunk
 
 		int clusterid = GetClusterRef(GetNearClusterOrg(self.origin));
 		cluster = cluster_ent[clusterid];
@@ -387,6 +486,8 @@ void UpdateChunkBloat()
 				
 				QueueNearFaceBuildChain_Remove(e);
 				QueueFaceBuildChain_Remove(e);
+				QueueDamageFaceBuildChain_Remove(e);
+			//	QueueDamageFaceRebuildChain_Remove(e);
 				ChunkBloatChain_Remove(chunk, e);
 			}
 			
@@ -408,7 +509,7 @@ void UpdateChunkBloat()
 			if(numbloatentsfound == ceil((float)chunk.numvisiblecubics/maxcubicupdates)-1)
 			{
 				chunk.findnetworkbloatent = FALSE;
-				ClearChunkValues(chunk, TRUE);
+				ClearChunkValues(chunk, TRUE, FALSE);
 				LoadChunkCubics(chunk);
 			//	TriggerStaticLightReset(org);		
 			
@@ -501,7 +602,7 @@ void DrawChunks()
 
 //	int drawplane = 0;
 //	totalvertcount = 0;
-	for(entity e = list_chunkchain; e; e = e.chunkchain)
+/*	for(entity e = list_chunkchain; e; e = e.chunkchain)
 	{
 		if(editor_infoedit)
 		if(e.chunkid != editor_editchunk)
@@ -509,8 +610,12 @@ void DrawChunks()
 		
 		for(typegroup = e.list_typegroupchain; typegroup; typegroup = typegroup.typegroupchain)
 			for(facegroup = typegroup.list_facegroupchain; facegroup; facegroup = facegroup.facegroupchain)
-				DrawFaceGroup(facegroup);
-	}
+				DrawFaceGroup(typegroup, facegroup);
+	}*/
+			
+	for(facegroup = list_drawfacegroupchain; facegroup; facegroup = facegroup.drawfacegroupchain)
+				DrawFaceGroup(facegroup.typegroupent, facegroup);	
+			
 			
 //print(ftos(totalvertcount), "\n");
 /*	int numgroupsdrawn = 0;
@@ -570,6 +675,12 @@ void DrawChunks()
 				}
 		}
 	}*/
+}
+
+void DrawChunkDamage()
+{
+	for(entity facegroup = list_drawdamagefacegroupchain; facegroup; facegroup = facegroup.drawdamagefacegroupchain)
+		DrawFaceGroup(facegroup.typegroupent, facegroup);	
 }
 
 vector GetIntercept(vector line_start, vector line_end, vector edge_offset)

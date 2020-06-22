@@ -42,11 +42,13 @@
 
 #include "pdod/shared_server_client/pdod_sh_sv_cs_precaches.qc"
 #include "pdod/shared_server_client/pdod_sh_sv_cs_ai.qc"
+#include "pdod/shared_server_client/pdod_sh_sv_cs_objects.qc"
 #include "pdod/shared_server_client/pdod_sh_sv_cs_weapons.qc"
 #include "pdod/server/pdod_sv_subs.qc"
 #include "pdod/server/pdod_sv_entityhandling.qc"
 #include "pdod/server/pdod_sv_networking.qc"
 #include "pdod/server/pdod_sv_cubics.qc"
+#include "pdod/server/pdod_sv_collision.qc"
 #include "pdod/server/pdod_sv_objects.qc"
 #include "pdod/server/pdod_sv_combat.qc"
 #include "pdod/server/pdod_sv_client.qc"

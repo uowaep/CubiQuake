@@ -1,5 +1,5 @@
 // VERSION
-string		cubic_revision	= "cubiquake r155";
+string		cubic_revision	= "cubiquake r158";
 
 // WORLD SETTINGS
 
@@ -82,11 +82,13 @@ int		CFL_ALLOWROTATEDFIT			= 1;
 // prefab chunk flags
 int		CHFL_ALLOWSAMEZONEPASSAGE	= 1;
 
-int		numvaluespercubic			= 4;
+
+int		numvaluespercubic			= 5;
 int		CUBICSLOT_TYPE					= 0;
 int		CUBICSLOT_SHAPE					= 1;
 int		CUBICSLOT_ROTATION				= 2;
 int		CUBICSLOT_CULLBITS				= 3;
+int		CUBICSLOT_HEALTH				= 4;
 
 .int	numvisiblecubics;
 
@@ -111,8 +113,31 @@ int		CULLBITS_PARTIAL_D		= 2048;
 int		CULLBITS_PARTIAL_ALL	= 4032;	// (64+128+256+512+1024+2048)
 
 .*int	cubic_blocktype;
-// below 0 values are for editing
+// below 0 values are for misc stuff not accessable to the editor blocktype tool
 int		BLOCKTYPE_EDIT		= -1;
+
+int		BLOCKTYPE_DMG_20	= -2;
+int		BLOCKTYPE_DMG_40	= -3;
+int		BLOCKTYPE_DMG_60	= -4;
+int		BLOCKTYPE_DMG_80	= -5;
+
+/*
+int		BLOCKTYPE_DMG_10	= -2;
+int		BLOCKTYPE_DMG_20	= -3;
+int		BLOCKTYPE_DMG_30	= -4;
+int		BLOCKTYPE_DMG_40	= -5;
+int		BLOCKTYPE_DMG_50	= -6;
+int		BLOCKTYPE_DMG_60	= -7;
+int		BLOCKTYPE_DMG_70	= -8;
+int		BLOCKTYPE_DMG_80	= -9;
+int		BLOCKTYPE_DMG_90	= -10;*/
+
+int		BLOCKTYPE_DMG_LOW	= BLOCKTYPE_DMG_20;
+int		BLOCKTYPE_DMG_HIGH	= BLOCKTYPE_DMG_80;
+float	maxdmghealth			= 80;
+float	dmghealthincrementsize	= 20;
+
+// 0 is for an empty block although GetCubicStaus returns -1 for empty cubics (normally returns the blocktype)
 
 // 1 - 100 are reserved for textures types
 int		BLOCKTYPE_DIRT		= 1;
@@ -169,6 +194,8 @@ int		BLOCKROTATION_BW_E	= 20;
 int		BLOCKROTATION_BW_N	= 21;
 int		BLOCKROTATION_BW_W	= 22;
 int		BLOCKROTATION_BW_S	= 23;
+
+.*int	cubic_health;
 
 void InitGameVariables()
 {
@@ -250,6 +277,9 @@ int		SFL_INITIALIZE	= 4;
 int		SFL_DAMAGED		= 8;
 int		SFL_UPDATE		= 16;	// this is used, even though it doesn't look like it
 
+//core starts at 100
+//mods should start at 200 ... or w/e
+int		EVENT_CUBICHEALTH	= 100;
 
 .int	enttype;
 int		ENT_CLUSTER				= 1;
@@ -390,21 +420,21 @@ entity		*cluster_ent;
 .int		prefabchance;
 .int		prefabchunkflags;
 
-
-int GetFixedRotation(int rotation, int shape)
-{
-	if(shape == BLOCKSHAPE_CUBE)
-		rotation = 0;
-	
-	return rotation;
-}
-
 int	NonSolidType(int type)
 {
 	if(type == BLOCKTYPE_TORCH)
 		return TRUE;
 
 	return FALSE;
+}
+
+int GetFixedRotation(int type, int rotation, int shape)
+{
+	if(!(NonSolidType(type)))
+	if(shape == BLOCKSHAPE_CUBE)
+		rotation = 0;
+	
+	return rotation;
 }
 
 /*int GetClusterOccupancyRef(vector ofs)
@@ -1083,4 +1113,5 @@ void FreeChunkAllocations(entity chunk)
 	memfree(chunk.cubic_blockshape);
 	memfree(chunk.cubic_blockrotation);
 	memfree(chunk.cubic_cullbits);
+	memfree(chunk.cubic_health);		
 }

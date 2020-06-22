@@ -57,9 +57,20 @@ float InitializeHackSendFlags(entity viewer, float sendflags)
 	return sendflags;
 }
 
+void UpdateCubicHealth(entity chunk, vector org, float cubichealth)
+{
+	//	msg_entity = e;	
+	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+	WriteByte(MSG_MULTICAST, EVENT_CUBICHEALTH);
+	WriteLong(MSG_MULTICAST, GetChunkOriginRef(chunk.origin));
+	WriteLong(MSG_MULTICAST, GetCubicRef(org-chunk.origin));
+	WriteByte(MSG_MULTICAST, ceil(cubichealth));
+	multicast(__NULL__, MULTICAST_ALL);	// not a big deal if the damage isn't represented 100% correctly because if it's destroyed it will be removed on the normal chunk update
+}
+
 void SendCubics(entity chunk, int bloatstage)
 {
-	int type = 0, cullbits = 0, sentcount = 0, wouldsend = 0;//, bloatcount;	
+	int type = 0, cullbits = 0, sentcount = 0, wouldsend = 0, sendrotation =0;//, bloatcount;	
 	int maxblocks = pow(chunksize, 3);
 	
 	WriteShort(MSG_ENTITY, chunk.numvisiblecubics);
@@ -75,7 +86,7 @@ void SendCubics(entity chunk, int bloatstage)
 			if(wouldsend >= bloatstage*maxcubicupdates)
 			if(wouldsend < (bloatstage+1)*maxcubicupdates)
 			{
-				WriteShort(MSG_ENTITY, count);
+				WriteLong(MSG_ENTITY, count);
 				
 //				for(bloatcount = 0; bloatcount < maxblocks/255; bloatcount++)
 //					WriteByte(MSG_ENTITY, min(255, max(0, count-255*bloatcount)));
@@ -85,12 +96,22 @@ void SendCubics(entity chunk, int bloatstage)
 		//		WriteByte(MSG_ENTITY, min(255, max(0, count-255*2)));
 
 				WriteByte(MSG_ENTITY, type);
+
 				if(!NonSolidType(type))
 				{
 					WriteByte(MSG_ENTITY, chunk.cubic_blockshape[count]);
-					WriteByte(MSG_ENTITY, chunk.cubic_blockrotation[count]);
 					WriteByte(MSG_ENTITY, cullbits & CULLBITS_ALL);
+					if(chunk.cubic_blockshape[count] != BLOCKSHAPE_CUBE)
+						sendrotation = TRUE;
+					WriteByte(MSG_ENTITY, chunk.cubic_health[count]);
 				}
+				else
+					sendrotation = TRUE;
+				
+				if(sendrotation)
+					WriteByte(MSG_ENTITY, chunk.cubic_blockrotation[count]);
+				
+				sendrotation = FALSE;
 				
 				sentcount++;
 			}
@@ -206,79 +227,27 @@ void SetChunkSendFlags(entity chunk, float sendflags)
 		NetworkBloatUpdateChain_Add(chunk);	// do this after the queuesetvisiblecubicschain resolves because new bloat ents haven't spawned yet
 }
 
-void SaveModifiedClusterFiles()
-{
-	if(numplayersloadingfiles > 0)
-		return;
-	
-	entity cluster = __NULL__, nextcluster = __NULL__, chunk = __NULL__, nextchunk = __NULL__;
-	string filename = __NULL__;
-	int *cluster_data = __NULL__;
-	int clusterchunkid = 0, i = 0, chunkslot0 = 0, cubicslot0 = 0;
-	float file = 0;
-	
-	for(cluster = list_saveclusterqueuechain; cluster; cluster = nextcluster)
-	{
-		#ifdef DEBUG
-		if(wasfreed(cluster))
-			print("SaveModifiedClusterFiles A wasfreed.\n");	
-		#endif
-		
-		nextcluster = cluster.saveclusterqueuechain;
-		
-		filename = strcat(worldpath, itos(GetClusterRef(cluster.origin)));
-		file = fopen(filename, FILE_MMAP_RW, sizeof(*cluster_data)*clusterdataslots);
-		cluster_data = (int*)fgets(file);
-		
-		for(chunk = cluster.list_savechunkqueuechain; chunk; chunk = nextchunk)
-		{
-			#ifdef DEBUG
-			if(wasfreed(chunk))
-				print("SaveModifiedClusterFiles B wasfreed.\n");	
-			#endif
-			
-			nextchunk = chunk.savechunkqueuechain;
-			
-			clusterchunkid = GetChunkRef(chunk.origin-cluster.origin, __FUNC__);
-			chunkslot0 = numprechunkvaluesincluster + clusterchunkid*numslotsforchunkincluster;
-
-			cluster_data[chunkslot0+CHUNKSLOT_NUMVISIBLECUBICS] = chunk.numvisiblecubics;
-			
-			for(i = 0; i < pow(chunksize, 3); i++)
-			{
-				cubicslot0 = chunkslot0+numprecubicvaluesinchunk+i*numvaluespercubic;
-
-				cluster_data[cubicslot0+CUBICSLOT_TYPE] = chunk.cubic_blocktype[i];
-				cluster_data[cubicslot0+CUBICSLOT_SHAPE] = chunk.cubic_blockshape[i];
-				cluster_data[cubicslot0+CUBICSLOT_ROTATION] = GetFixedRotation(chunk.cubic_blockrotation[i], chunk.cubic_blockshape[i]);
-				cluster_data[cubicslot0+CUBICSLOT_CULLBITS] = chunk.cubic_cullbits[i];				
-			}
-
-			SaveChunkQueueChain_Remove(cluster, chunk);
-		}
-		
-		fclose(file);
-		SaveClusterQueueChain_Remove(cluster);
-	}
-}
-
-void SetChunkAsModified(entity chunk, int isdamaged)
+void SetChunkAsModified(entity chunk, int fastredraw, int tell_csqc)
 {
 	entity cluster = GetClusterForLocation(__NULL__, GetNearClusterOrg(chunk.origin));	
 	
-	if(chunk.savechunkqueuechain || chunk.savechunkqueuechain_prev || cluster.list_savechunkqueuechain == chunk)
-		return;
-	
-	if(!chunk.SendEntity) // if chunk was previously empty, set it up for networking
+//	if(chunk.savechunkqueuechain || chunk.savechunkqueuechain_prev || cluster.list_savechunkqueuechain == chunk)
+//		return;
+
+	if(tell_csqc)
 	{
-		chunk.SendEntity = SendChunk;
-		chunk.SendFlags = chunk.SendFlags | SFL_ISNEW;
+		if(!chunk.SendEntity) // if chunk was previously empty, set it up for networking
+		{
+			chunk.SendEntity = SendChunk;
+			chunk.SendFlags = chunk.SendFlags | SFL_ISNEW;
+		}
+		
+	//	SetChunkSendFlags(chunk, SFL_BUILD);
+
+		chunk.damaged = fastredraw;	// forces instant redraw on client
+		SetChunkSendFlags_BUILD_Chain_Add(chunk);
 	}
 	
-//	SetChunkSendFlags(chunk, SFL_BUILD);
-
-	chunk.damaged = isdamaged;
-	SetChunkSendFlags_BUILD_Chain_Add(chunk);
 	SaveClusterQueueChain_Add(cluster);
 	SaveChunkQueueChain_Add(cluster, chunk);	
 }

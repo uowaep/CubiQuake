@@ -191,7 +191,7 @@ void BuildFacesForPlacementTool()
 				if(pos_x == sel_mins_x || pos_x == sel_maxs_x-1
 				|| pos_y == sel_mins_y || pos_y == sel_maxs_y-1
 				|| pos_z == sel_mins_z || pos_z == sel_maxs_z-1)
-					BuildFacesForShape(cubeselector, editor_cubicshape, editor_cubicrotation, 0, cubeselector.origin+pos*cubicradius*2, numcubicsinselection, 1); // FIXME set cullbits to hide internal faces
+					BuildFacesForShape(cubeselector, editor_cubicshape, editor_cubicrotation, 0, cubeselector.origin+pos*cubicradius*2, numcubicsinselection, 1, DRAWLIST_EDIT); // FIXME set cullbits to hide internal faces
 			}									
 }
 
@@ -201,11 +201,11 @@ void RebuildSelectionFaces()
 	for(entity facegroup = cubeselector.list_facegroupchain; facegroup; facegroup = nexte)
 	{
 		nexte = facegroup.facegroupchain;
-		RemoveFaceGroup(cubeselector, facegroup);
+		RemoveFaceGroup(cubeselector, facegroup, FALSE);
 	}
 	
 	if(editor_tool == TOOL_EDITOR_MODIFY)
-		BuildFaces_Custom(cubeselector, cubeselector.origin, TRUE, 1);
+		BuildFaces_Custom(cubeselector, cubeselector.origin, TRUE, 1, DRAWLIST_EDIT);
 	else
 		BuildFacesForPlacementTool();	
 }
@@ -221,7 +221,7 @@ void Editor_ModifySide()
 	int maxselectionsize = 2197; // 13*13*13
 	
 	if(!editor_sizetool //player_input[INPUT_TOOLDIM] == 0 
-	|| player_input[INPUT_ATTACK] == 0)
+	|| player_input[INPUT_ATTACK] == 0)	// not being pressed anymore ( only knows about a release because of modifyside_drag field)
 	{
 		if(modifyside_drag)
 			localcmd("cmd cq_setselectionedge ", vtos(modifyside_drag.polarityvec), " ", vtos(modifyside_drag.origin-modifyside_selection_side[6].origin), "\n");
@@ -279,7 +279,7 @@ void Editor_ModifySide()
 		}
 	}
 	else
-	if(player_input[INPUT_ATTACK] == 2)	
+	if(player_input[INPUT_ATTACK] == 2)	// 2 is held (1 is initial click)
 	if(modifyside_drag)	// modifying size
 	{
 		vector sel_size;
@@ -900,7 +900,7 @@ void UpdateCubicInterface()
 			
 			makevectors(view_ang);
 
-			cubicpos = TraceCubic(view_org, view_org + v_forward*cubicradius*2*tooltracedist*((editor_toolsize > TOOLSIZE_EDITOR_CUBIC)*1+1), getinside);
+			cubicpos = TraceCubic(view_point, view_point + v_forward*cubicradius*2*tooltracedist*((editor_toolsize > TOOLSIZE_EDITOR_CUBIC)*1+1), getinside);
 
 			switch(editor_toolsize)
 			{
@@ -908,8 +908,6 @@ void UpdateCubicInterface()
 				case TOOLSIZE_EDITOR_CHUNK:		org = GetNearChunkOrg(cubicpos);							break;
 				case TOOLSIZE_EDITOR_CLUSTER:	org = GetNearClusterOrg(cubicpos);							break;
 			}
-			
-	//		print(vtos(org), " : ", vtos(cubeselector.origin), "\n");
 			
 			clusterpos = GetClusterOffset(playerclusterid);
 			toolonedge = ToolIsOnEdge(clusterpos, org, editor_toolsize, editor_tool, editor_selection_mins, editor_selection_maxs);
@@ -930,15 +928,19 @@ void UpdateCubicInterface()
 			else*/
 			if(!getinside && numobjectblocktypes && editor_cubictype >= baseobjecttypeid && editor_tool == TOOL_EDITOR_ADD) // placing object
 			{	// we just run this every frame because it doesn't need to rebuild anything
+
 				if(cubeselector.blocktype != editor_cubictype)
 					SetModelForCubicObject(cubeselector, editor_cubictype, FALSE);
+
+				if(editor_cubicrotation != editor_cubicrotation_old)
+					SetYawForCubicObject(cubeselector, editor_cubicrotation);
 
 				setorigin(cubeselector, org);
 				UpdateModifySideButtonOrgs();
 
 				cubeselector.scale = 1;
 				cubeselector.drawmask = MASK_NORMAL;
-				cubeselector.alpha = 0.6;
+				cubeselector.alpha = 1;
 				cubeselector.blocktype = editor_cubictype;
 				
 				if(editor_toolsize > TOOLSIZE_EDITOR_CUBIC)
@@ -964,7 +966,7 @@ void UpdateCubicInterface()
 				for(facegroup = cubeselector.list_facegroupchain; facegroup; facegroup = nexte)
 				{
 					nexte = facegroup.facegroupchain;
-					RemoveFaceGroup(cubeselector, facegroup);
+					RemoveFaceGroup(cubeselector, facegroup, FALSE);
 				}
 				
 				setorigin(cubeselector, org);
@@ -990,9 +992,9 @@ void UpdateCubicInterface()
 						SetToolColorForState(toolonedge, '0 0 1');
 					
 					if((numobjectblocktypes && editor_cubictype >= baseobjecttypeid) || toolscale > 1)
-						BuildFaces_Custom(cubeselector, org, FALSE, toolscale);
+						BuildFaces_Custom(cubeselector, org, FALSE, toolscale, DRAWLIST_EDIT);
 					else
-						BuildFaces_Custom(cubeselector, org, TRUE, 1);
+						BuildFaces_Custom(cubeselector, org, TRUE, 1, DRAWLIST_EDIT);
 				}
 				else
 				{
@@ -1003,7 +1005,7 @@ void UpdateCubicInterface()
 					if(toolscale == 1)
 						BuildFacesForPlacementTool();
 					else
-						BuildFacesForShape(cubeselector, editor_cubicshape, editor_cubicrotation, 0, cubeselector.origin, 1, toolscale+0.01);
+						BuildFacesForShape(cubeselector, editor_cubicshape, editor_cubicrotation, 0, cubeselector.origin, 1, toolscale+0.01, DRAWLIST_EDIT);
 				}
 				
 				editor_selectororg_old = org;
@@ -1030,7 +1032,7 @@ void DrawSelectorFaces()
 	if(cubeselector.blocktype)
 	if(!cubeselector.drawmask)
 	for(entity facegroup = cubeselector.list_facegroupchain; facegroup; facegroup = facegroup.facegroupchain)
-		DrawFaceGroup(facegroup);	
+		DrawFaceGroup(cubeselector, facegroup);
 }
 
 void InitializeCubicInterface()
@@ -1038,6 +1040,6 @@ void InitializeCubicInterface()
 	cubeselector = spawn();
 	setmodel(cubeselector, "models/editor/cubeselector.mdl");
 	cubeselector.lightcolor = '2 2 2';
-	cubeselector.renderflags = RF_ADDITIVE;
+//	cubeselector.renderflags = RF_ADDITIVE;
 	editor_chunkchance = 100;
 }

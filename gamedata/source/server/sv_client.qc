@@ -1,6 +1,19 @@
 void ClientKill() {}
 void ClientConnect(optional float csqcactive) {}
-	
+
+void SetNewParms()		{}
+
+int playersavingallclustersbeforemapchange;	// this variable name isn't ridiculous for no reason
+void SetChangeParms()	// is this the only place to catch map change events?
+{	
+	if(!playersavingallclustersbeforemapchange)
+	{
+		playersavingallclustersbeforemapchange = TRUE;
+		clustersavetime = 0;
+		SaveModifiedClusterFiles(TRUE);
+	}
+}	
+
 void ClientDisconnect()
 {
 	// code here
@@ -14,6 +27,13 @@ void ClientDisconnect()
 		UnloadWorldForPlayer(self, self.playerclusterorg, TRUE);
 	
 	PlayerChain_Remove(self);				// removes player from linked list
+	
+	// save the world! (this can be removed, test it after it's all working first)
+	if(!list_playerchain)
+	{
+		clustersavetime = 0;
+		SaveModifiedClusterFiles(TRUE);
+	}
 }
 
 void PlayerPreThink()

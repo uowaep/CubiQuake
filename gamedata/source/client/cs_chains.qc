@@ -4,11 +4,29 @@ entity		list_chunkchain;
 void ChunkChain_Add(entity e)			{	list_chunkchain = LinkedList_Add(e, list_chunkchain, chunkchain, chunkchain_prev);	}
 void ChunkChain_Remove(entity e)		{	list_chunkchain = LinkedList_Remove(e, list_chunkchain, chunkchain, chunkchain_prev);	}
 
+entity		list_drawfacegroupchain;
+.entity		drawfacegroupchain;
+.entity		drawfacegroupchain_prev;
+void DrawFaceGroupChain_Add(entity e)		{	list_drawfacegroupchain = LinkedList_Add(e, list_drawfacegroupchain, drawfacegroupchain, drawfacegroupchain_prev);	}
+void DrawFaceGroupChain_Remove(entity e)	{	list_drawfacegroupchain = LinkedList_Remove(e, list_drawfacegroupchain, drawfacegroupchain, drawfacegroupchain_prev);	}
+
+entity		list_drawdamagefacegroupchain;
+.entity		drawdamagefacegroupchain;
+.entity		drawdamagefacegroupchain_prev;
+void DrawDamageFaceGroupChain_Add(entity e)		{	list_drawdamagefacegroupchain = LinkedList_Add(e, list_drawdamagefacegroupchain, drawdamagefacegroupchain, drawdamagefacegroupchain_prev);	}
+void DrawDamageFaceGroupChain_Remove(entity e)	{	list_drawdamagefacegroupchain = LinkedList_Remove(e, list_drawdamagefacegroupchain, drawdamagefacegroupchain, drawdamagefacegroupchain_prev);	}
+
 .entity		list_facegroupchain;
 .entity		facegroupchain;
 .entity		facegroupchain_prev;
 void FaceGroupChain_Add(entity o, entity e)			{	o.list_facegroupchain = LinkedList_Add(e, o.list_facegroupchain, facegroupchain, facegroupchain_prev);	}
 void FaceGroupChain_Remove(entity o, entity e)		{	o.list_facegroupchain = LinkedList_Remove(e, o.list_facegroupchain, facegroupchain, facegroupchain_prev);	}
+
+entity		list_ghostfacegroupchain;
+.entity		ghostfacegroupchain;
+.entity		ghostfacegroupchain_prev;
+void GhostFaceGroupChain_Add(entity e)		{	list_ghostfacegroupchain = LinkedList_Add(e, list_ghostfacegroupchain, ghostfacegroupchain, ghostfacegroupchain_prev);	}
+void GhostFaceGroupChain_Remove(entity e)	{	list_ghostfacegroupchain = LinkedList_Remove(e, list_ghostfacegroupchain, ghostfacegroupchain, ghostfacegroupchain_prev);	}
 
 .entity		list_typegroupchain;
 .entity		typegroupchain;
@@ -23,10 +41,31 @@ void QueueNearFaceBuildChain_Add(entity e)		{	list_queuenearfacebuildchain = Lin
 void QueueNearFaceBuildChain_Remove(entity e)	{	list_queuenearfacebuildchain = LinkedList_Remove(e, list_queuenearfacebuildchain, queuenearfacebuildchain, queuenearfacebuildchain_prev);	}
 
 entity		list_queuefacebuildchain;
+entity		listend_queuefacebuildchain;
 .entity		queuefacebuildchain;
 .entity		queuefacebuildchain_prev;
-void QueueFaceBuildChain_Add(entity e)		{	list_queuefacebuildchain = LinkedList_Add(e, list_queuefacebuildchain, queuefacebuildchain, queuefacebuildchain_prev);	}
+void QueueFaceBuildChain_Append(entity e)		{	list_queuefacebuildchain = LinkedList_Append(e, list_queuefacebuildchain, listend_queuefacebuildchain, queuefacebuildchain, queuefacebuildchain_prev);	listend_queuefacebuildchain = list_lastent;	}
 void QueueFaceBuildChain_Remove_(entity e)	{	list_queuefacebuildchain = LinkedList_Remove(e, list_queuefacebuildchain, queuefacebuildchain, queuefacebuildchain_prev);	}
+
+entity		list_queuedamagefacebuildchain;
+entity		listend_queuedamagefacebuildchain;
+.entity		queuedamagefacebuildchain;
+.entity		queuedamagefacebuildchain_prev;
+void QueueDamageFaceBuildChain_Append(entity e)		{	list_queuedamagefacebuildchain = LinkedList_Append(e, list_queuedamagefacebuildchain, listend_queuedamagefacebuildchain, queuedamagefacebuildchain, queuedamagefacebuildchain_prev);	listend_queuedamagefacebuildchain = list_lastent;	}
+void QueueDamageFaceBuildChain_Remove_(entity e)	{	list_queuedamagefacebuildchain = LinkedList_Remove(e, list_queuedamagefacebuildchain, queuedamagefacebuildchain, queuedamagefacebuildchain_prev);	}
+
+/*entity		list_queuedamagefacerebuildchain;
+entity		listend_queuedamagefacerebuildchain;
+.entity		queuedamagefacerebuildchain;
+.entity		queuedamagefacerebuildchain_prev;
+void QueueDamageFaceRebuildChain_Append(entity e)		{	list_queuedamagefacerebuildchain = LinkedList_Append(e, list_queuedamagefacerebuildchain, listend_queuedamagefacerebuildchain, queuedamagefacerebuildchain, queuedamagefacerebuildchain_prev);	listend_queuedamagefacerebuildchain = list_lastent;	}
+void QueueDamageFaceRebuildChain_Remove_(entity e)	{	list_queuedamagefacerebuildchain = LinkedList_Remove(e, list_queuedamagefacerebuildchain, queuedamagefacerebuildchain, queuedamagefacerebuildchain_prev);	}*/
+
+.entity		list_queueclearchunkdamagefaces;
+.entity		queueclearchunkdamagefaces;
+.entity		queueclearchunkdamagefaces_prev;
+void QueueClearChunkDamageFaces_Add(entity o, entity e)		{	o.list_queueclearchunkdamagefaces = LinkedList_Add(e, o.list_queueclearchunkdamagefaces, queueclearchunkdamagefaces, queueclearchunkdamagefaces_prev);	}
+void QueueClearChunkDamageFaces_Remove(entity o, entity e)		{	o.list_queueclearchunkdamagefaces = LinkedList_Remove(e, o.list_queueclearchunkdamagefaces, queueclearchunkdamagefaces, queueclearchunkdamagefaces_prev);	}
 
 entity		list_dynamiclightchain;
 .entity		dynamiclightchain;
@@ -88,6 +127,12 @@ entity		list_queuechunkbloatchain;
 .entity		queuechunkbloatchain_prev;
 void QueueChunkBloatChain_Add(entity e)			{	list_queuechunkbloatchain = LinkedList_Add(e, list_queuechunkbloatchain, queuechunkbloatchain, queuechunkbloatchain_prev);	}
 void QueueChunkBloatChain_Remove(entity e)		{	list_queuechunkbloatchain = LinkedList_Remove(e, list_queuechunkbloatchain, queuechunkbloatchain, queuechunkbloatchain_prev);	}
+
+entity		list_resetambientlightchain;
+.entity		resetambientlightchain;
+.entity		resetambientlightchain_prev;
+void ResetAmbientLightChain_Add(entity e)			{	list_resetambientlightchain = LinkedList_Add(e, list_resetambientlightchain, resetambientlightchain, resetambientlightchain_prev);	}
+void ResetAmbientLightChain_Remove(entity e)		{	list_resetambientlightchain = LinkedList_Remove(e, list_resetambientlightchain, resetambientlightchain, resetambientlightchain_prev);	}
 
 
 /*void ChunkChain_Sort(entity chunk)

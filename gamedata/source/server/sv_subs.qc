@@ -53,6 +53,7 @@ void Remove(entity e)
 	remove(e);
 }
 
+void SaveModifiedClusterFiles(int saveall);
 void SetLoadDistanceValues();
 void SetAmbientLight();
 void UninitializePlayers();
@@ -60,18 +61,37 @@ void SetSelectionEdge(vector polarity, vector offset);
 void InitializeSelectionEdge();
 void SetChunkSendFlags(entity chunk, float sendflags);
 
+int ParseClientCommand_Wrap_Post(string s, int returnvalue)
+{
+	return returnvalue;	
+}
+
 void SV_ParseClientCommand (string s)
 {
 	string c, t;
 	entity chunk;
 	
 	int sidenum;
+	float file = 0;
 	
 	tokenize(s);
 	c = argv(0);
 
 // GAME COMMANDS
 
+	//	file = fopen("testall.txt", FILE_APPEND);
+	//		fputs(file, strcat(c, "\n"));
+	//		fclose(file);
+
+	if(c == "quit")	// make sure everything saves
+	{
+		clustersavetime = 0;
+		SaveModifiedClusterFiles(TRUE);
+	//	file = fopen("test.txt", FILE_WRITE);
+	//	fputs(file, "saving?\n");
+	//	fclose(file);
+	}
+	else
 	if(c == "cq_initialized")
 		self.client_initialized = TRUE;
 	else
@@ -195,5 +215,6 @@ void SV_ParseClientCommand (string s)
 		}			
 	}	
 	else
+	if(!ParseClientCommand_Wrap_Post(s, FALSE))
 		clientcommand(self, s);
 }

@@ -1,4 +1,4 @@
-void DrawHud2D(float vwidth)
+void DrawHud2D(float vwidth, float vheight)
 {
 	string s;
 	float rightpanewidth = 100;
@@ -89,6 +89,23 @@ void DrawHud2D(float vwidth)
 	}
 }
 
+void DrawMouse()
+{
+//	if(drawmouse)
+//		drawpic(getmousepos(), "gfx/cursor.tga", drawgetimagesize("gfx/cursor.tga")*0.5, '1 1 1', 1, 0);
+}
+
+void InitializeMousePos()
+{
+	if(!mouseposinitialized)
+	{
+		mousepos = view_size*0.5;
+		mouseposinitialized = TRUE;
+	}
+}
+
+void DrawSky_Wrap(){}
+
 // CSQC_UpdateView - Called every rendered frame on the client.  Useful for HUD drawing operations.
 void CSQC_UpdateView(float vwidth, float vheight, float notmenu)
 {
@@ -102,20 +119,29 @@ void CSQC_UpdateView(float vwidth, float vheight, float notmenu)
 	view_normal = v_forward;
 	view_right = v_right;
 	float mindist = getproperty(VF_MINDIST);
-	view_point = view_org + v_forward*mindist;
+	view_point = view_org + v_forward*mindist;		// FIXME: use this with cubic traces, probably why selecting the edge selects a different cubic on the server
 	
 	setorigin(clientlight, view_org);	// client light entity origin update
 
+	InitializeMousePos();
 	UpdateCubicInterface();
+
+	DrawSky_Wrap();	
 	
 	if(editor_fillmode)
 		DrawSelectorFaces();
 	
 	UpdateFaceQueuesForPlayerPosition();
+	
+	SetFacesToBuildForFrame();
 	BuildNearQueuedFaces();
 	BuildQueuedFaces();
+	BuildQueuedDamageFaces();
+	
 	AddLights();	
+
 	DrawChunks();
+	DrawChunkDamage();
 	
 	if(!editor_fillmode)
 		DrawSelectorFaces();
@@ -129,7 +155,9 @@ void CSQC_UpdateView(float vwidth, float vheight, float notmenu)
 	renderscene();
 	
 	DrawGrids();
-	DrawHud2D(vwidth);
+	DrawHud2D(vwidth, vheight);
+	
+	DrawMouse();
 	
 	IncreaseInputStates();	
 }

@@ -117,14 +117,14 @@ void SetCubicVisibility(entity chunk, int memslot)
 	originalchunk.cubic_cullbits[memslot] = cullbits + (originalcullbits & CULLBITS_PARTIAL_ALL);
 }
 
-void UpdateChunkAreaVisibility(entity chunk, vector cubicorg, int markmodified, int isdamaged)
+void UpdateChunkAreaVisibility(entity chunk, vector cubicorg, int markmodified, int fastredraw)
 {
 	vector ofs = '0 0 0', nearcubicorg = '0 0 0', cubicchunkorg = '0 0 0';
 	
 	int cubicid = GetCubicRef(cubicorg-chunk.origin);
 	SetCubicVisibility(chunk, cubicid);
 	if(markmodified)
-		SetChunkAsModified(chunk, isdamaged);
+		SetChunkAsModified(chunk, fastredraw, TRUE);
 	
 	entity originalchunk = chunk;
 	
@@ -150,7 +150,7 @@ void UpdateChunkAreaVisibility(entity chunk, vector cubicorg, int markmodified, 
 		cubicid = GetCubicRef(nearcubicorg - chunk.origin);
 		SetCubicVisibility(chunk, cubicid);
 		if(chunk != originalchunk)
-			SetChunkAsModified(chunk, isdamaged);
+			SetChunkAsModified(chunk, fastredraw, TRUE);
 	}
 }
 
@@ -294,6 +294,6 @@ void UpdateClusterAreaVisibility_OuterEdge(entity cluster)
 					}
 				}
 				
-				SetChunkAsModified(chunk, FALSE);
+				SetChunkAsModified(chunk, FALSE, TRUE);
 			}	
 }
