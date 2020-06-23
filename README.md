@@ -8,7 +8,14 @@ Use the F1-F4 Keys in-game for help!
 
 ### Recent Changes
 
-Complete reinstall recommended. A health stat has been added to cubics, and breaks existing worlds. Old prefabs still work. They can be backed up and salvaged before wiping everything!
+Complete reinstall recommended (if updating pre r158). A health stat has been added to cubics, and breaks existing worlds. Old prefabs still work. They can be backed up and salvaged before wiping everything!
+
+r161 (24 years after Quake today)
++ damage faces rebuild instantly on geometry changes
++ fixed a bug with linked lists with append support (which fixed a bug with some chunks not drawing)
++ all 9 dmg images are actually used now
++ added chunk debug impulse 22 for client that eprints the nearest chunk
++ modified some animation handling stuff
 
 r158
 + set sky to use r_fastsky 1 by default and replaced placeholder sky with blank images
@@ -71,6 +78,13 @@ WARNING: If a server restarts, players need to reconnect to get the world to net
 - don't let players place things on players
 
 ### ChangeLog
+
+r161 (24 years after Quake today)
++ damage faces rebuild instantly on geometry changes
++ fixed a bug with linked lists with append support (which fixed a bug with some chunks not drawing)
++ all 9 dmg images are actually used now
++ added chunk debug impulse 22 for client that eprints the nearest chunk
++ modified some animation handling stuff
 
 r158
 + set sky to use r_fastsky 1 by default and replaced placeholder sky with blank images
