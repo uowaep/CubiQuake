@@ -225,7 +225,7 @@ void RemoveDamageFacesForCubic(entity chunk, int cubicid, int oldhealth)
 	}
 }
 
-void BuildChunkDamageFaces(entity chunk, int forcedcullbits, int onlytype)
+void BuildChunkDamageFaces(entity chunk, int forcedcullbits, int onlytype, int fastbuild)
 {
 	int blockshape = 0, blockrotation = 0, type = 0, cullbits = 0, cubichealth = 0, cubiccount = 0, builtcount = 0, buildall = 0;
 	vector cubicposition = '0 0 0';	
@@ -251,7 +251,7 @@ void BuildChunkDamageFaces(entity chunk, int forcedcullbits, int onlytype)
 		}
 	}*/
 	
-	for(; builtcount < chunk.numdamagedcubics && (numdamagecubicsbuiltforframe < autocvar_cq_maxdamagecubicsperbuild || buildall); cubiccount++)
+	for(; (builtcount < chunk.numdamagedcubics && numdamagecubicsbuiltforframe < autocvar_cq_maxdamagecubicsperbuild) || buildall || fastbuild; cubiccount++)
 	{
 		if(cubiccount >= pow(chunksize, 3))	// the normal face building loop will handle this error
 			break;
@@ -286,7 +286,7 @@ void BuildChunkDamageFaces(entity chunk, int forcedcullbits, int onlytype)
 			cullbits = chunk.cubic_cullbits[cubiccount] | forcedcullbits;
 			cubicposition = chunk.origin + GetCubicOffset(cubiccount);
 			BuildFacesForShape(typegroup, blockshape, blockrotation, cullbits, cubicposition, chunk.numdamagedcubics, 1, DRAWLIST_DMG);
-			numdamagecubicsbuiltforframe++;
+			numdamagecubicsbuiltforframe++;	
 		}
 		
 		builtcount++;
@@ -295,6 +295,12 @@ void BuildChunkDamageFaces(entity chunk, int forcedcullbits, int onlytype)
 	if(buildall)
 		return;
 	
+	if(fastbuild)
+	{
+		QueueNearDamageFaceBuildChain_Remove(chunk);
+		return;
+	}
+
 	if(numdamagecubicsbuiltforframe >= autocvar_cq_maxdamagecubicsperbuild) // save place for next frame
 	{
 		numdamagecubicsbuiltforframe = -1;
@@ -354,7 +360,7 @@ void AddDamageFacesForCubic(entity chunk, int cubiccount)
 			if(chunk.numdamagedcubics*4 >= facegroup.allocsize_verts || chunk.numdamagedcubics*6 >= facegroup.allocsize_indexes)
 			{
 				RemoveFaceGroup(typegroup, facegroup, TRUE);	// clear existing facegroup
-				BuildChunkDamageFaces(chunk, CULLBITS_ALL - facebit, type);		// rebuild faces for this damage type for this side only
+				BuildChunkDamageFaces(chunk, CULLBITS_ALL - facebit, type, FALSE);		// rebuild faces for this damage type for this side only
 				cullbits = cullbits | facebit;	// don't add to this typegroup's side right now since it is going to be rebuilt to increase allocation size
 			}
 		}
@@ -519,7 +525,7 @@ void BuildQueuedDamageFaces()
 			continue;
 		}
 
-		BuildChunkDamageFaces(e, 0, 0);
+		BuildChunkDamageFaces(e, 0, 0, FALSE);
 		facesbuiltforframe = facesbuiltforframe | FACEBUILD_DMG;
 		numbuilds++;		
 	}
@@ -558,6 +564,17 @@ void BuildNearQueuedFaces()
 		BuildChunkFaces(e, FALSE);
 		facesbuiltforframe = facesbuiltforframe | FACEBUILD_NEAR;
 	}
+	
+	for(e = list_queueneardamagefacebuildchain; e ; e = nexte)
+	{
+		nexte = e.queueneardamagefacebuildchain;
+
+		if(e.findnetworkbloatent)	// in the middle of updating the chunk via network
+			continue;
+
+		BuildChunkDamageFaces(e, 0, 0, TRUE);
+		facesbuiltforframe = facesbuiltforframe | FACEBUILD_NEAR;
+	}	
 }
 
 void QueueChunkFaceBuild(entity chunk, float sendflags)
@@ -579,22 +596,30 @@ void QueueChunkFaceBuild(entity chunk, float sendflags)
 	{
 	//	Damaged Faces	
 		if(chunk.numdamagedcubics)
-		if(dist <= proximitydist)
 		{
-			QueueDamageFaceBuildChain_Append(chunk);			
-			chunk.drawingdamage = TRUE;
+			if(!isnew && sfldmgd)	// geometry updated damage faces (any range)
+			{
+				QueueNearDamageFaceBuildChain_Add(chunk);	// immediate chain		
+				chunk.drawingdamage = TRUE;
+			}
+			else
+			if(dist <= proximitydist)	// non-geometry updated damage faces (near)
+			{
+				QueueDamageFaceBuildChain_Append(chunk);		// add to slow chain	
+				chunk.drawingdamage = TRUE;
+			}
 		}
 		
-//		Nearby Faces
-		QueueNearFaceBuildChain_Add(chunk);
+//		Nearby or geometry updated Chunk Faces
+		QueueNearFaceBuildChain_Add(chunk);	// immediate chain
 		
 		if(!(sendflags & SFL_ISNEW))
 			if(sendflags & SFL_BUILD)
 				chunk.resetlights = TRUE;
 	}
 	else
-//	Distant Faces
-	QueueFaceBuildChain_Append(chunk);
+//	Distant Chunk Faces
+	QueueFaceBuildChain_Append(chunk);	// slow chain
 	
 
 }
@@ -608,7 +633,7 @@ void UpdateFaceQueuesForPlayerPosition()
 //	entity firstmovedchunk = __NULL__;
 	
 	vector currentplayerchunkpos = GetNearChunkOrg(view_org);
-	if(currentplayerchunkpos == oldplayerchunkpos)
+	if(currentplayerchunkpos == oldplayerchunkpos)	// this keeps the loops from iterating every frame
 		return;
 	
 	float proximitydist = chunksize*cubicradius*2*autocvar_cq_bgload_dist;
@@ -629,7 +654,7 @@ void UpdateFaceQueuesForPlayerPosition()
 		//	if(!firstmovedchunk)
 		//		firstmovedchunk = e;
 	
-			if(e == list_queuefacebuildchain)
+			if(e == list_queuefacebuildchain)	// let's facegroup that was building finish at the speed it was going instead of restarting it
 				continue;
 //			for(typegroup = e.list_typegroupchain; typegroup; typegroup = typegroup.typegroupchain)
 //				while(typegroup.list_facegroupchain)
@@ -641,12 +666,13 @@ void UpdateFaceQueuesForPlayerPosition()
 		}
 	}
 	
+	// removes damage faces past 1.5 * bg load distance and appaends at bg load distance
 	for(entity chunk = list_chunkchain; chunk; chunk = chunk.chunkchain)
 	{
 		ofs = chunk.origin - currentplayerchunkpos;
 		dist = ofs*ofs;
 		
-		if(dist > removedist)	// this moves facegroups from the slow bg queue to the fast local queue if the player gets closer to them
+		if(dist > removedist)
 		{		
 			if(chunk.drawingdamage)
 			{

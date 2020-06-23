@@ -1,5 +1,5 @@
 // VERSION
-string		cubic_revision	= "cubiquake r158";
+string		cubic_revision	= "cubiquake r161";
 
 // WORLD SETTINGS
 
@@ -116,12 +116,11 @@ int		CULLBITS_PARTIAL_ALL	= 4032;	// (64+128+256+512+1024+2048)
 // below 0 values are for misc stuff not accessable to the editor blocktype tool
 int		BLOCKTYPE_EDIT		= -1;
 
-int		BLOCKTYPE_DMG_20	= -2;
-int		BLOCKTYPE_DMG_40	= -3;
-int		BLOCKTYPE_DMG_60	= -4;
-int		BLOCKTYPE_DMG_80	= -5;
+//int		BLOCKTYPE_DMG_20	= -2;
+//int		BLOCKTYPE_DMG_40	= -3;
+//int		BLOCKTYPE_DMG_60	= -4;
+//int		BLOCKTYPE_DMG_80	= -5;
 
-/*
 int		BLOCKTYPE_DMG_10	= -2;
 int		BLOCKTYPE_DMG_20	= -3;
 int		BLOCKTYPE_DMG_30	= -4;
@@ -130,12 +129,12 @@ int		BLOCKTYPE_DMG_50	= -6;
 int		BLOCKTYPE_DMG_60	= -7;
 int		BLOCKTYPE_DMG_70	= -8;
 int		BLOCKTYPE_DMG_80	= -9;
-int		BLOCKTYPE_DMG_90	= -10;*/
+int		BLOCKTYPE_DMG_90	= -10;
 
-int		BLOCKTYPE_DMG_LOW	= BLOCKTYPE_DMG_20;
-int		BLOCKTYPE_DMG_HIGH	= BLOCKTYPE_DMG_80;
-float	maxdmghealth			= 80;
-float	dmghealthincrementsize	= 20;
+int		BLOCKTYPE_DMG_LOW	= BLOCKTYPE_DMG_10;
+int		BLOCKTYPE_DMG_HIGH	= BLOCKTYPE_DMG_90;
+float	maxdmghealth			= 90;
+float	dmghealthincrementsize	= 10;
 
 // 0 is for an empty block although GetCubicStaus returns -1 for empty cubics (normally returns the blocktype)
 

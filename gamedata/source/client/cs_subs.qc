@@ -76,6 +76,7 @@ void CleanUp_Remove (entity e)
 	}
 	
 	QueueNearFaceBuildChain_Remove(e);
+	QueueNearDamageFaceBuildChain_Remove(e);
 	QueueFaceBuildChain_Remove(e);
 	QueueDamageFaceBuildChain_Remove(e);
 //	QueueDamageFaceRebuildChain_Remove(e);

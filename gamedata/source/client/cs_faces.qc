@@ -8,15 +8,15 @@ string GetTextureForTypeFace(float type, float facebit)
 //		case BLOCKTYPE_DMG_50:		return "dmg_50";			break;
 //		case BLOCKTYPE_DMG_75:		return "dmg_80";			break;
 		
-//		case BLOCKTYPE_DMG_10:		return "dmg_10";			break;
+		case BLOCKTYPE_DMG_10:		return "dmg_10";			break;
 		case BLOCKTYPE_DMG_20:		return "dmg_20";			break;
-//		case BLOCKTYPE_DMG_30:		return "dmg_30";			break;
+		case BLOCKTYPE_DMG_30:		return "dmg_30";			break;
 		case BLOCKTYPE_DMG_40:		return "dmg_40";			break;
-//		case BLOCKTYPE_DMG_50:		return "dmg_50";			break;
+		case BLOCKTYPE_DMG_50:		return "dmg_50";			break;
 		case BLOCKTYPE_DMG_60:		return "dmg_60";			break;
-//		case BLOCKTYPE_DMG_70:		return "dmg_70";			break;
+		case BLOCKTYPE_DMG_70:		return "dmg_70";			break;
 		case BLOCKTYPE_DMG_80:		return "dmg_80";			break;
-//		case BLOCKTYPE_DMG_90:		return "dmg_90";			break;
+		case BLOCKTYPE_DMG_90:		return "dmg_90";			break;
 		
 		case BLOCKTYPE_DIRT:		if(facebit == FACE_TOP) return "dirt_top";		if(FACE_SIDE & facebit) return "dirt_side";		if(facebit == FACE_BOTTOM) return "dirt_bottom";		break;
 		case BLOCKTYPE_BRICK:		if(facebit == FACE_TOP) return "city4_6_top";	if(FACE_SIDE & facebit) return "city4_6_side";		if(facebit == FACE_BOTTOM) return "city4_6_bottom";		break;

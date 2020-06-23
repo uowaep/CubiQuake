@@ -92,8 +92,10 @@ float CSQC_InputEvent(float evtype, float scanx, float chary, float devid)
 		{
 			case "+attack":			inputid = INPUT_ATTACK;		break;
 			case "impulse 99":		inputid = INPUT_BUTTON1;	break;
-			case "+speed":			inputid = INPUT_SPEED;		break;
+			case "+speed":			inputid = INPUT_SPEED;		break;	// this isn't doing anything
 	//		case "impulse 98":		inputid = INPUT_TOOLDIM;	break;
+	
+			case "impulse 22":		eprint(GetChunkForLocation(__NULL__, view_org, __FUNC__));	 break;
 		}
 
 		bSkipKey = SetInputID_Wrap_Prior(bind, inputid, evtype, scanx, FALSE);	

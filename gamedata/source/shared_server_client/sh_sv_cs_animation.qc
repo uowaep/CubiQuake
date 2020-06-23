@@ -30,9 +30,9 @@ void AnimateModel(entity e)
 		e.frame2time = e.frame1time+e.frameoffset*e.anim_frameduration;
 		#endif
 		
-		if(e.frameendtime)
-			e.frameendtime += e.anim_frameduration;
-		else
+	//	if(e.frameendtime)
+	//		e.frameendtime += e.anim_frameduration;
+	//	else
 			e.frameendtime = time+e.anim_frameduration;	
 		
 		if(e.frame2 < e.beginframe || e.frame2 > e.finalframe || e.restartanim)

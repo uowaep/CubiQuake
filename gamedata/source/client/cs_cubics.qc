@@ -338,7 +338,8 @@ void UpdateChunk()
 		
 		self.updateref = ref;
 
-		QueueNearFaceBuildChain_Remove(self);
+	//	QueueNearFaceBuildChain_Remove(self);
+	//	QueueNearDamageFaceBuildChain_Remove(self);
 		QueueFaceBuildChain_Remove(self);
 		QueueDamageFaceBuildChain_Remove(self);
 	//	QueueDamageFaceRebuildChain_Remove(self);
@@ -353,7 +354,8 @@ void UpdateChunk()
 			
 			if(e.origin == self.origin)
 			{
-				QueueNearFaceBuildChain_Remove(e);
+		//		QueueNearFaceBuildChain_Remove(e);
+		//		QueueNearDamageFaceBuildChain_Remove(e);
 				QueueFaceBuildChain_Remove(e);
 				QueueDamageFaceBuildChain_Remove(e);
 	//			QueueDamageFaceRebuildChain_Remove(e);
@@ -461,7 +463,8 @@ void UpdateChunkBloat()
 		}
 		self.updateref = ref;
 		
-		QueueNearFaceBuildChain_Remove(self);
+//		QueueNearFaceBuildChain_Remove(self);
+//		QueueNearDamageFaceBuildChain_Remove(self);
 		QueueFaceBuildChain_Remove(self);
 		QueueDamageFaceBuildChain_Remove(self);
 	//	QueueDamageFaceRebuildChain_Remove(self);
@@ -484,7 +487,8 @@ void UpdateChunkBloat()
 				if(e.updateref == self.updateref)
 					continue;
 				
-				QueueNearFaceBuildChain_Remove(e);
+//				QueueNearFaceBuildChain_Remove(e);
+//				QueueNearDamageFaceBuildChain_Remove(e);
 				QueueFaceBuildChain_Remove(e);
 				QueueDamageFaceBuildChain_Remove(e);
 			//	QueueDamageFaceRebuildChain_Remove(e);

@@ -1,5 +1,9 @@
-entity LinkedList_Remove(entity e, entity list, .entity entchain, .entity entparent)
+entity list_lastent;
+
+entity LinkedList_Remove(entity e, entity list, entity lastent, .entity entchain, .entity entparent)
 {
+	list_lastent = lastent;
+	
 	if(!(e.entchain || e.entparent || e == list))
 		return list;
 
@@ -14,6 +18,12 @@ entity LinkedList_Remove(entity e, entity list, .entity entchain, .entity entpar
 		e.entparent.entchain = e.entchain;
 	if(e.entchain)
 		e.entchain.entparent = e.entparent;
+		
+	if(e == lastent)
+	if(e.entparent)
+		list_lastent = e.entparent;
+	else
+		list_lastent = __NULL__;
 		
 	e.entparent = __NULL__;
 	e.entchain = __NULL__;
@@ -38,9 +48,11 @@ entity LinkedList_Add(entity e, entity list, .entity entchain, .entity entparent
 }
 
 // this function :)
-entity list_lastent;
+
 entity LinkedList_Append(entity e, entity list, entity lastent, .entity entchain, .entity entparent)
 {
+	list_lastent = lastent;
+	
 	if(e.entchain || e.entparent || e == list)	// already in list
 		return list;
 
