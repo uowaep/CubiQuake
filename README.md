@@ -14,7 +14,7 @@ r158
 + set sky to use r_fastsky 1 by default and replaced placeholder sky with blank images
 + changed default cq_chunksperpassage from 7 to 5
 + chunks now save at 30 second increments by default (instead of the moment they are modified), and are saved on unload, mapchange, or quit
-+ facegroup allocations are no longer freed, but instead kept around to be used by newly build chunks in csqc. this improved performance of chunk loading and updating by a large margin, and cubic building speed via cq_maxcubicsperbuild and cq_maxdamagecubicsperbuild (new) have been increased/set to 64 (normally 16)
++ facegroup allocations are no longer freed, but instead kept around to be used by newly built chunks in csqc. this improved performance of chunk loading and updating by a large margin, and cubic building speed via cq_maxcubicsperbuild and cq_maxdamagecubicsperbuild (new) have been increased/set to 64 (normally 16)
 + cq_maxfacegroupsperbuild set to 64 for good measure
 + added cq_lights_models. 0 by default. set to 1 to enable engine lights for models
 + added radiant lighting. use cq_ambientlight_radiance and cq_lights_radiance to modify
@@ -31,7 +31,7 @@ r158
 + fixed trace point for player client vs server
 + cubic objects can now be rotated
 + editor cubic object alpha set to 1 for visibility
-+ added support for modifying ambient light and ambient light position dynamically (just don't do it every frame)
++ added support for modifying ambient light and ambient light position dynamically (just don't do it every frame) variables: ambientlight_modified and ambientlight_position.
 + added mod support for csqc input SetInputID_Wrap_Prior()
 + added mod support for skies/environments/whatever DrawSky_Wrap()
 + changed cq_gen_type 1 (wasteland) to only use 3 blocktypes
