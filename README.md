@@ -8,6 +8,8 @@ Use the F1-F4 Keys in-game for help!
 
 ### Recent Changes
 
+**Warning: cq_gen_type 2 is broken, use cq_gen_type 1 or 0.**
+
 Complete reinstall recommended (if updating pre r158). A health stat has been added to cubics, and breaks existing worlds. Old prefabs still work. They can be backed up and salvaged before wiping everything!
 
 r161 (24 years after Quake today)
