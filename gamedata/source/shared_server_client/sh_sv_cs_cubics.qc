@@ -1,5 +1,6 @@
 // VERSION
-string		cubic_revision	= "cubiquake r161";
+int		cq_version		= 166;
+string	cubic_revision	= "cubiquake r166";
 
 // WORLD SETTINGS
 
@@ -50,22 +51,22 @@ vector	ambientlight;
 
 //		if you modify game logic relating to chunk information, you might want to edit these
 
-int		numworldslots	= 3;
+int		numworldslots	= 3;	// i'll have to introduce a new file name to add versions to the world file, or use slot 4
 int		WORLDSLOT_WORLDSIZE		= 0;
 int		WORLDSLOT_CLUSTERSIZE	= 1;
 int		WORLDSLOT_CHUNKSIZE		= 2;
-
-int		numprechunkvaluesincluster	= 2;
-int		CLUSTERSLOT_AVERAGETYPE			= 0; // not used, was going to use for distant drawing.
-int		CLUSTERSLOT_NUMVISIBLECUBICS	= 1;
 
 int		numprecubicvaluesinchunk	= 2;
 int		CHUNKSLOT_CHUNKBITS				= 0;
 int		CHUNKSLOT_NUMVISIBLECUBICS		= 1;
 
+int		numprechunkvaluesincluster	= 2;
+int		CLUSTERSLOT_VERSION				= 0;
+int		CLUSTERSLOT_NUMVISIBLECUBICS	= 1;
 
 int		numsideinfoslots = 24;
-int		numprefabgenvaluesinchunk	= numsideinfoslots+3;
+int		numprefabgenvaluesinchunk	= numsideinfoslots+4;
+int		olda_numprefabgenvaluesinchunk = 27;
 
 int		PREFABCHUNKSLOT_CHUNKSIDETYPE_0		= 0;	// 0-5
 int		PREFABCHUNKSLOT_CONNECTIONFIT_0		= 6;	// 6-11
@@ -74,7 +75,8 @@ int		PREFABCHUNKSLOT_GROUPSIZE_0			= 18;	// 18-23
 
 int		PREFABCHUNKSLOT_ZONE				= 24;
 int		PREFABCHUNKSLOT_CHANCE				= 25;
-int		PREFABCHUNKSLOT_CHUNKFLAGS			= 26;
+int		PREFABCHUNKSLOT_VERSION				= 26;	// was chunkflags, but chunkflags could only have been 0 or 1 - r161
+int		PREFABCHUNKSLOT_CHUNKFLAGS			= 27;
 
 // prefab connection flags
 int		CFL_ALLOWROTATEDFIT			= 1;
@@ -84,11 +86,12 @@ int		CHFL_ALLOWSAMEZONEPASSAGE	= 1;
 
 
 int		numvaluespercubic			= 5;
+int		olda_numvaluespercubic		= 4;
 int		CUBICSLOT_TYPE					= 0;
 int		CUBICSLOT_SHAPE					= 1;
 int		CUBICSLOT_ROTATION				= 2;
 int		CUBICSLOT_CULLBITS				= 3;
-int		CUBICSLOT_HEALTH				= 4;
+int		CUBICSLOT_HEALTH				= 4;	// not saved in prefabs
 
 .int	numvisiblecubics;
 

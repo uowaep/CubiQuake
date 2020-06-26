@@ -34,7 +34,7 @@ void GhostCluster(entity cluster)
 {
 	cluster_ent[GetClusterRef(cluster.origin)] = __NULL__;	
 	
-	cluster.averagetype = 0;
+//	cluster.averagetype = 0;
 	cluster.numvisiblecubics = 0;
 	cluster.flags = 0;
 	cluster.enttype = 0;
@@ -120,6 +120,9 @@ int SaveClusterChunks(entity cluster, int numsaved, int saveall)
 	file = fopen(filename, FILE_MMAP_RW, sizeof(*cluster_data)*clusterdataslots);
 	cluster_data = (int*)fgets(file);
 	
+	cluster_data[CLUSTERSLOT_VERSION] = cq_version;
+	// numvisiblecubics for cluster is not used
+	
 	for(chunk = cluster.list_savechunkqueuechain; (saveall || numsaved < autocvar_cq_chunksave_numperinterval) && chunk; chunk = nextchunk)
 	{
 		#ifdef DEBUG
@@ -132,6 +135,7 @@ int SaveClusterChunks(entity cluster, int numsaved, int saveall)
 		clusterchunkid = GetChunkRef(chunk.origin-cluster.origin, __FUNC__);
 		chunkslot0 = numprechunkvaluesincluster + clusterchunkid*numslotsforchunkincluster;
 
+		cluster_data[chunkslot0+CHUNKSLOT_CHUNKBITS] = chunk.chunkbits;
 		cluster_data[chunkslot0+CHUNKSLOT_NUMVISIBLECUBICS] = chunk.numvisiblecubics;
 		
 		for(i = 0; i < pow(chunksize, 3); i++)
@@ -459,6 +463,47 @@ void UnloadWorldForPlayer(entity player, vector org, int disconnect)
 			}
 }
 
+void FixClusterDataForOldVersions(int *cdata)
+{
+	float f = 0;
+	int slot0 = 0, oldver_slot0 = 0, i = 0, chunkslot0 = 0, oldver_chunkslot0 = 0;
+	int datasize = clusterdataslots;	
+
+	int version = cdata[CLUSTERSLOT_VERSION];
+
+	if(version <= 161)
+	{
+		int olda_numslotsforchunkincluster = (2+pow(chunksize, 3)*4);
+		int old_datasize = 2+pow(clustersize, 3)*olda_numslotsforchunkincluster;
+	
+		for(int chunkcount = pow(clustersize, 3)-1; chunkcount >= 0; chunkcount--)
+		{
+			for(i = 1; i <= pow(chunksize, 3); i++)
+			{
+				slot0 = numprechunkvaluesincluster + chunkcount*numslotsforchunkincluster + numslotsforchunkincluster - i*numvaluespercubic;		
+				oldver_slot0 = 2 + chunkcount*olda_numslotsforchunkincluster + olda_numslotsforchunkincluster - i*olda_numvaluespercubic;
+
+				if(cdata[oldver_slot0+CUBICSLOT_TYPE])
+					cdata[slot0+CUBICSLOT_HEALTH] = 100;
+				else
+					cdata[slot0+CUBICSLOT_HEALTH] = 0;
+				cdata[slot0+CUBICSLOT_CULLBITS] = cdata[oldver_slot0+CUBICSLOT_CULLBITS];
+				cdata[slot0+CUBICSLOT_ROTATION] = cdata[oldver_slot0+CUBICSLOT_ROTATION];
+				cdata[slot0+CUBICSLOT_SHAPE] = cdata[oldver_slot0+CUBICSLOT_SHAPE];
+				cdata[slot0+CUBICSLOT_TYPE] = cdata[oldver_slot0+CUBICSLOT_TYPE];
+			}
+	
+			chunkslot0 = numprechunkvaluesincluster+chunkcount*numslotsforchunkincluster;
+			oldver_chunkslot0 = 2+chunkcount*olda_numslotsforchunkincluster;
+			
+			cdata[chunkslot0+CHUNKSLOT_NUMVISIBLECUBICS] = cdata[oldver_chunkslot0+1];	// r161		(2+1)
+			cdata[chunkslot0+CHUNKSLOT_CHUNKBITS] = cdata[oldver_chunkslot0+0];			// r161		(2+0)
+		}
+		
+		cdata[CLUSTERSLOT_VERSION] = cq_version;
+	}
+}
+
 entity LoadCluster(entity player, vector pos, int forceload)
 {
 	int chunkslot0 = 0, cubicslot0 = 0, count = 0, numchunksloaded = 0, i =0;
@@ -498,7 +543,7 @@ entity LoadCluster(entity player, vector pos, int forceload)
 		else
 		{*/
 			string filename = strcat(worldpath, itos(GetClusterRef(pos)));
-			file = fopen(filename, FILE_MMAP_READ, sizeof(int)*clusterdataslots);
+			file = fopen(filename, FILE_MMAP_RW, sizeof(int)*clusterdataslots);	// rewrite so fixclusterdata can fix the file also, else clusters with more than 1 chunk break (pretty sure this is still fast) .. can't really test this because I don't have old worlds with larger clusters
 			
 			if(file == -1)
 			{
@@ -508,12 +553,13 @@ entity LoadCluster(entity player, vector pos, int forceload)
 
 			cluster_data = (int*)fgets(file);	
 
+			FixClusterDataForOldVersions(cluster_data);
+
 			if(!forceload)
 			{
 				player.loadcluster_file = file;
-				player.loadcluster_cluster_data = cluster_data;	
+				player.loadcluster_cluster_data = cluster_data;		// this seems like it might not be ok to do
 			}
-			
 			
 			if(list_ghostclusterchain)
 			{
@@ -542,7 +588,7 @@ entity LoadCluster(entity player, vector pos, int forceload)
 			
 			cluster_ent[GetClusterRef(pos)] = cluster;
 			
-			cluster.averagetype = cluster_data[CLUSTERSLOT_AVERAGETYPE];	// not used
+		//	cluster.averagetype = cluster_data[CLUSTERSLOT_AVERAGETYPE];	// not used
 			cluster.numvisiblecubics = cluster_data[CLUSTERSLOT_NUMVISIBLECUBICS];
 	//	}
 		
@@ -573,7 +619,7 @@ entity LoadCluster(entity player, vector pos, int forceload)
 			setorigin(chunk, GetChunkOffset(i)+pos);
 //			setsize(chunk, '-50 -50 -50', '50 50 50');
 			
-			chunk.chunk_playerdelay = memalloc(sizeof(float)*maxplayers);
+			chunk.chunk_playerdelay = memalloc(sizeof(float)*maxplayers);	// is this used?
 			chunk.cubic_blocktype = memalloc(sizeof(int)*pow(chunksize, 3));
 			chunk.cubic_blockshape = memalloc(sizeof(int)*pow(chunksize, 3));
 			chunk.cubic_blockrotation = memalloc(sizeof(int)*pow(chunksize, 3));
@@ -590,6 +636,7 @@ entity LoadCluster(entity player, vector pos, int forceload)
 		
 		chunk.chunkbits = cluster_data[chunkslot0+CHUNKSLOT_CHUNKBITS];
 		QueueSetNumVisibleCubics(chunk, cluster_data[chunkslot0+CHUNKSLOT_NUMVISIBLECUBICS]);
+
 		InitializeChunk(cluster, chunk);
 
 		for(count = 0; count < pow(chunksize, 3); count++)

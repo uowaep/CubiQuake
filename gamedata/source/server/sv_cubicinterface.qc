@@ -21,6 +21,8 @@ void LoadPrefab_Cluster(vector clusterorg)
 	float file = fopen(filename, FILE_MMAP_READ, sizeof(*cluster_data)*clusterdataslots);
 	cluster_data = (int*)fgets(file);
 	
+//	FixForOldVersionsHere
+	
 	//	cluster_data[CLUSTERSLOT_AVERAGETYPE];
 	cluster.numvisiblecubics = cluster_data[CLUSTERSLOT_NUMVISIBLECUBICS];
 	
@@ -80,7 +82,7 @@ void SavePrefab_Cluster(vector clusterorg)
 	float file = fopen(filename, FILE_MMAP_RW, sizeof(*cluster_data)*clusterdataslots);
 	cluster_data = (int*)fgets(file);
 	
-	cluster_data[CLUSTERSLOT_AVERAGETYPE] = 0;
+	cluster_data[CLUSTERSLOT_VERSION] = cq_version;
 	cluster_data[CLUSTERSLOT_NUMVISIBLECUBICS] = cluster.numvisiblecubics;
 	
 	for(pos_x = 0; pos_x < clustersize; pos_x++)
@@ -195,6 +197,8 @@ void ClearCluster(vector clusterorg)
 
 void LoadPrefab_Chunk(vector chunkorg)
 {
+	int version = 0;
+	
 	entity chunk = GetChunkForLocation(__NULL__, chunkorg, __FUNC__);
 	if(!chunk)
 		return;
@@ -221,6 +225,8 @@ void LoadPrefab_Chunk(vector chunkorg)
 	
 	chunk_data = (int*)fgets(file);
 	
+	FixPrefabChunkDataForOldVersions(chunk_data);
+	
 	for(i = 0; i < numsideinfoslots; i++)
 		chunk.infoedit_chunksidedata[i] = chunk_data[i];
 
@@ -232,7 +238,7 @@ void LoadPrefab_Chunk(vector chunkorg)
 
 	chunk.chunkbits = chunk_data[numprefabgenvaluesinchunk+CHUNKSLOT_CHUNKBITS];
 	QueueSetNumVisibleCubics(chunk, chunk_data[numprefabgenvaluesinchunk+CHUNKSLOT_NUMVISIBLECUBICS]);
-	
+
 	for(i = 0; i < pow(chunksize, 3); i++)
 	{
 		cubicslot0 = numprecubicvaluesinchunk+numprefabgenvaluesinchunk+i*numvaluespercubic;
@@ -241,6 +247,7 @@ void LoadPrefab_Chunk(vector chunkorg)
 		chunk.cubic_blockshape[i] = chunk_data[cubicslot0+CUBICSLOT_SHAPE];
 		chunk.cubic_blockrotation[i] = GetFixedRotation(chunk.cubic_blocktype[i], chunk_data[cubicslot0+CUBICSLOT_ROTATION], chunk.cubic_blockshape[i]);		
 		chunk.cubic_cullbits[i] = chunk_data[cubicslot0+CUBICSLOT_CULLBITS];
+		chunk.cubic_health[i] = chunk_data[cubicslot0+CUBICSLOT_HEALTH];
 	}
 	
 	fclose(file);
@@ -321,8 +328,9 @@ void SavePrefab_Chunk(vector chunkorg)
 	for(i = 0; i < numsideinfoslots; i++)
 		chunk_data[i] = chunk.infoedit_chunksidedata[i];
 
-	chunk_data[PREFABCHUNKSLOT_ZONE] = self.prefabzone;
+	chunk_data[PREFABCHUNKSLOT_ZONE] = self.prefabzone;	// using self because these are also player stats for editing
 	chunk_data[PREFABCHUNKSLOT_CHANCE] = self.prefabchance;
+	chunk_data[PREFABCHUNKSLOT_VERSION] = cq_version;	
 	chunk_data[PREFABCHUNKSLOT_CHUNKFLAGS] = self.prefabchunkflags;
 	
 	chunk_data[numprefabgenvaluesinchunk+CHUNKSLOT_CHUNKBITS] = chunk.chunkbits;
@@ -336,6 +344,7 @@ void SavePrefab_Chunk(vector chunkorg)
 		chunk_data[cubicslot0+CUBICSLOT_SHAPE] = chunk.cubic_blockshape[i];
 		chunk_data[cubicslot0+CUBICSLOT_ROTATION] = GetFixedRotation(chunk.cubic_blocktype[i], chunk.cubic_blockrotation[i], chunk.cubic_blockshape[i]);		
 		chunk_data[cubicslot0+CUBICSLOT_CULLBITS] = chunk.cubic_cullbits[i];
+		chunk_data[cubicslot0+CUBICSLOT_HEALTH] = 100;//chunk.cubic_health[i];	// FIXME: let this save the actual value when there are tools to set damage
 	}
 	
 	fclose(file);
@@ -1039,7 +1048,7 @@ void Player_CubiQuakeControls()
 				{
 					case TOOLSIZE_EDITOR_CUBIC:		CopyCubicData(GetNearestCubicOrigin(tracepos, chunksize_iseven));																				break;
 					case TOOLSIZE_EDITOR_CHUNK:		SavePrefab_Chunk(GetNearChunkOrg(tracepos));									break;
-					case TOOLSIZE_EDITOR_CLUSTER:	SavePrefab_Cluster(GetNearClusterOrg(tracepos));								break;
+				//	case TOOLSIZE_EDITOR_CLUSTER:	SavePrefab_Cluster(GetNearClusterOrg(tracepos));								break;		// FIXME: test cluster support
 				}		
 			}
 			else
@@ -1049,7 +1058,7 @@ void Player_CubiQuakeControls()
 				{
 					case TOOLSIZE_EDITOR_CUBIC:		AddCubic(GetNearestCubicOrigin(tracepos, chunksize_iseven), self.editor_blocktype, self.editor_blockshape, self.editor_blockrotation, TRUE);	break;
 					case TOOLSIZE_EDITOR_CHUNK:		LoadPrefab_Chunk(GetNearChunkOrg(tracepos));									break;
-					case TOOLSIZE_EDITOR_CLUSTER:	LoadPrefab_Cluster(GetNearClusterOrg(tracepos));								break;
+				//	case TOOLSIZE_EDITOR_CLUSTER:	LoadPrefab_Cluster(GetNearClusterOrg(tracepos));								break;		// FIXME: test cluster support
 				}		
 			}
 			else

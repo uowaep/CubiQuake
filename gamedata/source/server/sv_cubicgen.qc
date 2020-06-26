@@ -30,6 +30,7 @@ int WriteChunk(vector chunkpos, int *cdata)
 	file = fopen(filename, FILE_MMAP_RW, sizeof(*cluster_data)*clusterdataslots);
 	cluster_data = (int*)fgets(file);
 
+	cluster_data[CLUSTERSLOT_VERSION] = cq_version;
 
 	chunkslot0 = numprechunkvaluesincluster + chunkref*numslotsforchunkincluster;
 	
@@ -557,8 +558,9 @@ void RotateChunkYaw(int *cdata)
 		
 		tempcdata[tempi+CUBICSLOT_TYPE]		= cdata[slot0+CUBICSLOT_TYPE];
 		tempcdata[tempi+CUBICSLOT_SHAPE]	= cdata[slot0+CUBICSLOT_SHAPE];
-		tempcdata[tempi+CUBICSLOT_ROTATION]	= RotateBlockRotationYaw(cdata[slot0+CUBICSLOT_ROTATION]);	// FIXME: rotate rotation also (cubes are fine)
-		tempcdata[tempi+CUBICSLOT_CULLBITS]	= GetPartialSideCullBitsForShape(tempcdata[tempi+CUBICSLOT_TYPE], tempcdata[tempi+CUBICSLOT_SHAPE], tempcdata[tempi+CUBICSLOT_ROTATION]);								// FIXME: rotating cullbits? ... maybe
+		tempcdata[tempi+CUBICSLOT_ROTATION]	= RotateBlockRotationYaw(cdata[slot0+CUBICSLOT_ROTATION]);
+		tempcdata[tempi+CUBICSLOT_CULLBITS]	= GetPartialSideCullBitsForShape(tempcdata[tempi+CUBICSLOT_TYPE], tempcdata[tempi+CUBICSLOT_SHAPE], tempcdata[tempi+CUBICSLOT_ROTATION]);
+		tempcdata[tempi+CUBICSLOT_HEALTH]	= cdata[slot0+CUBICSLOT_HEALTH];
 	}
 	
 	for(i = 0; i < numprefabgenvaluesinchunk+numslotsforchunkincluster; i++)
@@ -577,9 +579,44 @@ void FixCullBits(int *cdata)
 	for(i = 0; i < pow(chunksize, 3); i++)
 	{
 		slot0 = numprecubicvaluesinchunk+numprefabgenvaluesinchunk + i*numvaluespercubic;
-		cdata[slot0+CUBICSLOT_CULLBITS]	= GetPartialSideCullBitsForShape(cdata[slot0+CUBICSLOT_TYPE], cdata[slot0+CUBICSLOT_SHAPE], cdata[slot0+CUBICSLOT_ROTATION]);								// FIXME: rotating cullbits? ... maybe
+		cdata[slot0+CUBICSLOT_CULLBITS]	= GetPartialSideCullBitsForShape(cdata[slot0+CUBICSLOT_TYPE], cdata[slot0+CUBICSLOT_SHAPE], cdata[slot0+CUBICSLOT_ROTATION]);
 	}
 
+}
+
+void FixPrefabChunkDataForOldVersions(int *cdata)
+{
+	float f = 0;
+	int slot0 = 0, oldver_slot0 = 0, old_datasize = 0;
+	int datasize = numprefabgenvaluesinchunk+numslotsforchunkincluster;	
+
+	int version = cdata[PREFABCHUNKSLOT_VERSION];
+
+	if(version <= 161)
+	{
+		old_datasize = olda_numprefabgenvaluesinchunk+numprecubicvaluesinchunk + pow(chunksize, 3)*olda_numvaluespercubic;
+	
+		for(int i = 1; i <= pow(chunksize, 3); i++)
+		{
+			slot0 = datasize - i*numvaluespercubic;
+			oldver_slot0 = old_datasize - i*olda_numvaluespercubic;
+			
+			if(cdata[oldver_slot0+CUBICSLOT_TYPE])
+				cdata[slot0+CUBICSLOT_HEALTH] = 100;
+			else
+				cdata[slot0+CUBICSLOT_HEALTH] = 0;
+			cdata[slot0+CUBICSLOT_CULLBITS] = cdata[oldver_slot0+CUBICSLOT_CULLBITS];
+			cdata[slot0+CUBICSLOT_ROTATION] = cdata[oldver_slot0+CUBICSLOT_ROTATION];
+			cdata[slot0+CUBICSLOT_SHAPE] = cdata[oldver_slot0+CUBICSLOT_SHAPE];
+			cdata[slot0+CUBICSLOT_TYPE] = cdata[oldver_slot0+CUBICSLOT_TYPE];
+		}
+
+		cdata[numprefabgenvaluesinchunk+CHUNKSLOT_NUMVISIBLECUBICS] = cdata[28];	// r161		(27+1)
+		cdata[numprefabgenvaluesinchunk+CHUNKSLOT_CHUNKBITS] = cdata[27];			// r161		(27+0)
+
+		cdata[PREFABCHUNKSLOT_CHUNKFLAGS] = cdata[26];	// PREFABCHUNKSLOT_CHUNKFLAGS = 26;	 r161
+		// don't really need to load the version here
+	}
 }
 
 /*int GetZoneIDForName(string zonename)
@@ -642,8 +679,10 @@ void SetupPrefabs()
 		filename = substring(s, 5, strlen(s)-5);
 		print(filename, " prefab found.\n");
 		
-		file = fopen(filename, FILE_MMAP_READ);
+		file = fopen(filename, FILE_MMAP_READ, sizeof(*chunk_data)*(numprefabgenvaluesinchunk+numslotsforchunkincluster));
 		chunk_data = (int*)fgets(file);
+		
+		FixPrefabChunkDataForOldVersions(chunk_data);
 		
 		if(substring(filename, 0, 22) == "prefabs/worldgen/fill_")
 		{

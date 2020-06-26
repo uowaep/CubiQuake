@@ -1007,7 +1007,7 @@ void UpdateCubicInterface()
 					else
 						BuildFacesForShape(cubeselector, editor_cubicshape, editor_cubicrotation, 0, cubeselector.origin, 1, toolscale+0.01, DRAWLIST_EDIT);
 				}
-				
+			//	print(ftos(GetCubicRef(org - GetNearChunkOrg(org))), " cube id\n");
 				editor_selectororg_old = org;
 			}
 		}

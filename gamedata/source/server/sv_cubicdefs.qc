@@ -2,7 +2,7 @@
 
 //.int		cs_worldsize;
 
-.int		averagetype;
+//.int		averagetype;
 .*entity	cluster_playerlist;
 
 .int		damaged;
