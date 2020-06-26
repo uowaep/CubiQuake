@@ -8,7 +8,7 @@ Use the F1-F4 Keys in-game for help!
 
 ### Recent Changes
 
-Everything still works.
+Everything pre r161 works now. Anything generated in r161 will be broken as the format changed without a version set. Going forward, backward compatibility should be maintained. 
 
 r166
 + prefabs and world files are now versioned for backward compatibility
