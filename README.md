@@ -8,8 +8,6 @@ Use the F1-F4 Keys in-game for help!
 
 ### Recent Changes
 
-**Warning: cq_gen_type 2 is broken, use cq_gen_type 1 or 0.**
-
 Everything still works.
 
 r166
