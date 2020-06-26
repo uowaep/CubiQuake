@@ -10,7 +10,13 @@ Use the F1-F4 Keys in-game for help!
 
 **Warning: cq_gen_type 2 is broken, use cq_gen_type 1 or 0.**
 
-Complete reinstall recommended (if updating pre r158). A health stat has been added to cubics, and breaks existing worlds. Old prefabs still work. They can be backed up and salvaged before wiping everything!
+Everything still works.
+
+r166
++ prefabs and world files are now versioned for backward compatibility
++ pre r161 and r166 worlds and prefabs now load again
++ cq_gen_type 2 is default again (dungeon/prefab generation)
++ disabled cluster (not chunk) prefab save/load until it is tested more
 
 r161 (24 years after Quake today)
 + damage faces rebuild instantly on geometry changes
@@ -79,7 +85,13 @@ WARNING: If a server restarts, players need to reconnect to get the world to net
 - make player light visible to other players
 - don't let players place things on players
 
-### ChangeLog
+### Full ChangeLog
+
+r166
++ prefabs and world files are now versioned for backward compatibility
++ pre r161 and r166 worlds and prefabs now load again
++ cq_gen_type 2 is default again (dungeon/prefab generation)
++ disabled cluster (not chunk) prefab save/load until it is tested more
 
 r161 (24 years after Quake today)
 + damage faces rebuild instantly on geometry changes
