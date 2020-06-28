@@ -10,6 +10,9 @@ Use the F1-F4 Keys in-game for help!
 
 Everything pre r161 works now. Anything generated in r161 will be broken as the format changed without a version set. Going forward, backward compatibility should be maintained. 
 
+r172
++ the cq_lights_models values have been inverted so that 0 now represents engine lighting, while 1 represents cubiquake lighting
+
 r170
 + mouse1 now damages blocks by 10% in core
 + mouse2 now pushes blocks in core
@@ -50,6 +53,9 @@ WARNING: If a server restarts, players need to reconnect to get the world to net
 - don't let players place things on players
 
 ### Full ChangeLog
+
+r172
++ the cq_lights_models values have been inverted so that 0 now represents engine lighting, while 1 represents cubiquake lighting
 
 r170
 + mouse1 now damages blocks by 10% in core
