@@ -1027,12 +1027,12 @@ void UpdateCubicInterface()
 	//	LIGHTING CVAR TOGGLE
 	
 	// cleans up colormod values to the base ambient level if turning on engine lighting
-	if(autocvar_cq_lights_models && !cq_lights_models_old)
+	if(!autocvar_cq_lights_models && cq_lights_models_old)
 	for(entity e = list_lightentchain; e; e = e.lightentchain)
 		e.colormod = ambientlight_modified;
 	
 	//trigger a static reset because daytime may have changed since ambient light base colors have been set (that loop does not run when using engine model lighting)
-	if(!autocvar_cq_lights_models && cq_lights_models_old)
+	if(autocvar_cq_lights_models && !cq_lights_models_old)
 		ResetStaticLights(TRUE);	
 }
 

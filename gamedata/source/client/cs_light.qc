@@ -93,7 +93,7 @@ void ResetAmbientLight()
 //	ambientlightset = TRUE;			
 	ResetStaticLights(TRUE);
 	
-	if(autocvar_cq_lights_models)
+	if(!autocvar_cq_lights_models)
 	for(entity e = list_lightentchain; e; e = e.lightentchain)
 		e.colormod = ambientlight_modified;	// shouldn't need to set static if using engine lighting here, just ambient	??
 }
@@ -406,7 +406,7 @@ void ApplyEntityLighting()
 	// STATIC
 	// only applies if an entity is in the relightentchain list
 
-	if(!autocvar_cq_lights_models)
+	if(autocvar_cq_lights_models)
 	{
 		if(relightstatic)											// add all obj ents to list when chunks have triggered a static relight
 		for(e = list_lightentchain; e; e = e.lightentchain)
@@ -431,7 +431,7 @@ void ApplyEntityLighting()
 	// DYNAMIC
 	// this applies dynamic light value every frame
 	
-	if(!autocvar_cq_lights_models)
+	if(autocvar_cq_lights_models)
 	{
 		for(e = list_lightentchain; e; e = e.lightentchain)			// reset ents to base static light value
 			e.colormod = e.staticrgb;
@@ -446,10 +446,10 @@ void ApplyEntityLighting()
 // This function gives mods access to the relightstatic and relightdynamic fields before they are cleared. Use __wrap or __accumulate.
 void ApplyFaceLighting()
 {
-	if(relightstatic || (autocvar_cq_lights_models && !cq_lights_models_old))		
+	if(relightstatic || (!autocvar_cq_lights_models && cq_lights_models_old))		
 	for(entity light = list_staticlightchain; light; light = light.staticlightchain)
 	{
-		if(autocvar_cq_lights_models)
+		if(!autocvar_cq_lights_models)
 		if(!light.staticlno)
 			light.staticlno = dynamiclight_spawnstatic(light.origin, light.lightradius, light.lightcolor*light.lightbrightness);
 		
@@ -457,10 +457,10 @@ void ApplyFaceLighting()
 			SetVertLights(light, TRUE, FALSE);
 	}
 
-	if(relightdynamic || relightstatic || autocvar_cq_lights_models)		
+	if(relightdynamic || relightstatic || !autocvar_cq_lights_models)		
 	for(entity light = list_dynamiclightchain; light; light = light.dynamiclightchain)
 	{
-		if(autocvar_cq_lights_models)
+		if(!autocvar_cq_lights_models)
 			dynamiclight_add(light.origin, light.lightradius, light.lightcolor*light.lightbrightness*0.5, 0);
 		
 		if(relightdynamic || relightstatic)			
@@ -468,7 +468,7 @@ void ApplyFaceLighting()
 	}
 	
 	// cleans up static lights if turning off engine lighting
-	if(!autocvar_cq_lights_models && cq_lights_models_old)
+	if(autocvar_cq_lights_models && !cq_lights_models_old)
 	for(entity light = list_staticlightchain; light; light = light.staticlightchain)
 	{
 		dynamiclight_set(light.staticlno, LFIELD_RADIUS, 0);
