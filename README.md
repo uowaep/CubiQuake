@@ -10,49 +10,15 @@ Use the F1-F4 Keys in-game for help!
 
 Everything pre r161 works now. Anything generated in r161 will be broken as the format changed without a version set. Going forward, backward compatibility should be maintained. 
 
-r166
-+ prefabs and world files are now versioned for backward compatibility
-+ pre r161 and r166 worlds and prefabs now load again
-+ cq_gen_type 2 is default again (dungeon/prefab generation)
-+ disabled cluster (not chunk) prefab save/load until it is tested more
-
-r161 (24 years after Quake today)
-+ damage faces rebuild instantly on geometry changes
-+ fixed a bug with linked lists with append support (which fixed a bug with some chunks not drawing)
-+ all 9 dmg images are actually used now
-+ added chunk debug impulse 22 for client that eprints the nearest chunk
-+ modified some animation handling stuff
-
-r158
-+ set sky to use r_fastsky 1 by default and replaced placeholder sky with blank images
-+ changed default cq_chunksperpassage from 7 to 5
-+ chunks now save at 30 second increments by default (instead of the moment they are modified), and are saved on unload, mapchange, or quit
-+ facegroup allocations are no longer freed, but instead kept around to be used by newly built chunks in csqc. this improved performance of chunk loading and updating by a large margin, and cubic building speed via cq_maxcubicsperbuild and cq_maxdamagecubicsperbuild (new) have been increased/set to 64 (normally 16)
-+ cq_maxfacegroupsperbuild set to 64 for good measure
-+ added cq_lights_models. 0 by default. set to 1 to enable engine lights for models
-+ added radiant lighting. use cq_ambientlight_radiance and cq_lights_radiance to modify
-+ changed default ambient light (while making skies in PDoD)
-+ set r_shadow_realtime_dlight 1, r_shadow_realtime_dlight_shadows 0, and r_shadow_realtime_world_shadows 0
-+ some fog settings, ignore these
-+ pr_gc_threaded 1 just because
-+ several minor tweaks to reduce hiccups
-+ added cubic health and support and textures for 9 levels of damage for cubics 10% to 90% health (can do damage in PDoD, but added support to core)
-+ added support for chunk textures to be modified dynamically without resending the entire chunk to the clients (dmg textures for example)
-+ fixed bug with ambient light
-+ facegroups no longer group different facing sides together
-+ hardware mouse support via mousepos variable
-+ fixed trace point for player client vs server
-+ cubic objects can now be rotated
-+ editor cubic object alpha set to 1 for visibility
-+ added support for modifying ambient light and ambient light position dynamically (just don't do it every frame) variables: ambientlight_modified and ambientlight_position.
-+ added mod support for csqc input SetInputID_Wrap_Prior()
-+ added mod support for skies/environments/whatever DrawSky_Wrap()
-+ changed cq_gen_type 1 (wasteland) to only use 3 blocktypes
-+ made wasteland floor more flat to represent old streets/floors (the old generator was just an experiment, but looks kinda like an old city to me now)
-+ rotation is no longer sent to the client for cube shapes
-+ players no longert get their origin set at the floor at map start if they are in noclip mode
-+ improved/utilized linked list append support (mainly for build queues)
-+ increased available input keys for mods to 50 (numinputkeys variable)
+r170
++ mouse1 now damages blocks by 10% in core
++ mouse2 now pushes blocks in core
++ moved PDoD csqc entity lighting to core
++ moved PDoD server/client object handling to core
++ cubics/blocks can now be dynamically converted to objects, moved, then converted back to cubics when movement is stopped (to be used with doors/plats/trains/etc)
++ moved PDoD MOVETYPE_BOUNCESLIDE support to core
++ moved PDoD object rolling support to core
++ moved PDoD improved animation support to core
 
 ### Installation
 - Download CubiQuake https://github.com/uowaep/CubiQuake/archive/master.zip and extract the entire contents of the zip file into any directory. The directory you choose will be your main CubiQuake directory.
@@ -68,7 +34,7 @@ Extract the new files into your install directory. It's always good idea to star
 - Click on "Start World"
 
 ### Multiplayer
-Multiplayer is working. Get the server from http://fte.triptohell.info/downloads. Use the cubiquakeserver.bat file or check the command line inside to run a dedicated server.
+Multiplayer was working the last time it was tested. It's been a while though. It could be broken. It might be fine. Get the server from http://fte.triptohell.info/downloads. Use the cubiquakeserver.bat file or check the command line inside to run a dedicated server.
 
 WARNING: If a server restarts, players need to reconnect to get the world to network to them correctly. This is on the known issues list.
 
@@ -78,12 +44,22 @@ WARNING: If a server restarts, players need to reconnect to get the world to net
 - players can get stuck in cubics if they move too fast for the loading speed (haven't seen this happen in a while)
 
 ### ToDo
-- even more work on extended draw range performance
+- review multiplayer and test for issues
 - copy/paste multiple cubics via custom selection tool
 - make player light visible to other players
 - don't let players place things on players
 
 ### Full ChangeLog
+
+r170
++ mouse1 now damages blocks by 10% in core
++ mouse2 now pushes blocks in core
++ moved PDoD csqc entity lighting to core
++ moved PDoD server/client object handling to core
++ cubics/blocks can now be dynamically converted to objects, moved, then converted back to cubics when movement is stopped (to be used with doors/plats/trains/etc)
++ moved PDoD MOVETYPE_BOUNCESLIDE support to core
++ moved PDoD object rolling support to core
++ moved PDoD improved animation support to core
 
 r166
 + prefabs and world files are now versioned for backward compatibility
