@@ -459,7 +459,7 @@ void AddCubic(vector org, int type, int shape, int rotation, int avoidexistingcu
 	chunk.cubic_cullbits[i] = (chunk.cubic_cullbits[i] & CULLBITS_ALL) + GetPartialSideCullBitsForShape(type, shape, rotation);
 	chunk.cubic_health[i] = 100;
 	
-	UpdateChunkAreaVisibility(chunk, org, TRUE, FALSE);
+	UpdateChunkAreaVisibility(chunk, org, TRUE, TRUE);
 }
 
 void AddCubicArea(vector cubicorg, int type, int shape, int rotation, int avoidexistingcubics)
@@ -854,6 +854,167 @@ vector GeatNearOrgForTool(vector tracepos, int sizeoftool)
 	return org;
 }
 
+float SendObj(entity viewer, float sendflags);
+void Fire_PushTest(entity e)
+{
+	// v_forward should be set from AttackTrace() already
+	
+	vector org = '0 0 0';
+
+	if(e.flags & FL_CLIENT)
+	{
+		makevectors(e.v_angle);
+		org = e.origin+'0 0 16';
+	}
+	else
+	{
+		vector ang = e.angles;
+		ang_x = ang_x*-1;
+		makevectors(ang);
+		org = e.origin;
+	}
+	
+//	traceline(org, org + v_forward*e.meleetracedist, MOVE_EVERYTHING, e);
+//	traceline(org, org + v_forward*96, MOVE_EVERYTHING, e);
+	
+//	if(trace_ent)
+//		return;
+	
+	org = TraceCubic(org, org + v_forward*96, TRUE);
+	vector tracepos = GetNearestCubicOrigin(org, chunksize_iseven);
+	entity chunk = GetChunkForLocation(__NULL__, tracepos, __FUNC__);
+	
+	if(!chunk)
+		return;
+
+	if(GetCubicStatus(chunk, tracepos, FALSE) == -1)
+		return;
+
+	vector pushtoorg = GetNearestCubicOrigin(tracepos+v_forward*cubicradius*2, chunksize_iseven);
+	entity destchunk = GetChunkForLocation(__NULL__, pushtoorg, __FUNC__);
+	
+	if(!destchunk)
+		return;
+	
+	if(GetCubicStatus(destchunk, pushtoorg, FALSE) != -1)
+		return;
+	
+	entity bbox = GetCubicBBoxForLocation(tracepos);
+	if(bbox)
+		Remove(bbox);	// this is just a bbox entity	
+	
+	int startref = GetCubicRef(tracepos-chunk.origin);
+	int destref = GetCubicRef(pushtoorg-destchunk.origin);
+
+	QueueSetNumVisibleCubics(chunk, chunk.numvisiblecubics-1);
+
+	// turn cubic into object and remove from chunk
+	entity block = spawn();
+
+
+	block.solid = SOLID_BSP;
+	block.movetype = MOVETYPE_BOUNCESLIDE;	// don't really want to not collide with bsp, so it doesn't even make sense to use MOVETYPE_PUSH
+//	block.bsflags = BSFLAG_NOBOUNCE | BSFLAG_NOGRAVITY;
+	setorigin(block, tracepos);	
+//	setmodel(block, "models/collision/cube.bsp");
+	SetBlockModelAndAngles(block, chunk.cubic_blockshape[startref], chunk.cubic_blockrotation[startref]);
+	
+	block.removepastworldbounds = TRUE;
+	block.enttype = ENT_OBJ;
+	block.objtype = OBJ_BLOCK;
+	block.SendEntity = SendObj;
+	ObjChain_Add(block);
+
+	setsize(block, '-15 -15 -15', '15 15 15');
+	
+	block.velocity = (pushtoorg-tracepos)*1;
+	
+	block.blocktype = chunk.cubic_blocktype[startref];
+	block.blockshape = chunk.cubic_blockshape[startref];
+	block.blockrotation = chunk.cubic_blockrotation[startref];
+	block.blockhealth = chunk.cubic_health[startref];
+	
+	chunk.cubic_blocktype[startref] = 0;
+	chunk.cubic_blockshape[startref] = 0;	
+	chunk.cubic_blockrotation[startref] = 0;	
+	chunk.cubic_cullbits[startref] = 0;
+	chunk.cubic_health[startref] = 0;
+
+	UpdateChunkAreaVisibility(chunk, tracepos, TRUE, TRUE);
+}
+
+// returns TRUE if the damage destroys the cubic
+int DamageCubic(entity chunk, vector org, float dmg)
+{
+	int id = GetCubicRef(org - chunk.origin);	
+	
+	int cubichealth = chunk.cubic_health[id];
+	cubichealth -= ceil(dmg);	// ceil() makes sure we're not ending up with a decimal here. the value needs to be an integer
+	
+	//can damage edge cubics as long as they don't break
+	if(CubicIsOnEdge(org))		// can't really test this unless i increase the trace dist or reduce the load size :P
+	{
+		if(chunk.cubic_health[id] == 1)	// don't keep saving it, it's not changing
+			return FALSE;
+		
+		if(cubichealth <= 0)
+			cubichealth = 1;
+	}
+
+	// check cubic health here before breaking / removing
+
+	if(cubichealth > 0)	// sets health and adds to save queue
+	{
+		chunk.cubic_health[id] = cubichealth;
+		SetChunkAsModified(chunk, FALSE, FALSE);
+		
+		UpdateCubicHealth(chunk, org, cubichealth);
+		
+		return FALSE;
+	}	
+	
+	return TRUE;
+}
+
+void Fire_DamageTest(entity e)
+{
+	vector org = '0 0 0';
+
+	if(e.flags & FL_CLIENT)
+	{
+		makevectors(e.v_angle);
+		org = e.origin+e.view_ofs;
+	}
+	else
+	{
+		vector ang = e.angles;
+		ang_x = ang_x*-1;
+		makevectors(ang);
+		org = e.origin;
+	}
+	
+//	traceline(org, org + v_forward*e.meleetracedist, MOVE_EVERYTHING, e);
+//	traceline(org, org + v_forward*96, MOVE_EVERYTHING, e);
+	
+//	if(trace_ent)
+//		return;
+	
+	org = TraceCubic(org, org + v_forward*64, TRUE);
+	vector tracepos = GetNearestCubicOrigin(org, chunksize_iseven);
+	entity chunk = GetChunkForLocation(__NULL__, tracepos, __FUNC__);
+	
+	if(!chunk)
+		return;
+
+	if(GetCubicStatus(chunk, tracepos, FALSE) == -1)
+		return;	
+	
+	if(!DamageCubic(chunk, tracepos, 10))
+		return;
+	
+	ClearCubic(chunk, tracepos, TRUE);
+}
+
 void Player_CubiQuakeControls()
 {
 	vector infovec = '0 0 0', tracepos = '0 0 0', org = '0 0 0', targetpos = '0 0 0';
@@ -1136,5 +1297,14 @@ void Player_CubiQuakeControls()
 				}		
 			}
 //		}			
+	}
+	
+	if(!self.tool)
+	{
+		if(self.button0_down == 1)
+			Fire_DamageTest(self);
+		else
+		if(self.impulse == 99)
+			Fire_PushTest(self);
 	}
 }

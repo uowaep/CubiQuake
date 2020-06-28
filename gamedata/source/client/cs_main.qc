@@ -128,6 +128,7 @@ void CSQC_Ent_Update(float bIsNewEntity)
 	{
 		case ENT_CHUNK:			UpdateChunk();			break;
 		case ENT_CHUNKBLOAT:	UpdateChunkBloat();		break;
+		case ENT_OBJ:			UpdateObj(bIsNewEntity);		break;
 	}
 	
 	Ent_Update_Wrap(bIsNewEntity, i);

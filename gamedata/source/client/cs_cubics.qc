@@ -578,7 +578,7 @@ int maxfacesbuiltperframe = 1;
 	return builtfaces;
 }*/
 
-void DrawChunks()
+void DrawFaces()
 {
 	entity typegroup = __NULL__, facegroup = __NULL__, editchunk = __NULL__;
 //	vector pos, dist;
@@ -681,7 +681,7 @@ void DrawChunks()
 	}*/
 }
 
-void DrawChunkDamage()
+void DrawFaceDamage()
 {
 	for(entity facegroup = list_drawdamagefacegroupchain; facegroup; facegroup = facegroup.drawdamagefacegroupchain)
 		DrawFaceGroup(facegroup.typegroupent, facegroup);	

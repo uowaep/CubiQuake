@@ -45,12 +45,22 @@ void CleanUp_Remove (entity e)
 	
 	SetNumVisibleCubicsChain_Remove(e);
 	NetworkBloatUpdateChain_Remove(e);
+	
+	ObjChain_Remove(e);
 }
 
 void Remove(entity e)
 {
 	CleanUp_Remove(e);
 	remove(e);
+}
+
+void SendAnimation(entity e)
+{
+	WriteByte(MSG_ENTITY, e.beginframe);
+	WriteByte(MSG_ENTITY, e.finalframe);
+	WriteByte(MSG_ENTITY, e.loopframes);
+	WriteShort(MSG_ENTITY, e.anim_frameduration);	
 }
 
 void SaveModifiedClusterFiles(int saveall);

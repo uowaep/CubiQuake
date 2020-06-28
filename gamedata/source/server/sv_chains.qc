@@ -76,6 +76,12 @@ entity		list_projectilechain;
 void ProjectileChain_Add(entity e)		{	list_projectilechain = LinkedList_Add(e, list_projectilechain, projectilechain, projectilechain_prev);	}
 void ProjectileChain_Remove(entity e)	{	list_projectilechain = LinkedList_Remove(e, list_projectilechain, __NULL__, projectilechain, projectilechain_prev);	}
 
+entity		list_blockobjectremovechain;
+.entity		blockobjectremovechain;
+.entity		blockobjectremovechain_prev;
+void BlockObjectRemoveChain_Add(entity e)		{	list_blockobjectremovechain = LinkedList_Add(e, list_blockobjectremovechain, blockobjectremovechain, blockobjectremovechain_prev);	}
+void BlockObjectRemoveChain_Remove(entity e)	{	list_blockobjectremovechain = LinkedList_Remove(e, list_blockobjectremovechain, __NULL__, blockobjectremovechain, blockobjectremovechain_prev);	}
+
 // GENERATION CHAINS
 
 entity		list_unconnectedchunkchain;

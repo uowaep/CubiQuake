@@ -1223,12 +1223,31 @@ void InitializePlayers()
 		}
 }
 
+void UpdateBlockObjects();
 void WorldLogic()
 {
+	entity e = __NULL__, nexte = __NULL__;
+	
 	InitializePlayers();
 //	ProjectileUpdate();	// see sv_attacks.qc for examples
 	SaveModifiedClusterFiles(FALSE);
+	UpdateBlockObjects();
 	Player_WorldInterface();	
+	
+	// obj colllision (includes projectiles)
+	for(e = list_objchain; e; e = e.objchain)
+	{
+		LeaveSolidCubics(e, e.lastsolidcubicorigin);
+		SetSolidCubics(e, e.origin);
+		e.lastsolidcubicorigin = e.origin;
+	}	
+	
+	// obj think (includes projectiles)
+	for(e = list_objchain; e; e = nexte)
+	{
+		nexte = e.objchain;
+		Obj_Think(e);
+	}		
 }
 
 void StartFrame_Cubics()
@@ -1248,7 +1267,7 @@ void StartFrame_Cubics()
 	{	
 		WorldLogic();
 		RemoveUnusedCubicBBoxes();
-		SetNumVisibleCubicsForChunks();
-		UpdateChunkNetworkEntities();
+		SetNumVisibleCubicsForChunks();		
+		UpdateChunkNetworkEntities();		
 	}
 }

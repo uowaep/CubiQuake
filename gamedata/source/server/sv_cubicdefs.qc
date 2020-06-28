@@ -107,3 +107,20 @@ void LeaveSolidCubics(entity e, vector org);
 
 .int		ignoreworldbounds;
 .int		removepastworldbounds;
+
+// prediction
+.vector		realvelocity;
+
+//movetype_bounceslide
+float	autocvar_sv_maxvelocity;
+float	autocvar_sv_gravity;
+
+.int	slide;
+.float	groundfriction;
+//float	slidevel_max = 120;
+int		MOVETYPE_BOUNCESLIDE	= 64;
+.int	bsflags;
+
+int		BSFLAG_NOBOUNCE			= 1;
+int		BSFLAG_CLIMB			= 2;
+int		BSFLAG_NOGRAVITY		= 4;

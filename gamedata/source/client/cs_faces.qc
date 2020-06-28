@@ -71,8 +71,8 @@ vector RotateVertOFS(vector vertofs, int rotation)
 {
 	vector ang = vectoangles(vertofs);
 	rotation = ((rotation/4)-floor(rotation/4))*4;
-	ang_y += rotation*90;
-	ang_x*=-1;
+	ang_y = ang_y + rotation*90;
+	ang_x = ang_x*-1;
 	makevectors(ang);
 	vertofs = v_forward*vlen(vertofs);
 	return vertofs;

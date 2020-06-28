@@ -92,6 +92,10 @@ void ResetAmbientLight()
 		}
 //	ambientlightset = TRUE;			
 	ResetStaticLights(TRUE);
+	
+	if(autocvar_cq_lights_models)
+	for(entity e = list_lightentchain; e; e = e.lightentchain)
+		e.colormod = ambientlight_modified;	// shouldn't need to set static if using engine lighting here, just ambient	??
 }
 /*
 int buildambientvertex_vertexnum;
@@ -237,14 +241,75 @@ entity SetChunkLight(entity chunk, int memslot, int type)
 	return light;
 }
 
-void SetVertLights(entity light, int isstatic)
+void LightFaceGroupsForTypeGroup(entity light, entity typegroup, entity cluster, float lrad, float lightradiusdotp, int isstatic)
 {
-	vector vertpos, facergb, ofs, chunkpos, rgb, lightchunkorg, target;
-	float lightsize, ofsdotp, lightradiusdotp, lrad;
-	entity typegroup, facegroup;
-	int	count, facegroupislit;
-	entity chunk = __NULL__;	
-	entity cluster = __NULL__;
+	int	count = 0, facegroupislit = 0;
+	entity facegroup = __NULL__;
+	vector vertpos = '0 0 0', rgb = '0 0 0', facergb = '0 0 0', ofs = '0 0 0';
+	float ofsdotp = 0;
+	
+	for(facegroup = typegroup.list_facegroupchain; facegroup; facegroup = facegroup.facegroupchain)
+	{
+		if(facegroup.faces == FACE_ALL)
+			continue;
+		
+		facegroupislit = FALSE;
+		
+		for(count = 0; count < facegroup.numvertexes; count++)
+		{
+			vertpos_x = facegroup.verts[count].xyz[0];
+			vertpos_y = facegroup.verts[count].xyz[1];
+			vertpos_z = facegroup.verts[count].xyz[2];
+			ofs = vertpos - light.origin;
+			ofsdotp = ofs*ofs;
+			
+			facergb_x = facegroup.verts[count].rgba[0];
+			facergb_y = facegroup.verts[count].rgba[1];
+			facergb_z = facegroup.verts[count].rgba[2];		
+			
+			if(ofsdotp > lightradiusdotp)
+				rgb = '0 0 0';
+			else
+			if(ofsdotp == 0)
+				rgb = light.lightcolor*light.lightbrightness;
+			else
+				rgb = light.lightcolor*light.lightbrightness*(1-(vlen(ofs)/lrad));
+			
+			// checks the face normal vs the light angle and modies the total face brightness
+			rgb = GetModifiedLightForFaceGroupAngle(facegroup.faces, ofs, rgb, autocvar_cq_lights_radiance);
+			
+			if(rgb_x > 0 || rgb_y > 0 || rgb_z > 0)
+			{
+				facegroupislit = TRUE;
+			
+				rgb = facergb + rgb;
+				facegroup.verts[count].rgba[0] = rgb_x;
+				facegroup.verts[count].rgba[1] = rgb_y;
+				facegroup.verts[count].rgba[2] = rgb_z;
+
+				if(isstatic)
+					facegroup.verts_staticrgb[count] = rgb;
+			}
+		}
+		
+		if(facegroupislit)
+		{
+			if(isstatic)
+				StaticLitFaceGroupChain_Add(facegroup);
+			else
+				LitFaceGroupChain_Add(facegroup);
+			
+			if(cluster)
+				cluster.islit = TRUE;
+		}
+	}	
+}
+
+void SetVertLights(entity light, int isstatic, int lightblockobjects)
+{
+	vector ofs = '0 0 0', chunkpos = '0 0 0', lightchunkorg = '0 0 0', target = '0 0 0';
+	float lightsize = 0, lightradiusdotp = 0, lrad = 0;
+	entity typegroup = __NULL__, chunk = __NULL__, cluster = __NULL__;
 
 	if(!maxlightradius)
 		lrad = light.lightradius;
@@ -257,6 +322,7 @@ void SetVertLights(entity light, int isstatic)
 	if(lightsize*0.5 == floor(lightsize*0.5))
 		lightsize+=1;
 
+	if(!lightblockobjects)
 	for(chunkpos_x = 0; chunkpos_x < lightsize; chunkpos_x++)
 		for(chunkpos_y = 0; chunkpos_y < lightsize; chunkpos_y++)
 			for(chunkpos_z = 0; chunkpos_z < lightsize; chunkpos_z++)
@@ -284,67 +350,101 @@ void SetVertLights(entity light, int isstatic)
 						if(typegroup.lightcolor != '0 0 0')
 								continue;
 						
-						for(facegroup = typegroup.list_facegroupchain; facegroup; facegroup = facegroup.facegroupchain)
-						{
-							if(facegroup.faces == FACE_ALL)
-								continue;
-							
-							facegroupislit = FALSE;
-							
-							for(count = 0; count < facegroup.numvertexes; count++)
-							{
-								vertpos_x = facegroup.verts[count].xyz[0];
-								vertpos_y = facegroup.verts[count].xyz[1];
-								vertpos_z = facegroup.verts[count].xyz[2];
-								ofs = vertpos - light.origin;
-								ofsdotp = ofs*ofs;
-								
-								facergb_x = facegroup.verts[count].rgba[0];
-								facergb_y = facegroup.verts[count].rgba[1];
-								facergb_z = facegroup.verts[count].rgba[2];		
-								
-								if(ofsdotp > lightradiusdotp)
-									rgb = '0 0 0';
-								else
-								if(ofsdotp == 0)
-									rgb = light.lightcolor*light.lightbrightness;
-								else
-									rgb = light.lightcolor*light.lightbrightness*(1-(vlen(ofs)/lrad));
-								
-								// checks the face normal vs the light angle and modies the total face brightness
-								rgb = GetModifiedLightForFaceGroupAngle(facegroup.faces, ofs, rgb, autocvar_cq_lights_radiance);
-								
-								if(rgb_x > 0 || rgb_y > 0 || rgb_z > 0)
-								{
-									facegroupislit = TRUE;
-								
-									rgb = facergb + rgb;
-									facegroup.verts[count].rgba[0] = rgb_x;
-									facegroup.verts[count].rgba[1] = rgb_y;
-									facegroup.verts[count].rgba[2] = rgb_z;
-
-									if(isstatic)
-										facegroup.verts_staticrgb[count] = rgb;
-								}
-							}
-							
-							if(facegroupislit)
-							{
-								if(isstatic)
-									StaticLitFaceGroupChain_Add(facegroup);
-								else
-									LitFaceGroupChain_Add(facegroup);
-								
-								cluster.islit = TRUE;
-							}
-						}
+						LightFaceGroupsForTypeGroup(light, typegroup, cluster, lrad, lightradiusdotp, isstatic);
 					}
 				}
 			}
+	
+	if(lightblockobjects)
+	for(entity e = list_blockobjectchain; e; e = e.blockobjectchain)
+		for(typegroup = e.list_typegroupchain; typegroup; typegroup = typegroup.typegroupchain)
+			LightFaceGroupsForTypeGroup(light, typegroup, cluster, lrad, lightradiusdotp, isstatic);
 }
 
-// This _Wrap function gives mods access to the relightstatic and relightdynamic fields before they are cleared. Use __wrap or __accumulate.
-void ApplyLighting_Wrap()
+void LightEnts(entity light, int isdynamic)
+{
+	entity e = __NULL__;
+	vector ofs = '0 0 0', eorg = '0 0 0';
+	float lightradiusdotpdist = light.lightradius*light.lightradius;
+	
+	if(isdynamic)	// every frame instead of when ent moves (ent is not removed from this list)
+	{
+		for(e = list_lightentchain; e; e = e.lightentchain)
+		{
+			if(e == vwepmodel)
+				eorg = view_point;
+			else
+				eorg = e.origin;			
+			
+			ofs = light.origin - eorg;
+			if(ofs*ofs >= lightradiusdotpdist)
+				continue;
+
+			e.colormod = e.colormod + light.lightcolor*light.lightbrightness*0.5*(1-(vlen(ofs)/light.lightradius));
+		}
+	}			
+	else
+	for(e = list_relightentchain; e; e = e.relightentchain)
+	{
+		if(e == vwepmodel)
+			eorg = view_point;
+		else
+			eorg = e.origin;		
+		
+		ofs = light.origin - eorg;
+		if(ofs*ofs >= lightradiusdotpdist)
+			continue;
+		
+		e.colormod = e.colormod + light.lightcolor*light.lightbrightness*(1-(vlen(ofs)/light.lightradius));
+	}	
+}
+
+void ApplyEntityLighting()
+{
+	entity e = __NULL__;
+
+	// STATIC
+	// only applies if an entity is in the relightentchain list
+
+	if(!autocvar_cq_lights_models)
+	{
+		if(relightstatic)											// add all obj ents to list when chunks have triggered a static relight
+		for(e = list_lightentchain; e; e = e.lightentchain)
+			RelightEntChain_Add(e);
+		
+		for(e = list_relightentchain; e; e = e.relightentchain)		// obj ents in this list are triggered for a relight, (added when moving, or as above)
+			e.colormod = ambientlight_modified;
+
+		for(e = list_staticlightchain; e; e = e.staticlightchain)	// apply static lights to obj ents
+			LightEnts(e, FALSE);
+
+		for(e = list_relightentchain; e; e = e.relightentchain)		// set the base static light value so dynamic values can stack on top of it
+			e.staticrgb = e.colormod;
+
+		while(list_relightentchain)									// untrigger the obj ents
+			RelightEntChain_Remove(list_relightentchain);
+	}
+	
+	// end static lights
+	
+	
+	// DYNAMIC
+	// this applies dynamic light value every frame
+	
+	if(!autocvar_cq_lights_models)
+	{
+		for(e = list_lightentchain; e; e = e.lightentchain)			// reset ents to base static light value
+			e.colormod = e.staticrgb;
+		
+		for(e = list_dynamiclightchain; e; e = e.dynamiclightchain)	// stack dynamic light values on base value
+			LightEnts(e, TRUE);
+	}
+	
+	// end dynamic lights		
+}
+
+// This function gives mods access to the relightstatic and relightdynamic fields before they are cleared. Use __wrap or __accumulate.
+void ApplyFaceLighting()
 {
 	if(relightstatic || (autocvar_cq_lights_models && !cq_lights_models_old))		
 	for(entity light = list_staticlightchain; light; light = light.staticlightchain)
@@ -354,7 +454,7 @@ void ApplyLighting_Wrap()
 			light.staticlno = dynamiclight_spawnstatic(light.origin, light.lightradius, light.lightcolor*light.lightbrightness);
 		
 		if(relightstatic)
-			SetVertLights(light, TRUE);
+			SetVertLights(light, TRUE, FALSE);
 	}
 
 	if(relightdynamic || relightstatic || autocvar_cq_lights_models)		
@@ -364,7 +464,7 @@ void ApplyLighting_Wrap()
 			dynamiclight_add(light.origin, light.lightradius, light.lightcolor*light.lightbrightness*0.5, 0);
 		
 		if(relightdynamic || relightstatic)			
-			SetVertLights(light, FALSE);	
+			SetVertLights(light, FALSE, FALSE);	
 	}
 	
 	// cleans up static lights if turning off engine lighting
@@ -375,7 +475,11 @@ void ApplyLighting_Wrap()
 		light.staticlno = 0;
 	}
 
-	cq_lights_models_old = autocvar_cq_lights_models;	
+	// object blocks
+	for(entity light = list_staticlightchain; light; light = light.staticlightchain)
+		SetVertLights(light, TRUE, TRUE);
+	for(entity light = list_dynamiclightchain; light; light = light.dynamiclightchain)
+		SetVertLights(light, FALSE, TRUE);
 }
 
 void AddLights()
@@ -431,7 +535,9 @@ void AddLights()
 		LitFaceGroupChain_Remove(list_litfacegroupchain);
 	}
 	
-	ApplyLighting_Wrap();
+	ApplyFaceLighting();
+	ApplyEntityLighting();
+	cq_lights_models_old = autocvar_cq_lights_models;
 	
 	relightstatic = FALSE;
 	relightdynamic = FALSE;

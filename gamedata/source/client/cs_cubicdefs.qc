@@ -22,7 +22,6 @@ int		client_initialized;
 
 .int	numchunks;
 .string	texturename;
-.int	blocktype;
 .int	faces;
 .int	chunkinitialized;
 .int	chunkid;
@@ -110,6 +109,8 @@ float	dynamic_relighttime;
 .int	islit;
 .int	resetlights;
 .int	staticlno;
+.vector	staticrgb;
+entity	vwepmodel;		// lights refers to this to know when to use the player's location for face origin reference
 
 // editor
 entity	cubeselector;
@@ -175,3 +176,19 @@ int	BTTN_MODIFYSIDE_SIZE				= 13;
 // interface
 vector	mousepos;
 int		mouseposinitialized;
+
+
+// prediction / orientation
+.float	movetime;
+.vector	movementcorrection;
+.vector	sharedorigin;
+.int	obj_roll;
+
+
+// objects
+
+.int	ob_shape;
+.int	ob_rotation;
+.int	ob_health;
+
+void ReadAnimation(entity e);

@@ -75,11 +75,24 @@ void CleanUp_Remove (entity e)
 		e.staticlno = 0;
 	}
 	
+	// FIXME: look for larger allocations to ghost, but only small allocations should ever see this
+	for(entity typegroup = e.list_typegroupchain; typegroup; typegroup = typegroup.typegroupchain)
+		while(typegroup.list_facegroupchain)
+			RemoveFaceGroup(typegroup, typegroup.list_facegroupchain, FALSE);	//i shouldn't be working on this so late
+		
+	while(e.list_facegroupchain)
+		RemoveFaceGroup(e, e.list_facegroupchain, FALSE);	
+	
+	BlockObjectChain_Remove(e);
+	
 	QueueNearFaceBuildChain_Remove(e);
 	QueueNearDamageFaceBuildChain_Remove(e);
 	QueueFaceBuildChain_Remove(e);
 	QueueDamageFaceBuildChain_Remove(e);
 //	QueueDamageFaceRebuildChain_Remove(e);
+
+	LightEntChain_Remove(e);
+	RelightEntChain_Remove(e);
 }
 
 void Remove(entity e)
@@ -106,4 +119,13 @@ void ListWorlds()
 	}
 	
 	search_end(h);
+}
+
+void ReadAnimation(entity e)
+{
+	float startframe	= readbyte();
+	float endframe		= readbyte();
+	float looping		= readbyte();
+	float framedur		= readshort();
+	SetAnimation(e, startframe, endframe, framedur, looping, TRUE, FALSE);	
 }

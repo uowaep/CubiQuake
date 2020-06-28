@@ -106,6 +106,9 @@ void InitializeMousePos()
 
 void DrawSky_Wrap(){}
 
+void RebuildObjectFaces();
+//void DrawObjectFaces();
+	
 // CSQC_UpdateView - Called every rendered frame on the client.  Useful for HUD drawing operations.
 void CSQC_UpdateView(float vwidth, float vheight, float notmenu)
 {
@@ -138,10 +141,14 @@ void CSQC_UpdateView(float vwidth, float vheight, float notmenu)
 	BuildQueuedFaces();
 	BuildQueuedDamageFaces();
 	
+	RebuildObjectFaces();
+	
 	AddLights();	
 
-	DrawChunks();
-	DrawChunkDamage();
+	DrawFaces();
+	DrawFaceDamage();
+
+//	DrawObjectFaces();
 	
 	if(!editor_fillmode)
 		DrawSelectorFaces();

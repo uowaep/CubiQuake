@@ -251,3 +251,30 @@ void SetChunkAsModified(entity chunk, int fastredraw, int tell_csqc)
 	SaveClusterQueueChain_Add(cluster);
 	SaveChunkQueueChain_Add(cluster, chunk);	
 }
+
+void NetworkEntity(entity e, void(entity e) stopfunc)
+{
+	float maxvel = autocvar_sv_maxvelocity;
+	vector oldrealvelocity = e.realvelocity;
+
+	if(!e.origin_previous_set || !frametime)
+		e.realvelocity = e.velocity;
+	else
+		e.realvelocity = (e.origin-e.origin_previous)/frametime;
+	
+	if(e.realvelocity*e.realvelocity > maxvel*maxvel)		// i should probably ask spike, but this SEEMS to work ... i've never gotten csqc prediction to be perfect :P
+		e.realvelocity = normalize(e.realvelocity)*maxvel;
+	
+	if(e.realvelocity != oldrealvelocity || e.movetype == MOVETYPE_NONE)		
+	if(e.realvelocity == '0 0 0')	// not moving
+	{
+		stopfunc(e);
+		e.SendFlags = e.SendFlags | SFL_STOP;
+	}
+	else
+	if(e.movetype == MOVETYPE_WALK || e.movetype == MOVETYPE_BOUNCE || e.movetype == MOVETYPE_TOSS || e.movetype == MOVETYPE_BOUNCESLIDE)
+		e.SendFlags = e.SendFlags | SFL_MOVE;
+	
+	e.origin_previous = e.origin;
+	e.origin_previous_set = TRUE; // probably don't need to set these on entities as they spawn if it's set here.. test this
+}

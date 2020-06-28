@@ -1,6 +1,6 @@
 void SharedPrecaches()
 {
-//	precache_model("null");
+	precache_model("null");
 	#ifdef CSQC
 	precache_model("models/objects/torch.mdl");
 	#endif

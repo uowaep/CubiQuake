@@ -80,4 +80,9 @@ void SetAnimation(entity e, float startframe, float endframe, float framedur, fl
 	
 	if(randomstartframe)
 		e.frameoffset = min(floor(random(e.finalframe-e.beginframe+1)), e.finalframe-e.beginframe);
+	
+	#ifdef SSQC
+	if(e.SendEntity)
+		e.SendFlags = e.SendFlags | SFL_ANIMATE;
+	#endif
 }

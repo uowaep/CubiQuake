@@ -134,6 +134,23 @@ entity		list_resetambientlightchain;
 void ResetAmbientLightChain_Add(entity e)			{	list_resetambientlightchain = LinkedList_Add(e, list_resetambientlightchain, resetambientlightchain, resetambientlightchain_prev);	}
 void ResetAmbientLightChain_Remove(entity e)		{	list_resetambientlightchain = LinkedList_Remove(e, list_resetambientlightchain, __NULL__, resetambientlightchain, resetambientlightchain_prev);	}
 
+entity		list_relightentchain;
+.entity		relightentchain;
+.entity		relightentchain_prev;
+void RelightEntChain_Add(entity e)			{	list_relightentchain = LinkedList_Add(e, list_relightentchain, relightentchain, relightentchain_prev);	}
+void RelightEntChain_Remove(entity e)		{	list_relightentchain = LinkedList_Remove(e, list_relightentchain, __NULL__, relightentchain, relightentchain_prev);	}
+
+entity		list_lightentchain;
+.entity		lightentchain;
+.entity		lightentchain_prev;
+void LightEntChain_Add(entity e)			{	list_lightentchain = LinkedList_Add(e, list_lightentchain, lightentchain, lightentchain_prev);	}
+void LightEntChain_Remove(entity e)		{	list_lightentchain = LinkedList_Remove(e, list_lightentchain, __NULL__, lightentchain, lightentchain_prev);	}
+
+entity		list_blockobjectchain;
+.entity		blockobjectchain;
+.entity		blockobjectchain_prev;
+void BlockObjectChain_Add(entity e)			{	list_blockobjectchain = LinkedList_Add(e, list_blockobjectchain, blockobjectchain, blockobjectchain_prev);	}
+void BlockObjectChain_Remove(entity e)		{	list_blockobjectchain = LinkedList_Remove(e, list_blockobjectchain, __NULL__, blockobjectchain, blockobjectchain_prev);	}
 
 /*void ChunkChain_Sort(entity chunk)
 {

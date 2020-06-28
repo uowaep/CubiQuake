@@ -1,6 +1,6 @@
 // VERSION
-int		cq_version		= 166;
-string	cubic_revision	= "cubiquake r166";
+int		cq_version		= 170;
+string	cubic_revision	= "cubiquake r170";
 
 // WORLD SETTINGS
 
@@ -142,6 +142,7 @@ float	dmghealthincrementsize	= 10;
 // 0 is for an empty block although GetCubicStaus returns -1 for empty cubics (normally returns the blocktype)
 
 // 1 - 100 are reserved for textures types
+.int	blocktype;
 int		BLOCKTYPE_DIRT		= 1;
 int		BLOCKTYPE_BRICK		= 2;
 int		BLOCKTYPE_BLOCK		= 3;
@@ -163,6 +164,9 @@ int		baseobjecttypeid	= 101;
 int		BLOCKTYPE_TORCH		= baseobjecttypeid+0;
 int		numobjectblocktypes	= 1;
 
+#ifdef SSQC
+.int	blockshape;
+#endif
 .*int	cubic_blockshape;
 int		numblockshapes	= 5;
 int		BLOCKSHAPE_CUBE		= 1;
@@ -171,6 +175,9 @@ int		BLOCKSHAPE_WEDGETIP	= 3;
 int		BLOCKSHAPE_WEDGE	= 4;
 int		BLOCKSHAPE_SLAB		= 5;
 
+#ifdef SSQC
+.int	blockrotation;
+#endif
 .*int	cubic_blockrotation;
 int		BLOCKROTATION_E		= 0;
 int		BLOCKROTATION_N		= 1;
@@ -197,100 +204,39 @@ int		BLOCKROTATION_BW_N	= 21;
 int		BLOCKROTATION_BW_W	= 22;
 int		BLOCKROTATION_BW_S	= 23;
 
+#ifdef SSQC
+.int	blockhealth;
+#endif
 .*int	cubic_health;
 
-void InitGameVariables()
-{
-//	WORLD SETTINGS
-
-	// changing the following values will break a generated world (re-generate afterward. FIXME: save all unchangeable values to the world.)
-// 	worldsize = 11;							// width in clusters. (must be odd. this is set via cvar or by the existing world)
- 	worldheight = worldsize;				// height in clusters. (must be odd. - not working, must set to worldsize to not break stuff)
-//	clustersize = 1;						// width/height in chunks. (must be odd)
-//	chunksize = 13;							// width/height in cubics. (even and ood both work here)
-
-	// changing these values won't break the world, but might affect performance
-//	cubicradius = 16;						// quake units of center of cubic to edge (this will scale the world)
-	physicssize = 3;						// width of area in cubics to create bbox/bsp ents around player (even and odd both work here. needs to increase if cubic size shrinks and if player size isn't also reduced and vise verca.)
-	chunk_sharerange	= 500;				// doesn't do anything yet
-	loadsize = 3;							// width of area loaded immediately upon player movement. usually only happens during spawn. (must be odd. even values don't work ...yet...)
-//	viewsize = 7;							// width of 1st stage of background cluster loading (must be odd/even if loadsize is odd/even)
-//	viewheight = 3;							// height of 1st stage of background cluster loading (must be odd/even if loadsize is odd/even)
-	
-	// the distant values are being used to load extended elevations at the 2nd background stage rather than trying to draw further out toward the horizon (better up/down view distance)
-//	viewsize_distant = 3;					// width of 2nd stage of background cluster loading (must be odd/even if loadsize is odd/even)
-//	viewheight_distant = 5;					// height of 2nd stage of background cluster loading (must be odd/even if loadsize is odd/even)
-	loadradiusarea = FALSE;					// the cluster load area is a sphere instead of rectangle shape (broken because of layered loading using current rectangle shaped logic)
-
-	// these values are for regulating how many times certain large/heavy loops are allowed to iterate per frame
-//	maxcubicupdates	= 200;					// maximum number of cubics that can be sent in a single chunk entity before spawning more entities to relay the data without overloading memory (or something)
-//	maxchunksloadedperframe = 12;			// the chunk loading loop in LoadWorldForPlayer and the speed for network updating when sending existing chunks
-	maxchunksghostedperframe = 9;			// the chunk ghosting loop in RemoveUnoccupiedClusters (NOT IN USE)
-//	chunkremovaldelay = 10;					// how many seconds a chunk should hang around when not occupied, to avoid having to readload too often
-	// set these to match the highest values
-//	maxviewsize = max(viewsize, viewsize_distant);		
-//	maxviewheight = max(viewheight, viewheight_distant);
-
-#ifdef CSQC
-	// client
-	maxlightradius = chunksize*cubicradius*2*2;	// maximum light radius. this can be any value, but this equation is recommended for performance.
-	
-#endif
-
-	// do not edit these
-	maxclusters = worldsize*worldsize*worldheight;
-	maxchunks = pow(worldsize*clustersize, 2)*(worldheight*clustersize);
-	numslotsforchunkincluster = numprecubicvaluesinchunk + pow(chunksize, 3)*numvaluespercubic;
-	clusterdataslots = numprechunkvaluesincluster+pow(clustersize, 3)*numslotsforchunkincluster;
-	worlddim = [worldsize, worldsize, worldheight]*clustersize*chunksize*cubicradius*2;
-	dungeondim = dungeonsize*clustersize*chunksize*cubicradius*2;
-	clusterdim = '1 1 1'*clustersize*chunksize*cubicradius*2;
-	chunkdim = '1 1 1'*chunksize*cubicradius*2;
-	loadcenter = '1 1 1'*(loadsize-1)*0.5;
-	maxbloatents = ceil(pow(chunksize, 3)/maxcubicupdates)-1;
-	
-//	viewcenter = ('1 1 0'*(viewsize-1)+'0 0 1'*(viewheight-1))*0.5;
-//	viewcenter_distant = ('1 1 0'*(viewsize_distant-1)+'0 0 1'*(viewheight_distant-1))*0.5;
-//	maxviewcenter = ('1 1 0'*(maxviewsize-1)+'0 0 1'*(maxviewheight-1))*0.5;
-//	clustertablesize = maxviewsize*maxviewsize*maxviewheight;
-	
-	if(chunksize*0.5 == floor(chunksize*0.5))
-		chunksize_iseven = TRUE;
-	
-	if(physicssize*0.5 == floor(physicssize*0.5))
-		physicssize_iseven = TRUE;
-	
-	if(loadsize*0.5 == floor(loadsize*0.5))
-		loadsize_iseven = TRUE;
-}
-
-void SetDependentViewValues()
-{
-	maxviewsize = max(viewsize, viewsize_distant);		
-	maxviewheight = max(viewheight, viewheight_distant);
-	viewcenter = ('1 1 0'*(viewsize-1)+'0 0 1'*(viewheight-1))*0.5;
-	viewcenter_distant = ('1 1 0'*(viewsize_distant-1)+'0 0 1'*(viewheight_distant-1))*0.5;
-	maxviewcenter = ('1 1 0'*(maxviewsize-1)+'0 0 1'*(maxviewheight-1))*0.5;
-}
-
+//		CHUNK SENDFLAGS
 int		SFL_ISNEW		= 1;
 int		SFL_BUILD		= 2;
 int		SFL_INITIALIZE	= 4;
 int		SFL_DAMAGED		= 8;
 int		SFL_UPDATE		= 16;	// this is used, even though it doesn't look like it
 
+//		OBJECT SENDFLAGS
+// it doesn't matter if we use the same values as chunks since the only thing that will be shared is SFL_ISNEW
+//float	SFL_ISNEW			= 1;	// already defined
+int		SFL_MOVE			= 2;
+int		SFL_STOP			= 4;
+int		SFL_ANIMATE			= 8;
+int		SFL_FACE			= 16;
+
 //core starts at 100
 //mods should start at 200 ... or w/e
 int		EVENT_CUBICHEALTH	= 100;
 
 .int	enttype;
-int		ENT_CLUSTER				= 1;
-int		ENT_CHUNK				= 2;
-int		ENT_CHUNKBLOAT			= 3;
-int		ENT_CUBICBBOX			= 4;
-int		ENT_INFOEDIT_SELECTION	= 5;
-int		ENT_INFOEDIT_SELECTION_GROUPSIZE_EXTEND = 6;
-int		ENT_MODIFYSIDE_SELECTION	= 7;
+int		ENT_CLUSTER									= 1;
+int		ENT_CHUNK									= 2;
+int		ENT_CHUNKBLOAT								= 3;
+int		ENT_CUBICBBOX								= 4;
+int		ENT_INFOEDIT_SELECTION						= 5;
+int		ENT_INFOEDIT_SELECTION_GROUPSIZE_EXTEND 	= 6;
+int		ENT_MODIFYSIDE_SELECTION					= 7;
+int		ENT_OBJ										= 8;
 
 int		STAT_TOOL							= 33;
 int		STAT_TOOLSIZE						= 34;
@@ -421,6 +367,95 @@ entity		*cluster_ent;
 .int		prefabzone;
 .int		prefabchance;
 .int		prefabchunkflags;
+
+.vector	origin_previous;
+.int	origin_previous_set;
+.float	physics_maxslidespeed;
+
+.int	faceenemy;
+int		FACE_ORIENTYAW		= 1;
+int		FACE_LOCALPLAYER	= 2;
+int		FACE_NOUPDATE		= 4;
+
+.int	objtype;
+int		OBJ_ITEM		= 1;
+int		OBJ_GIB			= 2;
+int		OBJ_ROCKET		= 3;
+int		OBJ_BLOCK		= 4;
+
+void InitGameVariables()
+{
+//	WORLD SETTINGS
+
+	// changing the following values will break a generated world (re-generate afterward. FIXME: save all unchangeable values to the world.)
+// 	worldsize = 11;							// width in clusters. (must be odd. this is set via cvar or by the existing world)
+ 	worldheight = worldsize;				// height in clusters. (must be odd. - not working, must set to worldsize to not break stuff)
+//	clustersize = 1;						// width/height in chunks. (must be odd)
+//	chunksize = 13;							// width/height in cubics. (even and ood both work here)
+
+	// changing these values won't break the world, but might affect performance
+//	cubicradius = 16;						// quake units of center of cubic to edge (this will scale the world)
+	physicssize = 3;						// width of area in cubics to create bbox/bsp ents around player (even and odd both work here. needs to increase if cubic size shrinks and if player size isn't also reduced and vise verca.)
+	chunk_sharerange	= 500;				// doesn't do anything yet
+	loadsize = 3;							// width of area loaded immediately upon player movement. usually only happens during spawn. (must be odd. even values don't work ...yet...)
+//	viewsize = 7;							// width of 1st stage of background cluster loading (must be odd/even if loadsize is odd/even)
+//	viewheight = 3;							// height of 1st stage of background cluster loading (must be odd/even if loadsize is odd/even)
+	
+	// the distant values are being used to load extended elevations at the 2nd background stage rather than trying to draw further out toward the horizon (better up/down view distance)
+//	viewsize_distant = 3;					// width of 2nd stage of background cluster loading (must be odd/even if loadsize is odd/even)
+//	viewheight_distant = 5;					// height of 2nd stage of background cluster loading (must be odd/even if loadsize is odd/even)
+	loadradiusarea = FALSE;					// the cluster load area is a sphere instead of rectangle shape (broken because of layered loading using current rectangle shaped logic)
+
+	// these values are for regulating how many times certain large/heavy loops are allowed to iterate per frame
+//	maxcubicupdates	= 200;					// maximum number of cubics that can be sent in a single chunk entity before spawning more entities to relay the data without overloading memory (or something)
+//	maxchunksloadedperframe = 12;			// the chunk loading loop in LoadWorldForPlayer and the speed for network updating when sending existing chunks
+	maxchunksghostedperframe = 9;			// the chunk ghosting loop in RemoveUnoccupiedClusters (NOT IN USE)
+//	chunkremovaldelay = 10;					// how many seconds a chunk should hang around when not occupied, to avoid having to readload too often
+	// set these to match the highest values
+//	maxviewsize = max(viewsize, viewsize_distant);		
+//	maxviewheight = max(viewheight, viewheight_distant);
+
+#ifdef CSQC
+	// client
+	maxlightradius = chunksize*cubicradius*2*2;	// maximum light radius. this can be any value, but this equation is recommended for performance.
+	
+#endif
+
+	// do not edit these
+	maxclusters = worldsize*worldsize*worldheight;
+	maxchunks = pow(worldsize*clustersize, 2)*(worldheight*clustersize);
+	numslotsforchunkincluster = numprecubicvaluesinchunk + pow(chunksize, 3)*numvaluespercubic;
+	clusterdataslots = numprechunkvaluesincluster+pow(clustersize, 3)*numslotsforchunkincluster;
+	worlddim = [worldsize, worldsize, worldheight]*clustersize*chunksize*cubicradius*2;
+	dungeondim = dungeonsize*clustersize*chunksize*cubicradius*2;
+	clusterdim = '1 1 1'*clustersize*chunksize*cubicradius*2;
+	chunkdim = '1 1 1'*chunksize*cubicradius*2;
+	loadcenter = '1 1 1'*(loadsize-1)*0.5;
+	maxbloatents = ceil(pow(chunksize, 3)/maxcubicupdates)-1;
+	
+//	viewcenter = ('1 1 0'*(viewsize-1)+'0 0 1'*(viewheight-1))*0.5;
+//	viewcenter_distant = ('1 1 0'*(viewsize_distant-1)+'0 0 1'*(viewheight_distant-1))*0.5;
+//	maxviewcenter = ('1 1 0'*(maxviewsize-1)+'0 0 1'*(maxviewheight-1))*0.5;
+//	clustertablesize = maxviewsize*maxviewsize*maxviewheight;
+	
+	if(chunksize*0.5 == floor(chunksize*0.5))
+		chunksize_iseven = TRUE;
+	
+	if(physicssize*0.5 == floor(physicssize*0.5))
+		physicssize_iseven = TRUE;
+	
+	if(loadsize*0.5 == floor(loadsize*0.5))
+		loadsize_iseven = TRUE;
+}
+
+void SetDependentViewValues()
+{
+	maxviewsize = max(viewsize, viewsize_distant);		
+	maxviewheight = max(viewheight, viewheight_distant);
+	viewcenter = ('1 1 0'*(viewsize-1)+'0 0 1'*(viewheight-1))*0.5;
+	viewcenter_distant = ('1 1 0'*(viewsize_distant-1)+'0 0 1'*(viewheight_distant-1))*0.5;
+	maxviewcenter = ('1 1 0'*(maxviewsize-1)+'0 0 1'*(maxviewheight-1))*0.5;
+}
 
 int	NonSolidType(int type)
 {
