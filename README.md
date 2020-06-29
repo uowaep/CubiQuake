@@ -10,6 +10,13 @@ Use the F1-F4 Keys in-game for help!
 
 Everything pre r161 works now. Anything generated in r161 will be broken as the format changed without a version set. Going forward, backward compatibility should be maintained. 
 
+r174
++ moving cubics are now rideable (player no longer slides off of them)
++ moving cubcs have limited push functionality with .pushvelocity
++ fixed some bugs with cubics removed via pushing/moving cubics
++ impulse 99, 100, 101, 102 can be used for testing movable cubics using MOVETYPE_BOUNCESLIDE behavior (99 pushes a block and sets as default movement behavior. 100 sets a block as a rising Platform with pushvelocity, no bounce, and no gravity. 101 sets a block as a Train that uses pushvelocity with no gravity. 102 for Saiyan like action, using blocks with normal behavior, but with no gravity.
++ network objects can now use specific behavior when pushing another object, or when blocked by another object
+
 r172
 + the cq_lights_models values have been inverted so that 0 now represents engine lighting, while 1 represents cubiquake lighting
 
@@ -53,6 +60,13 @@ WARNING: If a server restarts, players need to reconnect to get the world to net
 - don't let players place things on players
 
 ### Full ChangeLog
+
+r174
++ moving cubics are now rideable (player no longer slides off of them)
++ moving cubcs have limited push functionality with .pushvelocity
++ fixed some bugs with cubics removed via pushing/moving cubics
++ impulse 99, 100, 101, 102 can be used for testing movable cubics using MOVETYPE_BOUNCESLIDE behavior (99 pushes a block and sets as default movement behavior. 100 sets a block as a rising Platform with pushvelocity, no bounce, and no gravity. 101 sets a block as a Train that uses pushvelocity with no gravity. 102 for Saiyan like action, using blocks with normal behavior, but with no gravity.
++ network objects can now use specific behavior when pushing another object, or when blocked by another object
 
 r172
 + the cq_lights_models values have been inverted so that 0 now represents engine lighting, while 1 represents cubiquake lighting
