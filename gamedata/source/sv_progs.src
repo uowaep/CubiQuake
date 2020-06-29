@@ -57,7 +57,6 @@
 #include "pdod/server/pdod_sv_init.qc"
 #include "pdod/server/pdod_sv_ai.qc"
 #include "pdod/server/pdod_sv_main.qc"
-//#include "pdod/server/pdod_sv_playerphysics.qc"
 */
 //
 // PDOD MOD END

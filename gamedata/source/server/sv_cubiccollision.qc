@@ -322,6 +322,9 @@ void Movetype_BounceSlide(entity e)
 
 			e.velocity = vel*0.5;		
 		}
+		
+		if(e.pushvelocity != '0 0 0')
+			e.velocity = e.pushvelocity;
 	}
 
 	// check to see if z bounce is weak, and if so, slide (or continue sliding)

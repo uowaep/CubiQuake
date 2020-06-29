@@ -252,7 +252,7 @@ void SetChunkAsModified(entity chunk, int fastredraw, int tell_csqc)
 	SaveChunkQueueChain_Add(cluster, chunk);	
 }
 
-void NetworkEntity(entity e, void(entity e) stopfunc)
+void NetworkEntity(entity e, void(entity e) stopfunc, void(entity e) pushfunc)
 {
 	float maxvel = autocvar_sv_maxvelocity;
 	vector oldrealvelocity = e.realvelocity;
@@ -268,7 +268,10 @@ void NetworkEntity(entity e, void(entity e) stopfunc)
 	if(e.realvelocity != oldrealvelocity || e.movetype == MOVETYPE_NONE)		
 	if(e.realvelocity == '0 0 0')	// not moving
 	{
-		stopfunc(e);
+		if(e.pushvelocity != '0 0 0')
+			pushfunc(e);
+		else
+			stopfunc(e);
 		e.SendFlags = e.SendFlags | SFL_STOP;
 	}
 	else

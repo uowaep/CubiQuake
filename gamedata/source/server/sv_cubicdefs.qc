@@ -124,3 +124,5 @@ int		MOVETYPE_BOUNCESLIDE	= 64;
 int		BSFLAG_NOBOUNCE			= 1;
 int		BSFLAG_CLIMB			= 2;
 int		BSFLAG_NOGRAVITY		= 4;
+
+.vector	pushvelocity;

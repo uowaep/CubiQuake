@@ -36,18 +36,38 @@ void ClientDisconnect()
 	}
 }
 
+/*void SV_RunClientCommand()
+{
+	print(vtos(input_movevalues), "\n");
+	runstandardplayerphysics(self);
+}*/
+
 void PlayerPreThink()
 {
+	// Train rides!
+	if(self.flags & FL_ONGROUND)
+	if(self.groundentity)
+	if(self.groundentity.velocity != '0 0 0')
+	{
+
+		// might want to try tracing at least 1 unit
+		vector targetorg = self.origin+[self.groundentity.realvelocity_x, self.groundentity.realvelocity_y, 0]*frametime;
+		self.velocity_z = max(self.velocity_z, self.groundentity.velocity_z);
+		
+		
+		tracebox(self.origin, self.mins, self.maxs, targetorg, MOVE_NORMAL, self);
+		if(trace_fraction == 1)
+			setorigin(self, targetorg);
+		else
+		{
+			vector ofs = targetorg-self.origin;
+			makevectors(ofs);
+			targetorg = self.origin + v_forward*vlen(ofs)*trace_fraction;
+			setorigin(self, targetorg);
+		}
+	}
+	
 	Player_CubiQuakeControls();
-//	print(vtos(self.origin), "\n");
-	// code here
-	
-	
-//	sprint(self, vtos(GetNearChunkOrg(self.origin)), "\n");
-	
-	
-	// end code
-	
 	self.impulse = 0;
 }
 	

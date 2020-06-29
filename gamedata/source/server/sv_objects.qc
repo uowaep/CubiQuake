@@ -80,9 +80,25 @@ void UpdateBlockObjects()
 void Obj_Block_NetworkEntityFunc_Stop(entity e)
 {
 	ObjChain_Remove(e); // we can remove from the chain once the network is done with it
-	BlockObjectRemoveChain_Add(e);
-	// move values to chunk
+	BlockObjectRemoveChain_Add(e);	// moves values to chunk
+}
 
+void Obj_Block_NetworkEntityFunc_Push(entity e)
+{
+	vector org = e.origin + normalize(e.pushvelocity)*cubicradius*2;
+	org = GetNearestCubicOrigin(org, chunksize_iseven);
+	entity chunk = GetChunkForLocation(__NULL__, GetNearChunkOrg(org), __NULL__);
+	
+	if(GetCubicStatus(chunk, org, TRUE) == -1)	// no cubics in the way, keep going
+		return;
+
+	org = GetNearestCubicOrigin(e.origin, chunksize_iseven);
+	chunk = GetChunkForLocation(__NULL__, GetNearChunkOrg(org), __NULL__);	
+	
+	if(GetCubicStatus(chunk, org, FALSE) != -1)	// can't stop here, a cubic is already here
+		return;
+	
+	Obj_Block_NetworkEntityFunc_Stop(e);
 }
 
 void Obj_NetworkEntityFunc_Stop(entity e)
@@ -102,8 +118,9 @@ void Obj_Think(entity e)
 
 // START COLLISION UPDATING
 
+	if(e.pushvelocity == '0 0 0')
 	if(e.flags & FL_ONGROUND)		
-	if(!e.slide)// || e.velocity*e.velocity <= 50*50)	// not in a sliding state, or not trying to move
+	if(!e.slide)	// not in a sliding state, or not trying to move
 	if(e.physicssolidsset)
 	{
 		e.velocity = '0 0 0';
@@ -117,7 +134,7 @@ void Obj_Think(entity e)
 // END COLLISION UPDATING
 
 	if(e.objtype == OBJ_BLOCK)
-		NetworkEntity(e, Obj_Block_NetworkEntityFunc_Stop);
+		NetworkEntity(e, Obj_Block_NetworkEntityFunc_Stop, Obj_Block_NetworkEntityFunc_Push);
 	else
-		NetworkEntity(e, Obj_NetworkEntityFunc_Stop);
+		NetworkEntity(e, Obj_NetworkEntityFunc_Stop, __NULL__);
 }

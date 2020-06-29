@@ -855,7 +855,91 @@ vector GeatNearOrgForTool(vector tracepos, int sizeoftool)
 }
 
 float SendObj(entity viewer, float sendflags);
-void Fire_PushTest(entity e)
+void FreeNearestCubic(vector org, vector vel, int push, int bsf)
+{	
+	vector tracepos = GetNearestCubicOrigin(org, chunksize_iseven);
+	entity chunk = GetChunkForLocation(__NULL__, tracepos, __FUNC__);
+	
+	if(!chunk)
+		return;
+
+	if(GetCubicStatus(chunk, tracepos, FALSE) == -1)
+		return;
+
+//	vector pushtoorg = GetNearestCubicOrigin(tracepos+v_forward*cubicradius*2, chunksize_iseven);
+//	entity destchunk = GetChunkForLocation(__NULL__, pushtoorg, __FUNC__);
+	
+//	if(!destchunk)
+//		return;
+	
+//	if(GetCubicStatus(destchunk, pushtoorg, FALSE) != -1)
+//		return;
+	
+	entity bbox = GetCubicBBoxForLocation(tracepos);
+	if(bbox)
+		Remove(bbox);	// this is just a bbox entity	
+	
+	int startref = GetCubicRef(tracepos-chunk.origin);
+	
+//	int destref = GetCubicRef(pushtoorg-destchunk.origin);
+
+//	QueueSetNumVisibleCubics(chunk, chunk.numvisiblecubics-1);
+
+	// turn cubic into object and remove from chunk
+	entity block = spawn();
+
+
+	block.solid = SOLID_BSP;
+	block.movetype = MOVETYPE_BOUNCESLIDE;	// don't really want to not collide with bsp, so it doesn't even make sense to use MOVETYPE_PUSH
+	block.bsflags = bsf;
+	setorigin(block, tracepos);	
+//	setmodel(block, "models/collision/cube.bsp");
+	SetBlockModelAndAngles(block, chunk.cubic_blockshape[startref], chunk.cubic_blockrotation[startref]);
+	
+	block.removepastworldbounds = TRUE;
+	block.enttype = ENT_OBJ;
+	block.objtype = OBJ_BLOCK;
+	block.SendEntity = SendObj;
+	ObjChain_Add(block);
+
+	setsize(block, '-15 -15 -15', '15 15 15');
+	
+	block.velocity = vel;//(pushtoorg-tracepos)*1;
+	
+	if(push)
+		block.pushvelocity = vel;
+	
+	block.blocktype = chunk.cubic_blocktype[startref];
+	block.blockshape = chunk.cubic_blockshape[startref];
+	block.blockrotation = chunk.cubic_blockrotation[startref];
+	block.blockhealth = chunk.cubic_health[startref];
+	
+	ClearCubic(chunk, tracepos, TRUE);
+	
+/*	chunk.cubic_blocktype[startref] = 0;
+	chunk.cubic_blockshape[startref] = 0;	
+	chunk.cubic_blockrotation[startref] = 0;	
+	chunk.cubic_cullbits[startref] = 0;
+	chunk.cubic_health[startref] = 0;
+
+	UpdateChunkAreaVisibility(chunk, tracepos, TRUE, TRUE);*/
+}
+
+//breaks maps
+void SuperSaiyan(entity e)
+{
+	vector ang = '0 0 0', org = '0 0 0';
+	
+	for(int count = 0; count < 12; count++)
+	{
+		ang_y = random()*360;
+		makevectors(ang);
+		org = e.origin+v_forward*(64+random()*128) + '0 0 -1'*cubicradius*2;
+		FreeNearestCubic(org, '0 0 100', FALSE, BSFLAG_NOGRAVITY);
+	}
+}
+
+void Fire_PushBounceSlideTest(entity e)
 {
 	// v_forward should be set from AttackTrace() already
 	
@@ -874,74 +958,80 @@ void Fire_PushTest(entity e)
 		org = e.origin;
 	}
 	
-//	traceline(org, org + v_forward*e.meleetracedist, MOVE_EVERYTHING, e);
-//	traceline(org, org + v_forward*96, MOVE_EVERYTHING, e);
-	
-//	if(trace_ent)
-//		return;
-	
 	org = TraceCubic(org, org + v_forward*96, TRUE);
-	vector tracepos = GetNearestCubicOrigin(org, chunksize_iseven);
-	entity chunk = GetChunkForLocation(__NULL__, tracepos, __FUNC__);
 	
-	if(!chunk)
-		return;
-
-	if(GetCubicStatus(chunk, tracepos, FALSE) == -1)
-		return;
-
+	
+	vector tracepos = GetNearestCubicOrigin(org, chunksize_iseven);
+	
 	vector pushtoorg = GetNearestCubicOrigin(tracepos+v_forward*cubicradius*2, chunksize_iseven);
 	entity destchunk = GetChunkForLocation(__NULL__, pushtoorg, __FUNC__);
 	
 	if(!destchunk)
 		return;
 	
-	if(GetCubicStatus(destchunk, pushtoorg, FALSE) != -1)
+	if(GetCubicStatus(destchunk, pushtoorg, TRUE) != -1)
 		return;
 	
-	entity bbox = GetCubicBBoxForLocation(tracepos);
-	if(bbox)
-		Remove(bbox);	// this is just a bbox entity	
-	
-	int startref = GetCubicRef(tracepos-chunk.origin);
-	int destref = GetCubicRef(pushtoorg-destchunk.origin);
-
-	QueueSetNumVisibleCubics(chunk, chunk.numvisiblecubics-1);
-
-	// turn cubic into object and remove from chunk
-	entity block = spawn();
-
-
-	block.solid = SOLID_BSP;
-	block.movetype = MOVETYPE_BOUNCESLIDE;	// don't really want to not collide with bsp, so it doesn't even make sense to use MOVETYPE_PUSH
-//	block.bsflags = BSFLAG_NOBOUNCE | BSFLAG_NOGRAVITY;
-	setorigin(block, tracepos);	
-//	setmodel(block, "models/collision/cube.bsp");
-	SetBlockModelAndAngles(block, chunk.cubic_blockshape[startref], chunk.cubic_blockrotation[startref]);
-	
-	block.removepastworldbounds = TRUE;
-	block.enttype = ENT_OBJ;
-	block.objtype = OBJ_BLOCK;
-	block.SendEntity = SendObj;
-	ObjChain_Add(block);
-
-	setsize(block, '-15 -15 -15', '15 15 15');
-	
-	block.velocity = (pushtoorg-tracepos)*1;
-	
-	block.blocktype = chunk.cubic_blocktype[startref];
-	block.blockshape = chunk.cubic_blockshape[startref];
-	block.blockrotation = chunk.cubic_blockrotation[startref];
-	block.blockhealth = chunk.cubic_health[startref];
-	
-	chunk.cubic_blocktype[startref] = 0;
-	chunk.cubic_blockshape[startref] = 0;	
-	chunk.cubic_blockrotation[startref] = 0;	
-	chunk.cubic_cullbits[startref] = 0;
-	chunk.cubic_health[startref] = 0;
-
-	UpdateChunkAreaVisibility(chunk, tracepos, TRUE, TRUE);
+	FreeNearestCubic(org, normalize(pushtoorg-tracepos)*64, 0, 0);
 }
+	
+void Fire_PlatTest(entity e)
+{
+	// v_forward should be set from AttackTrace() already
+	
+	vector org = '0 0 0';
+
+	if(e.flags & FL_CLIENT)
+	{
+		makevectors(e.v_angle);
+		org = e.origin+'0 0 16';
+	}
+	else
+	{
+		vector ang = e.angles;
+		ang_x = ang_x*-1;
+		makevectors(ang);
+		org = e.origin;
+	}
+	
+	org = TraceCubic(org, org + v_forward*96, TRUE);
+	FreeNearestCubic(org, '0 0 100', TRUE, BSFLAG_NOBOUNCE | BSFLAG_NOGRAVITY);
+}	
+	
+void Fire_TrainTest(entity e)
+{
+	// v_forward should be set from AttackTrace() already
+	
+	vector org = '0 0 0';
+
+	if(e.flags & FL_CLIENT)
+	{
+		makevectors(e.v_angle);
+		org = e.origin+'0 0 16';
+	}
+	else
+	{
+		vector ang = e.angles;
+		ang_x = ang_x*-1;
+		makevectors(ang);
+		org = e.origin;
+	}
+	
+	org = TraceCubic(org, org + v_forward*96, TRUE);
+	
+	vector tracepos = GetNearestCubicOrigin(org, chunksize_iseven);
+	
+	vector pushtoorg = GetNearestCubicOrigin(tracepos+v_forward*cubicradius*2, chunksize_iseven);
+	entity destchunk = GetChunkForLocation(__NULL__, pushtoorg, __FUNC__);
+	
+	if(!destchunk)
+		return;
+	
+	if(GetCubicStatus(destchunk, pushtoorg, TRUE) != -1)
+		return;
+	
+	FreeNearestCubic(org, normalize(pushtoorg-tracepos)*100, TRUE, BSFLAG_NOBOUNCE | BSFLAG_NOGRAVITY);
+}	
 
 // returns TRUE if the damage destroys the cubic
 int DamageCubic(entity chunk, vector org, float dmg)
@@ -1305,6 +1395,15 @@ void Player_CubiQuakeControls()
 			Fire_DamageTest(self);
 		else
 		if(self.impulse == 99)
-			Fire_PushTest(self);
+			Fire_PushBounceSlideTest(self);
+		else
+		if(self.impulse == 100)
+			Fire_PlatTest(self);
+		else
+		if(self.impulse == 101)
+			Fire_TrainTest(self);		
+		else
+		if(self.impulse == 102)
+			SuperSaiyan(self);		
 	}
 }
