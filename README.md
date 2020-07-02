@@ -83,7 +83,7 @@ r170
 
 r166
 + prefabs and world files are now versioned for backward compatibility
-+ pre r161 and r166 worlds and prefabs now load again
++ pre r158 and r166 worlds and prefabs now load again (r158 - r161 worlds are no longer supported. RIP.)
 + cq_gen_type 2 is default again (dungeon/prefab generation)
 + disabled cluster (not chunk) prefab save/load until it is tested more
 
