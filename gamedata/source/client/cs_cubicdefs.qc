@@ -1,6 +1,8 @@
 // view orientation
 vector	view_size;
 vector	view_org;
+vector	view_org_old;
+vector	view_vel;
 vector	view_ang;
 vector	view_normal;
 vector	view_right;
@@ -110,6 +112,7 @@ float	dynamic_relighttime;
 .int	resetlights;
 .int	staticlno;
 .vector	staticrgb;
+.vector	lightofs;
 entity	vwepmodel;		// lights refers to this to know when to use the player's location for face origin reference
 
 // editor
@@ -190,5 +193,8 @@ int		mouseposinitialized;
 .int	ob_shape;
 .int	ob_rotation;
 .int	ob_health;
+.int	ob_flags;
+
+.int	oldblockflags;
 
 void ReadAnimation(entity e);

@@ -20,7 +20,8 @@ float SendObj(entity viewer, float sendflags)
 		{
 			WriteByte(MSG_ENTITY, self.blocktype);
 
-			if(!NonSolidType(self.blocktype))
+//			if(!NonSolidType(self.blocktype, FALSE))
+			if(self.blocktype < baseobjecttypeid)	
 			{
 				WriteByte(MSG_ENTITY, self.blockshape);
 				if(self.blockshape != BLOCKSHAPE_CUBE)
@@ -31,7 +32,9 @@ float SendObj(entity viewer, float sendflags)
 				sendrotation = TRUE;
 			
 			if(sendrotation)
-				WriteByte(MSG_ENTITY, self.blockrotation);			
+				WriteByte(MSG_ENTITY, self.blockrotation);		
+
+			WriteByte(MSG_ENTITY, self.blockflags);
 		}
 		
 		SendObjectData_Wrap();		
@@ -57,24 +60,31 @@ float SendObj(entity viewer, float sendflags)
 	return TRUE;	
 }
 
+void LockBlockObject(entity e)
+{
+	vector org = '0 0 0', chunkorg = '0 0 0';
+		
+	org = GetNearestCubicOrigin(e.origin, chunksize_iseven);
+	chunkorg = GetNearChunkOrg(org);
+	AddCubic(org, e.blocktype, e.blockshape, e.blockrotation, e.blockhealth, e.blockflags, TRUE);
+
+	entity chunk = GetChunkForLocation(__NULL__, chunkorg, __FUNC__);
+	if(!chunk)
+		return;
+	
+	Remove(e);
+	
+	SetChunkAsModified(chunk, FALSE, FALSE);
+	
+/*	entity cluster = GetClusterForLocation(__NULL__, GetNearClusterOrg(chunk.origin));
+	if(cluster)
+		SaveClusterQueueChain_Add(cluster);*/
+}
+
 void UpdateBlockObjects()
 {
-	entity e = __NULL__;
-	vector org = '0 0 0', chunkorg = '0 0 0';
-	
 	while(list_blockobjectremovechain)
-	{
-		e = list_blockobjectremovechain;
-		org = GetNearestCubicOrigin(e.origin, chunksize_iseven);
-		chunkorg = GetNearChunkOrg(org);
-		AddCubic(org, e.blocktype, e.blockshape, e.blockrotation, TRUE);
-		entity chunk = GetChunkForLocation(__NULL__, chunkorg, __FUNC__);
-		if(chunk)
-			chunk.cubic_health[GetCubicRef(org-chunkorg)] = e.blockhealth;
-		
-		BlockObjectRemoveChain_Remove(e);
-		Remove(e);	
-	}
+		LockBlockObject(list_blockobjectremovechain);
 }
 
 void Obj_Block_NetworkEntityFunc_Stop(entity e)

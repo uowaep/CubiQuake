@@ -21,3 +21,9 @@ entity		list_objchain;
 .entity		objchain_prev;
 void ObjChain_Add(entity e)			{	list_objchain = LinkedList_Add(e, list_objchain, objchain, objchain_prev);	}
 void ObjChain_Remove(entity e)		{	list_objchain = LinkedList_Remove(e, list_objchain, __NULL__, objchain, objchain_prev);	}
+
+.entity		list_cubicobjchain;
+.entity		cubicobjchain;
+.entity		cubicobjchain_prev;
+void CubicObjChain_Add(entity o, entity e)		{	o.list_cubicobjchain = LinkedList_Add(e, o.list_cubicobjchain, cubicobjchain, cubicobjchain_prev);	}
+void CubicObjChain_Remove(entity o, entity e)		{	o.list_cubicobjchain = LinkedList_Remove(e, o.list_cubicobjchain, __NULL__, cubicobjchain, cubicobjchain_prev);	}

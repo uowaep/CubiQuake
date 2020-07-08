@@ -197,7 +197,7 @@ void ClearStaticLightResetTriggersForLight(entity light)
 		lrad = min(maxlightradius, light.lightradius);
 	
 	lightradiusdotp = lrad*lrad;
-	lightchunkorg = GetNearChunkOrg(light.origin);
+	lightchunkorg = GetNearChunkOrg(light.origin+light.lightofs);
 	lightsize = ceil(lrad / (chunksize*cubicradius));
 	if(lightsize*0.5 == floor(lightsize*0.5))
 		lightsize+=1;
@@ -212,32 +212,22 @@ void ClearStaticLightResetTriggersForLight(entity light)
 			}
 }
 
-entity SetChunkLight(entity chunk, int memslot, int type)
+void AddToActiveLights(entity light, entity chunk, int forcerelight)
 {
-	entity light;
-	
-	for(light = chunk.list_chunklightchain; light; light = light.chunklightchain)
-	{
-		if(light.cubicmemslot == memslot)
-			return light;
-	}
-	
-	light = spawn();
-	SetModelForCubicObject(light, type, TRUE);
-	SetYawForCubicObject(light, chunk.cubic_blockrotation[memslot]);
-	light.solid = SOLID_BBOX;
-	setorigin(light, chunk.origin + GetCubicOffset(memslot));
-	light.drawmask = MASK_NORMAL;
-	light.cubicmemslot = memslot;
-	light.lightradius = 416;
-	light.lightcolor = '1 1 1';
-	light.lightbrightness = 1;
-	ChunkEntChain_Add(chunk, light);	
 	ChunkLightChain_Add(chunk, light);
 	StaticLightChain_Add(light);	
+	ResetStaticLights(forcerelight);	
+}
+
+entity SetChunkLight(entity light, entity chunk, float rad, vector rgb, float bright, int addtolights)
+{
+	light.lightradius = rad;
+	light.lightcolor = rgb;
+	light.lightbrightness = bright;
 	
-	ResetStaticLights(FALSE);
-	
+	if(addtolights)
+		AddToActiveLights(light, chunk, FALSE);
+
 	return light;
 }
 
@@ -260,7 +250,7 @@ void LightFaceGroupsForTypeGroup(entity light, entity typegroup, entity cluster,
 			vertpos_x = facegroup.verts[count].xyz[0];
 			vertpos_y = facegroup.verts[count].xyz[1];
 			vertpos_z = facegroup.verts[count].xyz[2];
-			ofs = vertpos - light.origin;
+			ofs = vertpos - (light.origin+light.lightofs);
 			ofsdotp = ofs*ofs;
 			
 			facergb_x = facegroup.verts[count].rgba[0];
@@ -317,7 +307,7 @@ void SetVertLights(entity light, int isstatic, int lightblockobjects)
 		lrad = min(maxlightradius, light.lightradius);
 	
 	lightradiusdotp = lrad*lrad;
-	lightchunkorg = GetNearChunkOrg(light.origin);
+	lightchunkorg = GetNearChunkOrg(light.origin+light.lightofs);
 	lightsize = ceil(lrad / (chunksize*cubicradius));
 	if(lightsize*0.5 == floor(lightsize*0.5))
 		lightsize+=1;
@@ -376,11 +366,11 @@ void LightEnts(entity light, int isdynamic)
 			else
 				eorg = e.origin;			
 			
-			ofs = light.origin - eorg;
+			ofs = (light.origin+light.lightofs) - eorg;
 			if(ofs*ofs >= lightradiusdotpdist)
 				continue;
 
-			e.colormod = e.colormod + light.lightcolor*light.lightbrightness*0.5*(1-(vlen(ofs)/light.lightradius));
+			e.colormod = e.colormod + light.lightcolor*light.lightbrightness*1*(1-(vlen(ofs)/light.lightradius));
 		}
 	}			
 	else
@@ -391,7 +381,7 @@ void LightEnts(entity light, int isdynamic)
 		else
 			eorg = e.origin;		
 		
-		ofs = light.origin - eorg;
+		ofs = (light.origin+light.lightofs) - eorg;
 		if(ofs*ofs >= lightradiusdotpdist)
 			continue;
 		
@@ -451,7 +441,7 @@ void ApplyFaceLighting()
 	{
 		if(!autocvar_cq_lights_models)
 		if(!light.staticlno)
-			light.staticlno = dynamiclight_spawnstatic(light.origin, light.lightradius, light.lightcolor*light.lightbrightness);
+			light.staticlno = dynamiclight_spawnstatic(light.origin+light.lightofs, light.lightradius, light.lightcolor*light.lightbrightness);
 		
 		if(relightstatic)
 			SetVertLights(light, TRUE, FALSE);
@@ -461,7 +451,7 @@ void ApplyFaceLighting()
 	for(entity light = list_dynamiclightchain; light; light = light.dynamiclightchain)
 	{
 		if(!autocvar_cq_lights_models)
-			dynamiclight_add(light.origin, light.lightradius, light.lightcolor*light.lightbrightness*0.5, 0);
+			dynamiclight_add(light.origin+light.lightofs, light.lightradius, light.lightcolor*light.lightbrightness*0.5, 0);
 		
 		if(relightdynamic || relightstatic)			
 			SetVertLights(light, FALSE, FALSE);	

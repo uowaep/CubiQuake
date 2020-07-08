@@ -97,10 +97,11 @@ void SendCubics(entity chunk, int bloatstage)
 
 				WriteByte(MSG_ENTITY, type);
 
-				if(!NonSolidType(type))
+			//	if(!NonSolidType(type, FALSE))
+				if(type < baseobjecttypeid) 
 				{
 					WriteByte(MSG_ENTITY, chunk.cubic_blockshape[count]);
-					WriteByte(MSG_ENTITY, cullbits & CULLBITS_ALL);
+					WriteByte(MSG_ENTITY, cullbits & CULLBITS_ALL);	// cuts CULLBITS_PARTIAL_* out
 					if(chunk.cubic_blockshape[count] != BLOCKSHAPE_CUBE)
 						sendrotation = TRUE;
 					WriteByte(MSG_ENTITY, chunk.cubic_health[count]);
@@ -110,6 +111,8 @@ void SendCubics(entity chunk, int bloatstage)
 				
 				if(sendrotation)
 					WriteByte(MSG_ENTITY, chunk.cubic_blockrotation[count]);
+				
+				WriteByte(MSG_ENTITY, chunk.cubic_flags[count]);
 				
 				sendrotation = FALSE;
 				

@@ -148,6 +148,7 @@ void AddCluster(vector clusterorg, int type, int shape, int rotation)
 					chunk.cubic_blockrotation[i] = GetFixedRotation(type, rotation, shape);						
 					chunk.cubic_cullbits[i] = CULLBITS_ALL;
 					chunk.cubic_health[i] = 100;
+					chunk.cubic_flags[i] = 0;
 				}
 			}
 	
@@ -189,6 +190,7 @@ void ClearCluster(vector clusterorg)
 					chunk.cubic_blockrotation[i] = 0;
 					chunk.cubic_cullbits[i] = 0;
 					chunk.cubic_health[i] = 0;
+					chunk.cubic_flags[i] = 0;
 				}
 			}
 			
@@ -215,7 +217,7 @@ void LoadPrefab_Chunk(vector chunkorg)
 	}
 	
 	string filename = strcat("prefabs/players/", self.netname, "/", prefabname);
-	float file = fopen(filename, FILE_MMAP_READ, sizeof(*chunk_data)*(numslotsforchunkincluster+numprefabgenvaluesinchunk));
+	float file = fopen(filename, FILE_MMAP_READ, sizeof(*chunk_data)*(numprefabgenvaluesinchunk+numslotsforchunkincluster));
 	
 	if(file == -1)
 	{
@@ -248,6 +250,7 @@ void LoadPrefab_Chunk(vector chunkorg)
 		chunk.cubic_blockrotation[i] = GetFixedRotation(chunk.cubic_blocktype[i], chunk_data[cubicslot0+CUBICSLOT_ROTATION], chunk.cubic_blockshape[i]);		
 		chunk.cubic_cullbits[i] = chunk_data[cubicslot0+CUBICSLOT_CULLBITS];
 		chunk.cubic_health[i] = chunk_data[cubicslot0+CUBICSLOT_HEALTH];
+		chunk.cubic_flags[i] = chunk_data[cubicslot0+CUBICSLOT_FLAGS];
 	}
 	
 	fclose(file);
@@ -345,6 +348,7 @@ void SavePrefab_Chunk(vector chunkorg)
 		chunk_data[cubicslot0+CUBICSLOT_ROTATION] = GetFixedRotation(chunk.cubic_blocktype[i], chunk.cubic_blockrotation[i], chunk.cubic_blockshape[i]);		
 		chunk_data[cubicslot0+CUBICSLOT_CULLBITS] = chunk.cubic_cullbits[i];
 		chunk_data[cubicslot0+CUBICSLOT_HEALTH] = 100;//chunk.cubic_health[i];	// FIXME: let this save the actual value when there are tools to set damage
+		chunk_data[cubicslot0+CUBICSLOT_FLAGS] = chunk.cubic_flags[i];
 	}
 	
 	fclose(file);
@@ -354,7 +358,8 @@ void SavePrefab_Chunk(vector chunkorg)
 
 void AddChunk(vector chunkorg, int type, int shape, int rotation)
 {
-	if(NonSolidType(type))
+//	if(NonSolidType(type, FALSE))
+	if(type >= baseobjecttypeid)	
 	{
 		sprint(self, "Can't add a chunk of that type of block.\n");
 		return;
@@ -374,6 +379,7 @@ void AddChunk(vector chunkorg, int type, int shape, int rotation)
 		chunk.cubic_blockrotation[i] = GetFixedRotation(type, rotation, shape);		
 		chunk.cubic_cullbits[i] = CULLBITS_ALL;
 		chunk.cubic_health[i] = 100;
+		chunk.cubic_flags[i] = 0;
 	}
 	
 	UpdateChunkAreaVisibility_OuterEdge(chunk);
@@ -403,6 +409,7 @@ void ClearChunk(vector chunkorg)
 		chunk.cubic_blockrotation[i] = 0;
 		chunk.cubic_cullbits[i] = 0;
 		chunk.cubic_health[i] = 0;
+		chunk.cubic_flags[i] = 0;
 	}
 	
 	UpdateChunkAreaVisibility_OuterEdge(chunk);
@@ -426,7 +433,9 @@ void CopyCubicData(vector org)
 	self.editor_blockrotation = chunk.cubic_blockrotation[i];
 }
 
-void AddCubic(vector org, int type, int shape, int rotation, int avoidexistingcubics)
+void InitializeCubic_Wrap(entity chunk, int count) {}
+
+void AddCubic(vector org, int type, int shape, int rotation, int c_health, int c_flags, int avoidexistingcubics)
 {
 	if(!type || !shape)
 		return;
@@ -457,7 +466,10 @@ void AddCubic(vector org, int type, int shape, int rotation, int avoidexistingcu
 	chunk.cubic_blockshape[i] = shape;
 	chunk.cubic_blockrotation[i] = GetFixedRotation(type, rotation, shape);
 	chunk.cubic_cullbits[i] = (chunk.cubic_cullbits[i] & CULLBITS_ALL) + GetPartialSideCullBitsForShape(type, shape, rotation);
-	chunk.cubic_health[i] = 100;
+	chunk.cubic_health[i] = c_health;
+	chunk.cubic_flags[i] = c_flags;
+	
+	InitializeCubic_Wrap(chunk, i);	// for mods
 	
 	UpdateChunkAreaVisibility(chunk, org, TRUE, TRUE);
 }
@@ -477,7 +489,7 @@ void AddCubicArea(vector cubicorg, int type, int shape, int rotation, int avoide
 				|| org_z > worlddim_z*0.5 || org_z < worlddim_z*-0.5)
 					continue;
 
-				AddCubic(org, type, shape, rotation, avoidexistingcubics);
+				AddCubic(org, type, shape, rotation, 100, 0, avoidexistingcubics);
 			}
 }
 
@@ -526,6 +538,7 @@ void ClearCubic(entity chunk, vector cubicorg, int fastredraw)
 	if(!chunk)
 		return;
 
+	entity e = __NULL__;
 	int memslot = GetCubicStatus(chunk, cubicorg, FALSE);
 	
 	if(memslot == -1)
@@ -543,11 +556,22 @@ void ClearCubic(entity chunk, vector cubicorg, int fastredraw)
 	if(bbox)
 		Remove(bbox);	// this is just a bbox entity
 	
+	if(SpawnsServerModelType(chunk.cubic_blocktype[memslot]))
+	{
+		for(e = chunk.list_cubicobjchain; e; e = e.cubicobjchain)
+			if(e.cubicmemslot == memslot)
+				break;
+			
+		if(e)
+			Remove(e);
+	}
+	
 	chunk.cubic_blocktype[memslot] = 0;
 	chunk.cubic_blockshape[memslot] = 0;	
 	chunk.cubic_blockrotation[memslot] = 0;	
 	chunk.cubic_cullbits[memslot] = 0;
 	chunk.cubic_health[memslot] = 0;
+	chunk.cubic_flags[memslot] = 0;
 	
 	UpdateChunkAreaVisibility(chunk, cubicorg, TRUE, fastredraw);
 }
@@ -866,28 +890,17 @@ void FreeNearestCubic(vector org, vector vel, int push, int bsf)
 	if(GetCubicStatus(chunk, tracepos, FALSE) == -1)
 		return;
 
-//	vector pushtoorg = GetNearestCubicOrigin(tracepos+v_forward*cubicradius*2, chunksize_iseven);
-//	entity destchunk = GetChunkForLocation(__NULL__, pushtoorg, __FUNC__);
+	int startref = GetCubicRef(tracepos-chunk.origin);
 	
-//	if(!destchunk)
-//		return;
-	
-//	if(GetCubicStatus(destchunk, pushtoorg, FALSE) != -1)
-//		return;
-	
+	if(chunk.cubic_blocktype[startref] >= baseobjecttypeid)	// only non models
+		return;
+
 	entity bbox = GetCubicBBoxForLocation(tracepos);
 	if(bbox)
 		Remove(bbox);	// this is just a bbox entity	
 	
-	int startref = GetCubicRef(tracepos-chunk.origin);
-	
-//	int destref = GetCubicRef(pushtoorg-destchunk.origin);
-
-//	QueueSetNumVisibleCubics(chunk, chunk.numvisiblecubics-1);
-
 	// turn cubic into object and remove from chunk
 	entity block = spawn();
-
 
 	block.solid = SOLID_BSP;
 	block.movetype = MOVETYPE_BOUNCESLIDE;	// don't really want to not collide with bsp, so it doesn't even make sense to use MOVETYPE_PUSH
@@ -896,13 +909,15 @@ void FreeNearestCubic(vector org, vector vel, int push, int bsf)
 //	setmodel(block, "models/collision/cube.bsp");
 	SetBlockModelAndAngles(block, chunk.cubic_blockshape[startref], chunk.cubic_blockrotation[startref]);
 	
-	block.removepastworldbounds = TRUE;
+	block.removepastworldbounds = TRUE;	// FIXME: this messes with any player being moved by it 
 	block.enttype = ENT_OBJ;
 	block.objtype = OBJ_BLOCK;
 	block.SendEntity = SendObj;
 	ObjChain_Add(block);
+	BlockObjectChain_Add(block);
 
 	setsize(block, '-15 -15 -15', '15 15 15');
+	block.bs_tracepadding = 2;
 	
 	block.velocity = vel;//(pushtoorg-tracepos)*1;
 	
@@ -913,16 +928,9 @@ void FreeNearestCubic(vector org, vector vel, int push, int bsf)
 	block.blockshape = chunk.cubic_blockshape[startref];
 	block.blockrotation = chunk.cubic_blockrotation[startref];
 	block.blockhealth = chunk.cubic_health[startref];
+	block.blockflags = chunk.cubic_flags[startref];
 	
 	ClearCubic(chunk, tracepos, TRUE);
-	
-/*	chunk.cubic_blocktype[startref] = 0;
-	chunk.cubic_blockshape[startref] = 0;	
-	chunk.cubic_blockrotation[startref] = 0;	
-	chunk.cubic_cullbits[startref] = 0;
-	chunk.cubic_health[startref] = 0;
-
-	UpdateChunkAreaVisibility(chunk, tracepos, TRUE, TRUE);*/
 }
 
 //breaks maps
@@ -948,7 +956,7 @@ void Fire_PushBounceSlideTest(entity e)
 	if(e.flags & FL_CLIENT)
 	{
 		makevectors(e.v_angle);
-		org = e.origin+'0 0 16';
+		org = e.origin+e.view_ofs;
 	}
 	else
 	{
@@ -957,10 +965,9 @@ void Fire_PushBounceSlideTest(entity e)
 		makevectors(ang);
 		org = e.origin;
 	}
-	
+
 	org = TraceCubic(org, org + v_forward*96, TRUE);
-	
-	
+
 	vector tracepos = GetNearestCubicOrigin(org, chunksize_iseven);
 	
 	vector pushtoorg = GetNearestCubicOrigin(tracepos+v_forward*cubicradius*2, chunksize_iseven);
@@ -984,7 +991,7 @@ void Fire_PlatTest(entity e)
 	if(e.flags & FL_CLIENT)
 	{
 		makevectors(e.v_angle);
-		org = e.origin+'0 0 16';
+		org = e.origin+e.view_ofs;
 	}
 	else
 	{
@@ -1007,7 +1014,7 @@ void Fire_TrainTest(entity e)
 	if(e.flags & FL_CLIENT)
 	{
 		makevectors(e.v_angle);
-		org = e.origin+'0 0 16';
+		org = e.origin+e.view_ofs;
 	}
 	else
 	{
@@ -1275,7 +1282,7 @@ void Player_CubiQuakeControls()
 				switch(self.toolsize)
 				{									
 					case TOOLSIZE_EDITOR_CUBIC:		if(self.editor_blocktype >= baseobjecttypeid)
-														AddCubic(GetNearestCubicOrigin(tracepos, chunksize_iseven), self.editor_blocktype, self.editor_blockshape, self.editor_blockrotation, TRUE);
+														AddCubic(GetNearestCubicOrigin(tracepos, chunksize_iseven), self.editor_blocktype, self.editor_blockshape, self.editor_blockrotation, 100, 0, TRUE);
 													else
 														AddCubicArea(GetNearestCubicOrigin(tracepos, chunksize_iseven), self.editor_blocktype, self.editor_blockshape, self.editor_blockrotation, self.editor_fillmode);
 													break;
@@ -1307,7 +1314,7 @@ void Player_CubiQuakeControls()
 			{
 				switch(self.toolsize)
 				{
-					case TOOLSIZE_EDITOR_CUBIC:		AddCubic(GetNearestCubicOrigin(tracepos, chunksize_iseven), self.editor_blocktype, self.editor_blockshape, self.editor_blockrotation, TRUE);	break;
+					case TOOLSIZE_EDITOR_CUBIC:		AddCubic(GetNearestCubicOrigin(tracepos, chunksize_iseven), self.editor_blocktype, self.editor_blockshape, self.editor_blockrotation, 100, 0, TRUE);	break;
 					case TOOLSIZE_EDITOR_CHUNK:		LoadPrefab_Chunk(GetNearChunkOrg(tracepos));									break;
 				//	case TOOLSIZE_EDITOR_CLUSTER:	LoadPrefab_Cluster(GetNearClusterOrg(tracepos));								break;		// FIXME: test cluster support
 				}		
@@ -1391,19 +1398,22 @@ void Player_CubiQuakeControls()
 	
 	if(!self.tool)
 	{
+		if(!self.used)
+		#ifndef CQ_ISMOD
 		if(self.button0_down == 1)
 			Fire_DamageTest(self);
 		else
+		#endif
 		if(self.impulse == 99)
 			Fire_PushBounceSlideTest(self);
 		else
-		if(self.impulse == 100)
+		if(self.impulse == 90)
 			Fire_PlatTest(self);
 		else
-		if(self.impulse == 101)
+		if(self.impulse == 91)
 			Fire_TrainTest(self);		
 		else
-		if(self.impulse == 102)
+		if(self.impulse == 92)
 			SuperSaiyan(self);		
 	}
 }

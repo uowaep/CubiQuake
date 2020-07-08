@@ -1,6 +1,6 @@
 // VERSION
-int		cq_version		= 174;
-string	cubic_revision	= "cubiquake r174";
+int		cq_version		= 177;
+string	cubic_revision	= "cubiquake r177";
 
 // WORLD SETTINGS
 
@@ -65,14 +65,17 @@ int		CLUSTERSLOT_VERSION				= 0;
 int		CLUSTERSLOT_NUMVISIBLECUBICS	= 1;
 
 int		numsideinfoslots = 24;
-int		numprefabgenvaluesinchunk	= numsideinfoslots+4;
-int		olda_numprefabgenvaluesinchunk = 27;
+int		r155_numprefabgenvaluesinchunk	= 27;
+int		r174_numprefabgenvaluesinchunk	= 28;
+int		r177_numprefabgenvaluesinchunk	= 28;
+int		numprefabgenvaluesinchunk		= numsideinfoslots+4;
 
 int		PREFABCHUNKSLOT_CHUNKSIDETYPE_0		= 0;	// 0-5
 int		PREFABCHUNKSLOT_CONNECTIONFIT_0		= 6;	// 6-11
 int		PREFABCHUNKSLOT_CONNECTIONFLAGS_0	= 12;	// 12-17
 int		PREFABCHUNKSLOT_GROUPSIZE_0			= 18;	// 18-23
 
+//		^ numsideinfoslots+4;
 int		PREFABCHUNKSLOT_ZONE				= 24;
 int		PREFABCHUNKSLOT_CHANCE				= 25;
 int		PREFABCHUNKSLOT_VERSION				= 26;	// was chunkflags, but chunkflags could only have been 0 or 1 - r161
@@ -84,14 +87,17 @@ int		CFL_ALLOWROTATEDFIT			= 1;
 // prefab chunk flags
 int		CHFL_ALLOWSAMEZONEPASSAGE	= 1;
 
+int		r155_numvaluespercubic			= 4;
+int		r174_numvaluespercubic			= 5;
+int		r177_numvaluespercubic			= 6;
+int		numvaluespercubic				= 6;
 
-int		numvaluespercubic			= 5;
-int		olda_numvaluespercubic		= 4;
 int		CUBICSLOT_TYPE					= 0;
 int		CUBICSLOT_SHAPE					= 1;
 int		CUBICSLOT_ROTATION				= 2;
 int		CUBICSLOT_CULLBITS				= 3;
 int		CUBICSLOT_HEALTH				= 4;	// not saved in prefabs
+int		CUBICSLOT_FLAGS					= 5;
 
 .int	numvisiblecubics;
 
@@ -162,7 +168,9 @@ int		numtextureblocktypes = 13;
 // (This can go higher, but SendCubics() and UpdateChunkBuildData() must be edited to transfer more than a byte for this info.)
 int		baseobjecttypeid	= 101;
 int		BLOCKTYPE_TORCH		= baseobjecttypeid+0;
+#ifndef CQ_ISMOD
 int		numobjectblocktypes	= 1;
+#endif
 
 #ifdef SSQC
 .int	blockshape;
@@ -209,6 +217,12 @@ int		BLOCKROTATION_BW_S	= 23;
 #endif
 .*int	cubic_health;
 
+#ifdef SSQC
+.int	blockflags;	// FIXME: change name of client field to use this
+#endif
+.*int	cubic_flags;
+int		CUBICFLAG_ON	= 1;
+
 //		CHUNK SENDFLAGS
 int		SFL_ISNEW		= 1;
 int		SFL_BUILD		= 2;
@@ -227,6 +241,7 @@ int		SFL_FACE			= 16;
 //core starts at 100
 //mods should start at 200 ... or w/e
 int		EVENT_CUBICHEALTH	= 100;
+int		EVENT_CUBICFLAGS	= 101;
 
 .int	enttype;
 int		ENT_CLUSTER									= 1;
@@ -237,6 +252,7 @@ int		ENT_INFOEDIT_SELECTION						= 5;
 int		ENT_INFOEDIT_SELECTION_GROUPSIZE_EXTEND 	= 6;
 int		ENT_MODIFYSIDE_SELECTION					= 7;
 int		ENT_OBJ										= 8;
+int		ENT_CUBICOBJ								= 9;
 
 int		STAT_TOOL							= 33;
 int		STAT_TOOLSIZE						= 34;
@@ -312,17 +328,17 @@ vector	VECOFS_DS	= '0 -1 -1';
 vector	VECOFS_DSE = '1 -1 -1';
 
 // these are all also impulses
-int		TOOLSIZE_EDITOR_CUBIC	= 100;
+int		TOOLSIZE_EDITOR_CUBIC	= 100;	// impulses also
 int		TOOLSIZE_EDITOR_CHUNK	= 101;
 int		TOOLSIZE_EDITOR_CLUSTER	= 102;
 
-int		TOOL_EDITOR_MODIFY		= 110;
+int		TOOL_EDITOR_MODIFY		= 110;	// impulses also
 int		TOOL_EDITOR_ADD			= 111;
 int		TOOL_EDITOR_COPY		= 112;
 int		TOOL_EDITOR_PASTE		= 113;
 int		TOOL_EDITOR_INFOEDIT	= 114;
 
-int		EDITOR_BLOCKTYPE_INCREASE			= 120;
+int		EDITOR_BLOCKTYPE_INCREASE			= 120;	// impulses also
 int		EDITOR_BLOCKTYPE_DECREASE			= 121;
 int		EDITOR_BLOCKSHAPE_INCREASE			= 122;
 int		EDITOR_BLOCKSHAPE_DECREASE			= 123;
@@ -375,7 +391,7 @@ entity		*cluster_ent;
 .int	faceenemy;
 int		FACE_ORIENTYAW		= 1;
 int		FACE_LOCALPLAYER	= 2;
-int		FACE_NOUPDATE		= 4;
+//int		FACE_NOUPDATE		= 4;
 
 .int	objtype;
 int		OBJ_ITEM		= 1;
@@ -457,17 +473,42 @@ void SetDependentViewValues()
 	maxviewcenter = ('1 1 0'*(maxviewsize-1)+'0 0 1'*(maxviewheight-1))*0.5;
 }
 
+int SpawnsServerModelType_Wrap(int type, int returnvalue)
+{
+	return returnvalue;
+}
+
+int	SpawnsServerModelType(int type)
+{
+//	if(type == BLOCKTYPE_EXAMPLE)
+//		return TRUE;
+//	else
+	if(SpawnsServerModelType_Wrap(type, FALSE))	// for mods
+		return TRUE;
+	
+	return FALSE;
+}
+
+int NonSolidType_Wrap(int type, int returnvalue)
+{
+	return returnvalue;
+}
+
 int	NonSolidType(int type)
 {
 	if(type == BLOCKTYPE_TORCH)
 		return TRUE;
-
+	else
+	if(NonSolidType_Wrap(type, FALSE))
+		return TRUE;
+	
 	return FALSE;
 }
 
 int GetFixedRotation(int type, int rotation, int shape)
 {
-	if(!(NonSolidType(type)))
+//	if(!(NonSolidType(type, FALSE)))
+	if(type < baseobjecttypeid)		
 	if(shape == BLOCKSHAPE_CUBE)
 		rotation = 0;
 	
@@ -1138,6 +1179,33 @@ int ToolIsOnEdge(vector clusterpos, vector toolpos, int toolsize, int toolid, ve
 		return TRUE;
 		
 	return FALSE;
+}
+
+void SetModelForCubicObject(entity cubic, int type, int setbboxsize)
+{
+	switch(type)
+	{
+		case BLOCKTYPE_TORCH:		setmodel(cubic, "models/objects/torch.mdl");		break;
+	}
+}
+
+vector GetModelOffsetForBlockType_Wrap(int type, vector ofs)	{	return ofs;		}
+
+vector GetModelOffsetForBlockType(int type)
+{
+	vector ofs = '0 0 0';
+	
+	//switch stuff here
+	
+	// wrap func for mods to wrap
+	ofs = GetModelOffsetForBlockType_Wrap(type, ofs);
+	return ofs;
+}
+
+
+void SetYawForCubicObject(entity cubic, float rotation)
+{
+	cubic.angles_y = ((rotation/4)-floor(rotation/4))*4*90;
 }
 
 void FreeChunkAllocations(entity chunk)

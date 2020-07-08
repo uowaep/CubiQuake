@@ -43,16 +43,16 @@ float CSQC_ConsoleCommand(string strMessage)
 	
 	switch(strCmd)
 	{
-		case "cq_worlds":				nReturn = FALSE;	ListWorlds();					break;	// this would be better if it worked while not already in a world (menuqc)
-		case "cq_toggleclientlight":	nReturn = FALSE;	ClientToggleLight();			break;
-		case "cq_resetview":			nReturn = FALSE;	localcmd(strcat("cmd cq_resetview ", cvar_string("cq_adminpass"), "\n"));	break;
-		case "cq_reinitializeclient":	nReturn = FALSE;	InitializeClientSettings();	print("Client Settings reinitialized.\n");		break;
-		case "cq_filename":				nReturn = FALSE;	localcmd(strcat("cmd cq_filename ", argv(1), "\n"));	break;
-		case "cq_zone":					nReturn = FALSE;	if(argv(1)) editor_chunkzone = stoi(argv(1));	print("Zone is: ", itos(editor_chunkzone), "\n");	break;
-		case "cq_chance":				nReturn = FALSE;	if(argv(1)) editor_chunkchance = stoi(argv(1));	print("Chance is: ", itos(editor_chunkchance), "\n");	break;		
-		case "cq_fit":					nReturn = FALSE;	if(argv(1)) editor_connectionfit = stoi(argv(1));	print("Fit is: ", itos(editor_connectionfit), "\n");	break;
-		case "cq_getchunkref":			nReturn = FALSE;	print(ftos(GetChunkOriginRef(GetNearChunkOrg(view_org))), "\n");	break;
-		default:					nReturn = FALSE;	break;
+		case "cq_worlds":				nReturn = TRUE;	ListWorlds();					break;	// this would be better if it worked while not already in a world (menuqc)
+		case "cq_toggleclientlight":	nReturn = TRUE;	ClientToggleLight();			break;
+		case "cq_resetview":			nReturn = TRUE;	localcmd(strcat("cmd cq_resetview ", cvar_string("cq_adminpass"), "\n"));	break;
+		case "cq_reinitializeclient":	nReturn = TRUE;	InitializeClientSettings();	print("Client Settings reinitialized.\n");		break;
+		case "cq_filename":				nReturn = TRUE;	localcmd(strcat("cmd cq_filename ", argv(1), "\n"));	break;
+		case "cq_zone":					nReturn = TRUE;	if(argv(1)) editor_chunkzone = stoi(argv(1));	print("Zone is: ", itos(editor_chunkzone), "\n");	break;
+		case "cq_chance":				nReturn = TRUE;	if(argv(1)) editor_chunkchance = stoi(argv(1));	print("Chance is: ", itos(editor_chunkchance), "\n");	break;		
+		case "cq_fit":					nReturn = TRUE;	if(argv(1)) editor_connectionfit = stoi(argv(1));	print("Fit is: ", itos(editor_connectionfit), "\n");	break;
+		case "cq_getchunkref":			nReturn = TRUE;	print(ftos(GetChunkOriginRef(GetNearChunkOrg(view_org))), "\n");	break;
+		default:						nReturn = FALSE;	break;
 	}
 	
 	return nReturn;
@@ -178,6 +178,7 @@ void CSQC_Parse_Event()
 		// going to try to just update the shared ent's existing data w/o updating the shared ent. the actual chunk shared ents are big and clunky and span multiple ents. better not to update them unless updating geometry is required. still need to include health on initial chunk send though.
 		
 		case EVENT_CUBICHEALTH:		UpdateCubicHealth();		break;		
+		case EVENT_CUBICFLAGS:		UpdateCubicFlags();			break;		
 	}
 	
 	Parse_Event_Wrap(nTEID);

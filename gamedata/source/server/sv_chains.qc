@@ -82,6 +82,12 @@ entity		list_blockobjectremovechain;
 void BlockObjectRemoveChain_Add(entity e)		{	list_blockobjectremovechain = LinkedList_Add(e, list_blockobjectremovechain, blockobjectremovechain, blockobjectremovechain_prev);	}
 void BlockObjectRemoveChain_Remove(entity e)	{	list_blockobjectremovechain = LinkedList_Remove(e, list_blockobjectremovechain, __NULL__, blockobjectremovechain, blockobjectremovechain_prev);	}
 
+entity		list_blockobjectchain;
+.entity		blockobjectchain;
+.entity		blockobjectchain_prev;
+void BlockObjectChain_Add(entity e)		{	list_blockobjectchain = LinkedList_Add(e, list_blockobjectchain, blockobjectchain, blockobjectchain_prev);	}
+void BlockObjectChain_Remove(entity e)	{	list_blockobjectchain = LinkedList_Remove(e, list_blockobjectchain, __NULL__, blockobjectchain, blockobjectchain_prev);	}
+
 // GENERATION CHAINS
 
 entity		list_unconnectedchunkchain;

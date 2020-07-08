@@ -112,7 +112,8 @@ void UpdateObj(float isnew)
 		{
 			self.blocktype = readbyte();		
 
-			if(!NonSolidType(self.blocktype))
+//			if(!NonSolidType(self.blocktype, FALSE))
+			if(self.blocktype < baseobjecttypeid)
 			{
 				self.ob_shape = readbyte();			
 				self.ob_health = readbyte();
@@ -125,6 +126,8 @@ void UpdateObj(float isnew)
 		
 			if(getrotation)
 				self.ob_rotation = readbyte();	
+			
+			self.ob_flags = readbyte();
 			
 		//	BuildFacesForShape(self, self.ob_shape, self.ob_rotation, 0, self.origin, 1, 1, DRAWLIST_EDIT);
 			BlockObjectChain_Add(self);

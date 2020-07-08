@@ -2,20 +2,27 @@
 #pragma	progs_dat	"../progs.dat"
 
 #define SSQC
-#define DEBUG
+//#define CQ_ISMOD
+
+// CORE DEFS
 #include "shared_all/fteextensions.qc"
-
-// CUBIQUAKE CORE START
-//
-
 #include "shared_all/sh_all_subs.qc"
-
 #include "shared_server_client/sh_sv_cs_precaches.qc"
 #include "shared_server_client/sh_sv_cs_chains.qc"
 #include "shared_server_client/sh_sv_cs_cubics.qc"
 #include "shared_server_client/sh_sv_cs_animation.qc"
-
 #include "server/sv_cubicdefs.qc"
+
+// PDOD DEFS
+#ifdef CQ_ISMOD
+#include "pdod/shared_server_client/pdod_sh_sv_cs_defs.qc"
+#include "pdod/shared_server_client/pdod_sh_sv_cs_chains.qc"
+#include "pdod/server/pdod_sv_defs.qc"
+#include "pdod/server/pdod_sv_chains.qc"
+#include "pdod/shared_server_client/pdod_sh_sv_cs_precaches.qc"
+#endif
+
+// CORE GAMEDATA
 #include "server/sv_chains.qc"
 #include "server/sv_subs.qc"
 #include "server/sv_cubiccollision.qc"
@@ -30,22 +37,13 @@
 #include "server/sv_main.qc"
 #include "server/sv_client.qc"
 
-//
-// CUBIQUAKE CORE END
-
-// PDOD MOD START
-//
-/*
-#include "pdod/shared_server_client/pdod_sh_sv_cs_defs.qc"
-#include "pdod/shared_server_client/pdod_sh_sv_cs_chains.qc"
-#include "pdod/server/pdod_sv_defs.qc"
-#include "pdod/server/pdod_sv_chains.qc"
-
-#include "pdod/shared_server_client/pdod_sh_sv_cs_precaches.qc"
+// PDOD GAMEDATA
+#ifdef CQ_ISMOD
 #include "pdod/shared_server_client/pdod_sh_sv_cs_ai.qc"
 #include "pdod/shared_server_client/pdod_sh_sv_cs_objects.qc"
+#include "pdod/shared_server_client/pdod_sh_sv_cs_firepit.qc"
+#include "pdod/shared_server_client/pdod_sh_sv_cs_cubicobjects.qc"
 #include "pdod/shared_server_client/pdod_sh_sv_cs_weapons.qc"
-
 #include "pdod/server/pdod_sv_subs.qc"
 #include "pdod/server/pdod_sv_entityhandling.qc"
 #include "pdod/server/pdod_sv_networking.qc"
@@ -57,6 +55,4 @@
 #include "pdod/server/pdod_sv_init.qc"
 #include "pdod/server/pdod_sv_ai.qc"
 #include "pdod/server/pdod_sv_main.qc"
-*/
-//
-// PDOD MOD END
+#endif

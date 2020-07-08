@@ -935,7 +935,7 @@ void UpdateCubicInterface()
 				if(editor_cubicrotation != editor_cubicrotation_old)
 					SetYawForCubicObject(cubeselector, editor_cubicrotation);
 
-				setorigin(cubeselector, org);
+				setorigin(cubeselector, org+GetModelOffsetForBlockType(editor_cubictype));
 				UpdateModifySideButtonOrgs();
 
 				cubeselector.scale = 1;

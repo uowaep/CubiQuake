@@ -25,6 +25,7 @@ void GhostChunk(entity cluster, entity chunk)
 	memfill8(chunk.cubic_blockrotation, 0, sizeof(int)*pow(chunksize, 3));
 	memfill8(chunk.cubic_cullbits, 0, sizeof(int)*pow(chunksize, 3));
 	memfill8(chunk.cubic_health, 0, sizeof(int)*pow(chunksize, 3));
+	memfill8(chunk.cubic_flags, 0, sizeof(int)*pow(chunksize, 3));
 	
 	ChunkChain_Remove(cluster, chunk);
 	GhostChunkChain_Add(chunk);
@@ -147,6 +148,7 @@ int SaveClusterChunks(entity cluster, int numsaved, int saveall)
 			cluster_data[cubicslot0+CUBICSLOT_ROTATION] = GetFixedRotation(chunk.cubic_blocktype[i], chunk.cubic_blockrotation[i], chunk.cubic_blockshape[i]);
 			cluster_data[cubicslot0+CUBICSLOT_CULLBITS] = chunk.cubic_cullbits[i];	
 			cluster_data[cubicslot0+CUBICSLOT_HEALTH] = chunk.cubic_health[i];	
+			cluster_data[cubicslot0+CUBICSLOT_FLAGS] = chunk.cubic_flags[i];	
 		}
 
 	//	print("chunk saved\n");
@@ -173,6 +175,12 @@ void SaveModifiedClusterFiles(int saveall)
 		
 		if(time < clustersavetime)
 			return;
+	}
+
+	if(saveall)	// this is only set on quit and map change
+	{
+		while(list_blockobjectchain)
+			LockBlockObject(list_blockobjectchain);		
 	}
 
 	int numsaved = 0;
@@ -467,21 +475,23 @@ void FixClusterDataForOldVersions(int *cdata)
 {
 	float f = 0;
 	int slot0 = 0, oldver_slot0 = 0, i = 0, chunkslot0 = 0, oldver_chunkslot0 = 0;
-	int datasize = clusterdataslots;	
+//	int datasize = clusterdataslots;	
+
+	int r155_numslotsforchunkincluster = (numprechunkvaluesincluster+pow(chunksize, 3)*r155_numvaluespercubic);
+	int r174_numslotsforchunkincluster = (numprechunkvaluesincluster+pow(chunksize, 3)*r174_numvaluespercubic);
+	int r177_numslotsforchunkincluster = (numprechunkvaluesincluster+pow(chunksize, 3)*r177_numvaluespercubic);
 
 	int version = cdata[CLUSTERSLOT_VERSION];
 
-	if(version <= 161)
+	// upgrade to r174
+	if(version <= 155)	// pre versioned info
 	{
-		int olda_numslotsforchunkincluster = (2+pow(chunksize, 3)*4);
-		int old_datasize = 2+pow(clustersize, 3)*olda_numslotsforchunkincluster;
-	
 		for(int chunkcount = pow(clustersize, 3)-1; chunkcount >= 0; chunkcount--)
 		{
 			for(i = 1; i <= pow(chunksize, 3); i++)
 			{
-				slot0 = numprechunkvaluesincluster + chunkcount*numslotsforchunkincluster + numslotsforchunkincluster - i*numvaluespercubic;		
-				oldver_slot0 = 2 + chunkcount*olda_numslotsforchunkincluster + olda_numslotsforchunkincluster - i*olda_numvaluespercubic;
+				slot0 = numprechunkvaluesincluster + chunkcount*r174_numslotsforchunkincluster + r174_numslotsforchunkincluster - i*r174_numvaluespercubic;		
+				oldver_slot0 = numprechunkvaluesincluster + chunkcount*r155_numslotsforchunkincluster + r155_numslotsforchunkincluster - i*r155_numvaluespercubic;
 
 				if(cdata[oldver_slot0+CUBICSLOT_TYPE])
 					cdata[slot0+CUBICSLOT_HEALTH] = 100;
@@ -493,14 +503,43 @@ void FixClusterDataForOldVersions(int *cdata)
 				cdata[slot0+CUBICSLOT_TYPE] = cdata[oldver_slot0+CUBICSLOT_TYPE];
 			}
 	
-			chunkslot0 = numprechunkvaluesincluster+chunkcount*numslotsforchunkincluster;
-			oldver_chunkslot0 = 2+chunkcount*olda_numslotsforchunkincluster;
+			chunkslot0 = numprechunkvaluesincluster+chunkcount*r174_numslotsforchunkincluster;
+			oldver_chunkslot0 = numprechunkvaluesincluster+chunkcount*r155_numslotsforchunkincluster;
 			
-			cdata[chunkslot0+CHUNKSLOT_NUMVISIBLECUBICS] = cdata[oldver_chunkslot0+1];	// r161		(2+1)
-			cdata[chunkslot0+CHUNKSLOT_CHUNKBITS] = cdata[oldver_chunkslot0+0];			// r161		(2+0)
+			cdata[chunkslot0+CHUNKSLOT_NUMVISIBLECUBICS] = cdata[oldver_chunkslot0+CHUNKSLOT_NUMVISIBLECUBICS];
+			cdata[chunkslot0+CHUNKSLOT_CHUNKBITS] = cdata[oldver_chunkslot0+CHUNKSLOT_CHUNKBITS];
 		}
 		
-		cdata[CLUSTERSLOT_VERSION] = cq_version;
+		cdata[CLUSTERSLOT_VERSION] = 174;
+	}
+	
+	// upgrade to r177
+	if(version <= 174)
+	{
+
+		for(int chunkcount = pow(clustersize, 3)-1; chunkcount >= 0; chunkcount--)
+		{
+			for(i = 1; i <= pow(chunksize, 3); i++)
+			{
+				slot0 = numprechunkvaluesincluster + chunkcount*r177_numslotsforchunkincluster + r177_numslotsforchunkincluster - i*r177_numvaluespercubic;		
+				oldver_slot0 = numprechunkvaluesincluster + chunkcount*r174_numslotsforchunkincluster + r174_numslotsforchunkincluster - i*r174_numvaluespercubic;
+
+				cdata[slot0+CUBICSLOT_FLAGS] = 0;
+				cdata[slot0+CUBICSLOT_HEALTH] = cdata[oldver_slot0+CUBICSLOT_HEALTH];
+				cdata[slot0+CUBICSLOT_CULLBITS] = cdata[oldver_slot0+CUBICSLOT_CULLBITS];
+				cdata[slot0+CUBICSLOT_ROTATION] = cdata[oldver_slot0+CUBICSLOT_ROTATION];
+				cdata[slot0+CUBICSLOT_SHAPE] = cdata[oldver_slot0+CUBICSLOT_SHAPE];
+				cdata[slot0+CUBICSLOT_TYPE] = cdata[oldver_slot0+CUBICSLOT_TYPE];
+			}
+	
+			chunkslot0 = numprechunkvaluesincluster+chunkcount*r177_numslotsforchunkincluster;
+			oldver_chunkslot0 = numprechunkvaluesincluster+chunkcount*r174_numslotsforchunkincluster;
+			
+			cdata[chunkslot0+CHUNKSLOT_NUMVISIBLECUBICS] = cdata[oldver_chunkslot0+CHUNKSLOT_NUMVISIBLECUBICS];
+			cdata[chunkslot0+CHUNKSLOT_CHUNKBITS] = cdata[oldver_chunkslot0+CHUNKSLOT_CHUNKBITS];
+		}
+		
+		cdata[CLUSTERSLOT_VERSION] = 177;		
 	}
 }
 
@@ -625,6 +664,7 @@ entity LoadCluster(entity player, vector pos, int forceload)
 			chunk.cubic_blockrotation = memalloc(sizeof(int)*pow(chunksize, 3));
 			chunk.cubic_cullbits = memalloc(sizeof(int)*pow(chunksize, 3));
 			chunk.cubic_health = memalloc(sizeof(int)*pow(chunksize, 3));
+			chunk.cubic_flags = memalloc(sizeof(int)*pow(chunksize, 3));
 		}
 
 		cluster.chunk_ent[i] = chunk;
@@ -648,6 +688,9 @@ entity LoadCluster(entity player, vector pos, int forceload)
 			chunk.cubic_blockrotation[count] = GetFixedRotation(chunk.cubic_blocktype[count], cluster_data[cubicslot0+CUBICSLOT_ROTATION], chunk.cubic_blockshape[count]);
 			chunk.cubic_cullbits[count] = cluster_data[cubicslot0+CUBICSLOT_CULLBITS];
 			chunk.cubic_health[count] = cluster_data[cubicslot0+CUBICSLOT_HEALTH];
+			chunk.cubic_flags[count] = cluster_data[cubicslot0+CUBICSLOT_FLAGS];
+			
+			InitializeCubic_Wrap(chunk, count);	// for mods
 		}
 		
 		if(!forceload)

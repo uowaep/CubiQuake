@@ -117,6 +117,8 @@ void CSQC_UpdateView(float vwidth, float vheight, float notmenu)
 
 	view_size  = [vwidth, vheight, 0];
 	view_org = getproperty(VF_ORIGIN);
+	view_vel = (view_org-view_org_old)/frametime;
+	view_org_old = view_org;
 	view_ang = getproperty(VF_ANGLES);
 	makevectors(view_ang);
 	view_normal = v_forward;

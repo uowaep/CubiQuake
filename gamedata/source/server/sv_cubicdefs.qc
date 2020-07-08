@@ -1,3 +1,6 @@
+//vector		debug_trace_start;
+//vector		debug_trace_end;
+
 //.float		button3;
 
 //.int		cs_worldsize;
@@ -43,6 +46,9 @@ entity		stagger_removeunoccupiedclusters_ghostchunk;
 .vector		editor_selection_mins;
 .vector		editor_selection_maxs;
 .int		editor_sizetool;
+
+.entity	used;
+.entity	user;
 
 vector		ambientlight;
 
@@ -126,3 +132,4 @@ int		BSFLAG_CLIMB			= 2;
 int		BSFLAG_NOGRAVITY		= 4;
 
 .vector	pushvelocity;
+.float	bs_tracepadding;

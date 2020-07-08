@@ -14,6 +14,9 @@ void CleanUp_Remove (entity e)
 	{
 		entity cluster = GetClusterForLocation(__NULL__, GetNearClusterOrg(e.origin));
 		SaveChunkQueueChain_Remove(cluster, e);
+		
+		while(e.list_cubicobjchain)
+			Remove(e.list_cubicobjchain);
 	}
 	
 	if(e.parentchunk)
@@ -40,12 +43,21 @@ void CleanUp_Remove (entity e)
 		memfree(e.networkbloat);
 	}	
 	
+	if(e.enttype == ENT_CUBICOBJ)
+	{
+		entity chunk = GetChunkForLocation(__NULL__, e.origin, __FUNC__);
+		if(chunk)
+			CubicObjChain_Remove(chunk, e);
+	}
+	
 	LeaveSolidCubics(e, e.lastsolidcubicorigin);
 	e.physicssolidsset = FALSE;
 	
 	SetNumVisibleCubicsChain_Remove(e);
 	NetworkBloatUpdateChain_Remove(e);
 	
+	BlockObjectRemoveChain_Remove(e);
+	BlockObjectChain_Remove(e);	
 	ObjChain_Remove(e);
 }
 
@@ -63,6 +75,7 @@ void SendAnimation(entity e)
 	WriteShort(MSG_ENTITY, e.anim_frameduration);	
 }
 
+void LockBlockObject(entity e);
 void SaveModifiedClusterFiles(int saveall);
 void SetLoadDistanceValues();
 void SetAmbientLight();
@@ -89,11 +102,7 @@ void SV_ParseClientCommand (string s)
 
 // GAME COMMANDS
 
-	//	file = fopen("testall.txt", FILE_APPEND);
-	//		fputs(file, strcat(c, "\n"));
-	//		fclose(file);
-
-	if(c == "quit")	// make sure everything saves
+/*	if(c == "quit")	// make sure everything saves
 	{
 		clustersavetime = 0;
 		SaveModifiedClusterFiles(TRUE);
@@ -101,7 +110,7 @@ void SV_ParseClientCommand (string s)
 	//	fputs(file, "saving?\n");
 	//	fclose(file);
 	}
-	else
+	else*/
 	if(c == "cq_initialized")
 		self.client_initialized = TRUE;
 	else

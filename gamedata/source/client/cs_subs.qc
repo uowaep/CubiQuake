@@ -11,6 +11,8 @@ void CleanUp_Remove (entity e)
 //	EndLoopedSound(e);
 //	EndBodySound(e);
 	
+	entity chunk;
+	
 	if(e.enttype == ENT_CHUNK)
 	{
 		while(e.list_chunkbloatchain)
@@ -38,6 +40,9 @@ void CleanUp_Remove (entity e)
 //				Remove(cluster);
 				GhostCluster(cluster);
 			}
+			
+			while(e.list_cubicobjchain)
+				Remove(e.list_cubicobjchain);
 		}
 
 /*		e.numvisiblecubics = 0;
@@ -50,6 +55,7 @@ void CleanUp_Remove (entity e)
 		memfill8(e.cubic_blockrotation, 0, sizeof(int)*pow(chunksize, 3));
 		memfill8(e.cubic_cullbits, 0, sizeof(int)*pow(chunksize, 3));
 		memfill8(e.cubic_health, 0, sizeof(int)*pow(chunksize, 3));
+		memfill8(e.cubic_flags, 0, sizeof(int)*pow(chunksize, 3));
 	*/
 
 		ChunkChain_Remove(e);
@@ -63,12 +69,13 @@ void CleanUp_Remove (entity e)
 			FreeChunkAllocations(e);
 		QueueChunkBloatChain_Remove(e);
 		
-		entity chunk = GetChunkForLocation(__NULL__, e.origin, __FUNC__);
+		chunk = GetChunkForLocation(__NULL__, e.origin, __FUNC__);
 		if(chunk)
 			ChunkBloatChain_Remove(chunk, e);
 
 	}
 	
+	// FIXME: this is already happening in RemoveLight(), could probably remove this here
 	if(e.staticlno)
 	{
 		dynamiclight_set(e.staticlno, LFIELD_RADIUS, 0);
@@ -78,7 +85,7 @@ void CleanUp_Remove (entity e)
 	// FIXME: look for larger allocations to ghost, but only small allocations should ever see this
 	for(entity typegroup = e.list_typegroupchain; typegroup; typegroup = typegroup.typegroupchain)
 		while(typegroup.list_facegroupchain)
-			RemoveFaceGroup(typegroup, typegroup.list_facegroupchain, FALSE);	//i shouldn't be working on this so late
+			RemoveFaceGroup(typegroup, typegroup.list_facegroupchain, FALSE);
 		
 	while(e.list_facegroupchain)
 		RemoveFaceGroup(e, e.list_facegroupchain, FALSE);	
@@ -91,6 +98,13 @@ void CleanUp_Remove (entity e)
 	QueueDamageFaceBuildChain_Remove(e);
 //	QueueDamageFaceRebuildChain_Remove(e);
 
+	if(e.enttype == ENT_CUBICOBJ)
+	{
+		chunk = GetChunkForLocation(__NULL__, e.origin, __FUNC__);
+		if(chunk)
+			CubicObjChain_Remove(chunk, e);
+	}
+	
 	LightEntChain_Remove(e);
 	RelightEntChain_Remove(e);
 }

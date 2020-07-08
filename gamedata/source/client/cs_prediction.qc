@@ -4,7 +4,8 @@ void UpdateEntityOrientation(entity e)
 	float lerptime = 1/60;
 
 	// angles (sloppy)
-	
+
+//	if(!(e.faceenemy & FACE_NOUPDATE))	// not daed or otherwise	
 	if(e.faceenemy & FACE_ORIENTYAW)
 	if(e.faceenemy & FACE_LOCALPLAYER) // face local player
 	{
@@ -12,7 +13,6 @@ void UpdateEntityOrientation(entity e)
 		e.angles_y = ang_y;
 	}
 	else
-	if(!(e.faceenemy & FACE_NOUPDATE))	// not daed or otherwise
 	if(e.velocity*e.velocity > 1*1)	// else if moving, face velocity direction // don't use velocity if value is small (probably doesn't match server exactly)
 	{
 		ang = vectoangles([e.velocity_x, e.velocity_y, 0]);

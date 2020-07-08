@@ -8,7 +8,7 @@ void SetChangeParms()	// is this the only place to catch map change events?
 {	
 	if(!playersavingallclustersbeforemapchange)
 	{
-		playersavingallclustersbeforemapchange = TRUE;
+	//	playersavingallclustersbeforemapchange = TRUE;
 		clustersavetime = 0;
 		SaveModifiedClusterFiles(TRUE);
 	}
@@ -28,18 +28,38 @@ void ClientDisconnect()
 	
 	PlayerChain_Remove(self);				// removes player from linked list
 	
-	// save the world! (this can be removed, test it after it's all working first)
-	if(!list_playerchain)
-	{
-		clustersavetime = 0;
-		SaveModifiedClusterFiles(TRUE);
-	}
+//	float file = fopen("test.txt", FILE_WRITE);
+//	fputs(file, "test\n");
+//	fclose(file);
+	
+//	if(!list_playerchain)		// this saves when a game is quit
+//	{
+//		clustersavetime = 0;
+//		SaveModifiedClusterFiles(TRUE);
+//	}
 }
 
 /*void SV_RunClientCommand()
 {
 	print(vtos(input_movevalues), "\n");
 	runstandardplayerphysics(self);
+}*/
+
+/*void SV_AddDebugPolygons()
+{
+	if(debug_trace_start != debug_trace_end)
+	{
+		float alpha_ratio = 1;
+		vector rgb = '1 1 1';
+
+		makevectors(debug_trace_end-debug_trace_start);
+		
+		R_BeginPolygon("edit");
+		R_PolygonVertex(debug_trace_start, '0 0 0', rgb, alpha_ratio);	
+		R_PolygonVertex(debug_trace_end, '0 0 0', rgb, alpha_ratio);
+		R_PolygonVertex(debug_trace_start + v_right*4, '0 0 0', rgb, alpha_ratio);
+		R_EndPolygon();
+	}
 }*/
 
 void PlayerPreThink()

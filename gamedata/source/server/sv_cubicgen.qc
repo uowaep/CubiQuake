@@ -60,6 +60,7 @@ int ChunkGen_SetCubic(int *cdata, int type, int cubicslot0)
 	cdata[cubicslot0+CUBICSLOT_ROTATION]	= BLOCKROTATION_E;
 	cdata[cubicslot0+CUBICSLOT_CULLBITS]	= 0;
 	cdata[cubicslot0+CUBICSLOT_HEALTH]		= 100;
+	cdata[cubicslot0+CUBICSLOT_FLAGS]		= 0;
 	
 	cubicslot0 += numvaluespercubic;
 	
@@ -561,6 +562,7 @@ void RotateChunkYaw(int *cdata)
 		tempcdata[tempi+CUBICSLOT_ROTATION]	= RotateBlockRotationYaw(cdata[slot0+CUBICSLOT_ROTATION]);
 		tempcdata[tempi+CUBICSLOT_CULLBITS]	= GetPartialSideCullBitsForShape(tempcdata[tempi+CUBICSLOT_TYPE], tempcdata[tempi+CUBICSLOT_SHAPE], tempcdata[tempi+CUBICSLOT_ROTATION]);
 		tempcdata[tempi+CUBICSLOT_HEALTH]	= cdata[slot0+CUBICSLOT_HEALTH];
+		tempcdata[tempi+CUBICSLOT_FLAGS]	= cdata[slot0+CUBICSLOT_FLAGS];
 	}
 	
 	for(i = 0; i < numprefabgenvaluesinchunk+numslotsforchunkincluster; i++)
@@ -588,18 +590,24 @@ void FixPrefabChunkDataForOldVersions(int *cdata)
 {
 	float f = 0;
 	int slot0 = 0, oldver_slot0 = 0, old_datasize = 0;
-	int datasize = numprefabgenvaluesinchunk+numslotsforchunkincluster;	
+	int datasize = 0;// = numprefabgenvaluesinchunk+numslotsforchunkincluster;	
+
+	int r155_numslotsforchunkincluster = (numprechunkvaluesincluster+pow(chunksize, 3)*r155_numvaluespercubic);
+	int r174_numslotsforchunkincluster = (numprechunkvaluesincluster+pow(chunksize, 3)*r174_numvaluespercubic);
+	int r177_numslotsforchunkincluster = (numprechunkvaluesincluster+pow(chunksize, 3)*r177_numvaluespercubic);
 
 	int version = cdata[PREFABCHUNKSLOT_VERSION];
 
-	if(version <= 161)
+	// upgrade to r174
+	if(version <= 155)	// pre versioned info
 	{
-		old_datasize = olda_numprefabgenvaluesinchunk+numprecubicvaluesinchunk + pow(chunksize, 3)*olda_numvaluespercubic;
+		datasize = r174_numprefabgenvaluesinchunk+r174_numslotsforchunkincluster;
+		old_datasize = r155_numprefabgenvaluesinchunk+r155_numslotsforchunkincluster;
 	
 		for(int i = 1; i <= pow(chunksize, 3); i++)
 		{
-			slot0 = datasize - i*numvaluespercubic;
-			oldver_slot0 = old_datasize - i*olda_numvaluespercubic;
+			slot0 = datasize - i*r174_numvaluespercubic;
+			oldver_slot0 = old_datasize - i*r155_numvaluespercubic;
 			
 			if(cdata[oldver_slot0+CUBICSLOT_TYPE])
 				cdata[slot0+CUBICSLOT_HEALTH] = 100;
@@ -611,12 +619,38 @@ void FixPrefabChunkDataForOldVersions(int *cdata)
 			cdata[slot0+CUBICSLOT_TYPE] = cdata[oldver_slot0+CUBICSLOT_TYPE];
 		}
 
-		cdata[numprefabgenvaluesinchunk+CHUNKSLOT_NUMVISIBLECUBICS] = cdata[28];	// r161		(27+1)
-		cdata[numprefabgenvaluesinchunk+CHUNKSLOT_CHUNKBITS] = cdata[27];			// r161		(27+0)
+		cdata[r174_numprefabgenvaluesinchunk+CHUNKSLOT_NUMVISIBLECUBICS] = cdata[28];	// r161		(27+1)
+		cdata[r174_numprefabgenvaluesinchunk+CHUNKSLOT_CHUNKBITS] = cdata[27];			// r161		(27+0)
 
 		cdata[PREFABCHUNKSLOT_CHUNKFLAGS] = cdata[26];	// PREFABCHUNKSLOT_CHUNKFLAGS = 26;	 r161
 		// don't really need to load the version here
 	}
+	
+	// upgrade to r177
+	if(version <= 174)	// pre versioned info
+	{
+		datasize = r177_numprefabgenvaluesinchunk+r177_numslotsforchunkincluster;
+		old_datasize = r174_numprefabgenvaluesinchunk+r174_numslotsforchunkincluster;
+	
+		for(int i = 1; i <= pow(chunksize, 3); i++)
+		{
+			slot0 = datasize - i*r177_numvaluespercubic;
+			oldver_slot0 = old_datasize - i*r174_numvaluespercubic;
+			
+			cdata[slot0+CUBICSLOT_FLAGS] = 0;
+			cdata[slot0+CUBICSLOT_HEALTH] = cdata[oldver_slot0+CUBICSLOT_HEALTH];
+			cdata[slot0+CUBICSLOT_CULLBITS] = cdata[oldver_slot0+CUBICSLOT_CULLBITS];
+			cdata[slot0+CUBICSLOT_ROTATION] = cdata[oldver_slot0+CUBICSLOT_ROTATION];
+			cdata[slot0+CUBICSLOT_SHAPE] = cdata[oldver_slot0+CUBICSLOT_SHAPE];
+			cdata[slot0+CUBICSLOT_TYPE] = cdata[oldver_slot0+CUBICSLOT_TYPE];
+		}
+
+		cdata[r177_numprefabgenvaluesinchunk+CHUNKSLOT_NUMVISIBLECUBICS] = cdata[r174_numprefabgenvaluesinchunk+CHUNKSLOT_NUMVISIBLECUBICS];
+		cdata[r177_numprefabgenvaluesinchunk+CHUNKSLOT_CHUNKBITS] = cdata[r174_numprefabgenvaluesinchunk+CHUNKSLOT_NUMVISIBLECUBICS];
+
+		cdata[PREFABCHUNKSLOT_CHUNKFLAGS] = cdata[PREFABCHUNKSLOT_CHUNKFLAGS];
+		// don't really need to load the version here
+	}	
 }
 
 /*int GetZoneIDForName(string zonename)
@@ -759,7 +793,7 @@ void RemovePrefabs()
 
 void CopyPrefabData(int *cdata, entity prefab)
 {
-	for(int count = 0; count < numslotsforchunkincluster; count++)
+	for(int count = 0; count < pow(chunksize, 3)*numvaluespercubic; count++)
 		cdata[count] = prefab.prefabdata[count+numprefabgenvaluesinchunk+numprecubicvaluesinchunk];
 }
 
@@ -1294,7 +1328,7 @@ int GenerateChunks_Dungeon(entity forechunk, vector chunkpos, int forceopen, int
 		}
 		
 		// copy the prefab data to cdata
-		for(count = 0; count < numslotsforchunkincluster; count++)
+		for(count = 0; count < pow(chunksize, 3)*numvaluespercubic; count++)
 			cdata[count] = useprefab.prefabdata[count+numprefabgenvaluesinchunk+numprecubicvaluesinchunk];	// FIXME: Use vis data from prefabs from non-edge cubic.
 		
 		if(!createpassage)
@@ -1313,7 +1347,7 @@ int GenerateChunks_Dungeon(entity forechunk, vector chunkpos, int forceopen, int
 		{
 			if(prefab_zonefill[forechunk.genzone])
 			{
-				for(count = 0; count < numslotsforchunkincluster; count++)
+				for(count = 0; count < pow(chunksize, 3)*numvaluespercubic; count++)
 					cdata[count] = prefab_zonefill[forechunk.genzone].prefabdata[count+numprefabgenvaluesinchunk+numprecubicvaluesinchunk];
 			}
 			else

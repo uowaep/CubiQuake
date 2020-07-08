@@ -263,6 +263,10 @@ void Movetype_BounceSlide(entity e)
 
 	vector tracetarget = '0 0 0';
 	int slidestart = 0;
+	float tracepadding = 1;
+	
+	if(e.bs_tracepadding)
+		tracepadding = e.bs_tracepadding;
 	
 	if(!(e.bsflags & BSFLAG_NOGRAVITY))
 	{
@@ -281,13 +285,16 @@ void Movetype_BounceSlide(entity e)
 			e.velocity_z = e.velocity_z - autocvar_sv_gravity*frametime;	// applies gravity from sv_gravity cvar unless the object is sliding or onground
 	}
 	
-	if((e.velocity*frametime)*(e.velocity*frametime) < 1)
-		tracetarget = e.origin + normalize(e.velocity);	// trace at least 1 unit
-	else
-		tracetarget = e.origin+e.velocity*frametime;
+//	if((e.velocity*frametime)*(e.velocity*frametime) < tracepadding*tracepadding)
+//		tracetarget = e.origin + normalize(e.velocity)*tracepadding;	// trace at least 1 unit
+//	else
+//		tracetarget = e.origin+e.velocity*frametime;
+
+	tracetarget = e.origin+e.velocity*frametime + normalize(e.velocity)*tracepadding;
 
 	tracebox(e.origin, e.mins, e.maxs, tracetarget, MOVE_NORMAL, e);	// see what's in front of the object's velocity for this frame
 
+	vector org = e.origin;
 	// check if object will hit something
 	if(trace_fraction < 1)
 	{
@@ -325,6 +332,8 @@ void Movetype_BounceSlide(entity e)
 		
 		if(e.pushvelocity != '0 0 0')
 			e.velocity = e.pushvelocity;
+		
+		org = trace_endpos;
 	}
 
 	// check to see if z bounce is weak, and if so, slide (or continue sliding)
@@ -353,22 +362,27 @@ void Movetype_BounceSlide(entity e)
 //		e.velocity = e.velocity - normalize(e.velocity)*min(vlen(e.velocity), 80*frametime);	// air friction (optional)
 	
 	// get movement offset for this frame
-	vector ofs = e.velocity*frametime;
+	vector ofs = e.velocity*frametime + normalize(e.velocity)*tracepadding;
 		
 	if(ofs != '0 0 0')
 	{
 		// if we bounced earlier, or began sliding, trace offset before applying movement
 		if(trace_fraction < 1 || slidestart)
 		{
-			if(ofs*ofs < 1)
-				tracetarget = e.origin + normalize(ofs);	// trace at least 1 unit
-			else
-				tracetarget = e.origin+ofs;			
+		//	if(ofs*ofs < tracepadding*tracepadding)
+		//		tracetarget = org + normalize(ofs)*tracepadding;	// trace at least 1 unit
+		//	else
+				tracetarget = org+ofs;			
 			
-			tracebox(e.origin, e.mins, e.maxs, tracetarget, MOVE_NORMAL, e);	// make sure any bouncing doesn't put the object past a different surface		
+			tracebox(org, e.mins, e.maxs, tracetarget, MOVE_NORMAL, e);	// make sure any bouncing doesn't put the object past a different surface		
 		}
-		
+
 		if(trace_fraction)
-			setorigin(e, e.origin+ofs*trace_fraction);	// update origin
+		{
+			vector diff = ofs*trace_fraction;
+			
+			if(diff*diff > 1)
+				setorigin(e, org+ofs*trace_fraction - normalize(e.velocity)*tracepadding);	// update origin
+		}
 	}
 }

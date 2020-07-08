@@ -1,28 +1,31 @@
-//../csprogs.dat
-
 #pragma target fte
 #pragma	progs_dat	"../csprogs.dat"
 
 #define CSQC
+//#define CQ_ISMOD
+
+// CORE DEFS
 #include "shared_all/fteextensions.qc"
-
-// CUBIQUAKE CORE START
-//
-
 #include "shared_all/sh_all_subs.qc"
-
 #include "shared_client_menu/sh_cs_m_defs.qc"
 #include "shared_client_menu/sh_cs_m_input.qc"
-
 #include "shared_server_client/sh_sv_cs_precaches.qc"
 #include "shared_server_client/sh_sv_cs_chains.qc"
 #include "shared_server_client/sh_sv_cs_cubics.qc"
 #include "shared_server_client/sh_sv_cs_animation.qc"
-
 #include "client/cs_chains.qc"
 #include "client/cs_cubicdefs.qc"
 
-#include "client/cs_cubicobjects.qc"
+// PDOD DEFS
+#ifdef CQ_ISMOD
+#include "pdod/shared_server_client/pdod_sh_sv_cs_defs.qc"
+#include "pdod/shared_server_client/pdod_sh_sv_cs_chains.qc"
+#include "pdod/client/pdod_cs_defs.qc"
+#include "pdod/client/pdod_cs_chains.qc"
+#include "pdod/shared_server_client/pdod_sh_sv_cs_precaches.qc"
+#endif
+
+// CORE GAMEDATA
 #include "client/cs_clusters.qc"
 #include "client/cs_light.qc"
 #include "client/cs_faces.qc"
@@ -34,6 +37,7 @@
 #include "client/cs_shape_custom.qc"
 #include "client/cs_buildfaces.qc"
 #include "client/cs_prediction.qc"
+#include "client/cs_cubicobjects.qc"
 #include "client/cs_objects.qc"
 #include "client/cs_cubics.qc"
 #include "client/cs_strings.qc"
@@ -42,20 +46,12 @@
 #include "client/cs_main.qc"
 #include "client/cs_view.qc"
 
-//
-// CUBIQUAKE CORE END
-
-// PDOD MOD START
-//
-/*
-#include "pdod/shared_server_client/pdod_sh_sv_cs_defs.qc"
-#include "pdod/shared_server_client/pdod_sh_sv_cs_chains.qc"
-#include "pdod/client/pdod_cs_defs.qc"
-#include "pdod/client/pdod_cs_chains.qc"
-
-#include "pdod/shared_server_client/pdod_sh_sv_cs_precaches.qc"
+// PDOD GAMEDATA
+#ifdef CQ_ISMOD
 #include "pdod/shared_server_client/pdod_sh_sv_cs_ai.qc"
 #include "pdod/shared_server_client/pdod_sh_sv_cs_objects.qc"
+#include "pdod/shared_server_client/pdod_sh_sv_cs_firepit.qc"
+#include "pdod/shared_server_client/pdod_sh_sv_cs_cubicobjects.qc"
 #include "pdod/shared_server_client/pdod_sh_sv_cs_weapons.qc"
 #include "pdod/client/pdod_cs_subs.qc"
 #include "pdod/client/pdod_cs_strings.qc"
@@ -65,12 +61,9 @@
 #include "pdod/client/pdod_cs_lights.qc"
 #include "pdod/client/pdod_cs_sky.qc"
 #include "pdod/client/pdod_cs_hud.qc"
-//#include "pdod/client/pdod_cs_prediction.qc"
 #include "pdod/client/pdod_cs_ai.qc"
 #include "pdod/client/pdod_cs_init.qc"
 #include "pdod/client/pdod_cs_objects.qc"
-#include "pdod/client/pdod_cs_cubics.qc"
-#include "pdod/client/pdod_cs_networking.qc"
-*/
-//
-// PDOD MOD END
+#include "pdod/client/pdod_cs_cubicobjects.qc"
+#include "pdod/client/pdod_cs_main.qc"
+#endif

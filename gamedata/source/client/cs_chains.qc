@@ -97,6 +97,7 @@ entity		list_litfacegroupchain;
 void LitFaceGroupChain_Add(entity e)			{	list_litfacegroupchain = LinkedList_Add(e, list_litfacegroupchain, litfacegroupchain, litfacegroupchain_prev);	}
 void LitFaceGroupChain_Remove(entity e)			{	list_litfacegroupchain = LinkedList_Remove(e, list_litfacegroupchain, __NULL__, litfacegroupchain, litfacegroupchain_prev);	}
 
+/*
 .entity		list_chunkentchain;
 .entity		chunkentchain;
 .entity		chunkentchain_prev;
@@ -108,6 +109,7 @@ entity		list_clearchunkentchain;
 .entity		clearchunkentchain_prev;
 void ClearChunkEntChain_Add(entity e)			{	list_clearchunkentchain = LinkedList_Add(e, list_clearchunkentchain, clearchunkentchain, clearchunkentchain_prev);	}
 void ClearChunkEntChain_Remove(entity e)		{	list_clearchunkentchain = LinkedList_Remove(e, list_clearchunkentchain, __NULL__, clearchunkentchain, clearchunkentchain_prev);	}
+*/
 
 entity		list_infoeditchunksidechain;
 .entity		infoeditchunksidechain;
