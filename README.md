@@ -29,6 +29,7 @@ r177
 + updated collision to bounce more correctly, and stay away from surfaces by 1 unit better than previously
 + fixed some trace angles to match the view better
 + moving blocks lock back into place on map change (not on quit yet)
++ cq_lights_models is off by default (back to engine model lighting)
 
 ### Installation
 - Download CubiQuake https://github.com/uowaep/CubiQuake/archive/master.zip and extract the entire contents of the zip file into any directory. The directory you choose will be your main CubiQuake directory.
@@ -80,6 +81,7 @@ r177
 + updated collision to bounce more correctly, and stay away from surfaces by 1 unit better than previously
 + fixed some trace angles to match the view better
 + moving blocks lock back into place on map change (not on quit yet)
++ cq_lights_models is off by default (back to engine model lighting)
 
 r174
 + moving cubics are now rideable (player no longer slides off of them)
