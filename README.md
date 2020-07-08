@@ -8,27 +8,27 @@ Use the F1-F4 Keys in-game for help!
 
 ### Recent Changes
 
-Everything pre r161 works now. Anything generated in r161 will be broken as the format changed without a version set. Going forward, backward compatibility should be maintained. 
+Everything pre r158 works now. Anything generated in r158-161 will be broken as the format changed without a version set. Going forward from r166, backward compatibility should be maintained. 
 
-r174
-+ moving cubics are now rideable (player no longer slides off of them)
-+ moving cubcs have limited push functionality with .pushvelocity
-+ fixed some bugs with cubics removed via pushing/moving cubics
-+ impulse 99, 100, 101, 102 can be used for testing movable cubics using MOVETYPE_BOUNCESLIDE behavior (99 pushes a block and sets as default movement behavior. 100 sets a block as a rising Platform with pushvelocity, no bounce, and no gravity. 101 sets a block as a Train that uses pushvelocity with no gravity. 102 for Saiyan like action, using blocks with normal behavior, but with no gravity.
-+ network objects can now use specific behavior when pushing another object, or when blocked by another object
-
-r172
-+ the cq_lights_models values have been inverted so that 0 now represents engine lighting, while 1 represents cubiquake lighting
-
-r170
-+ mouse1 now damages blocks by 10% in core
-+ mouse2 now pushes blocks in core
-+ moved PDoD csqc entity lighting to core
-+ moved PDoD server/client object handling to core
-+ cubics/blocks can now be dynamically converted to objects, moved, then converted back to cubics when movement is stopped (to be used with doors/plats/trains/etc)
-+ moved PDoD MOVETYPE_BOUNCESLIDE support to core
-+ moved PDoD object rolling support to core
-+ moved PDoD improved animation support to core
+r177
++ default dungeon gen depth is 6 instead of 13
++ reduced default view/load distance for faster dungeon rendering
++ cq_chunksave_interval is now 0 by default until a good way to save on quit is figured out (this is a workaround for some horrible chunk save bugs. all changes are saved instantly with this setting)
++ cq_lights_static_updateinterval is now 2 by default just for good measure performance wise
++ cq_clientlightradius is 256 by default. just looks better.
++ cq_ambientlight_radiance is turned up to 0.6
++ cq_lights_radiance is turned up to 0.5
++ sky is now black by default (r_clearcolor 0 0 0)
++ moved the add cubic tool to R so E can be available right now for modding
++ moved the MOVETYPE_BOUNCE testing binds to 90, 91, and 92 B, N, M (RMB is still also a test bind) so they no longer conflict with the tool size controls
++ added offset support for model block types
++ added offset support for lights
++ fixed weird brightness level issues with dynamic lights
++ added support for a flagfield for each cubic
++ prefab and world file versions are now updated to 177 (old versions supported)
++ updated collision to bounce more correctly, and stay away from surfaces by 1 unit better than previously
++ fixed some trace angles to match the view better
++ moving blocks lock back into place on map change (not on quit yet)
 
 ### Installation
 - Download CubiQuake https://github.com/uowaep/CubiQuake/archive/master.zip and extract the entire contents of the zip file into any directory. The directory you choose will be your main CubiQuake directory.
@@ -61,6 +61,26 @@ WARNING: If a server restarts, players need to reconnect to get the world to net
 
 ### Full ChangeLog
 
+r177
++ default dungeon gen depth is 6 instead of 13
++ reduced default view/load distance for faster dungeon rendering
++ cq_chunksave_interval is now 0 by default until a good way to save on quit is figured out (this is a workaround for some horrible chunk save bugs. all changes are saved instantly with this setting)
++ cq_lights_static_updateinterval is now 2 by default just for good measure performance wise
++ cq_clientlightradius is 256 by default. just looks better.
++ cq_ambientlight_radiance is turned up to 0.6
++ cq_lights_radiance is turned up to 0.5
++ sky is now black by default (r_clearcolor 0 0 0)
++ moved the add cubic tool to R so E can be available right now for modding
++ moved the MOVETYPE_BOUNCE testing binds to 90, 91, and 92 B, N, M (RMB is still also a test bind) so they no longer conflict with the tool size controls
++ added offset support for model block types
++ added offset support for lights
++ fixed weird brightness level issues with dynamic lights
++ added support for a flagfield for each cubic
++ prefab and world file versions are now updated to 177 (old versions supported)
++ updated collision to bounce more correctly, and stay away from surfaces by 1 unit better than previously
++ fixed some trace angles to match the view better
++ moving blocks lock back into place on map change (not on quit yet)
+
 r174
 + moving cubics are now rideable (player no longer slides off of them)
 + moving cubcs have limited push functionality with .pushvelocity
@@ -83,7 +103,7 @@ r170
 
 r166
 + prefabs and world files are now versioned for backward compatibility
-+ pre r158 and r166 worlds and prefabs now load again (r158 - r161 worlds are no longer supported. RIP.)
++ pre r158 and r161 worlds and prefabs now load again (r158 - r161 worlds are no longer supported. RIP.)
 + cq_gen_type 2 is default again (dungeon/prefab generation)
 + disabled cluster (not chunk) prefab save/load until it is tested more
 
