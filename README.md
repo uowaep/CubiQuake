@@ -20,7 +20,7 @@ r177
 + cq_lights_radiance is turned up to 0.5
 + sky is now black by default (r_clearcolor 0 0 0)
 + moved the add cubic tool to R so E can be available right now for modding
-+ moved the MOVETYPE_BOUNCE testing binds to 90, 91, and 92 B, N, M (RMB is still also a test bind) so they no longer conflict with the tool size controls
++ moved the MOVETYPE_BOUNCESLIDE testing binds to 90, 91, and 92 B, N, M (RMB is still also a test bind) so they no longer conflict with the tool size controls
 + added offset support for model block types
 + added offset support for lights
 + fixed weird brightness level issues with dynamic lights
@@ -71,7 +71,7 @@ r177
 + cq_lights_radiance is turned up to 0.5
 + sky is now black by default (r_clearcolor 0 0 0)
 + moved the add cubic tool to R so E can be available right now for modding
-+ moved the MOVETYPE_BOUNCE testing binds to 90, 91, and 92 B, N, M (RMB is still also a test bind) so they no longer conflict with the tool size controls
++ moved the MOVETYPE_BOUNCESLIDE testing binds to 90, 91, and 92 B, N, M (RMB is still also a test bind) so they no longer conflict with the tool size controls
 + added offset support for model block types
 + added offset support for lights
 + fixed weird brightness level issues with dynamic lights
