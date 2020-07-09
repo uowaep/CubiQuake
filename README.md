@@ -10,6 +10,12 @@ Use the F1-F4 Keys in-game for help!
 
 Everything pre r158 works now. Anything generated in r158-161 will be broken as the format changed without a version set. Going forward from r166, backward compatibility should be maintained. 
 
+r181
++ fixed a hiccup when loading chunk files. was using the rewrite method regardless if a chunk file version needed an update or not. now always opens with read first, and only uses rewrite when necessary (much smoother now)
++ reduced z view/load distance (cq_viewheight2 1, also cq_viewdist2 1 for good measure) (huge performance increase)
++ reduced instant load-in distance (cq_bgload_dist 1)
++ reduced cq_lights_static_updateinterval to 1.5, 2 seemed a little too long.
+
 r177
 + default dungeon gen depth is 6 instead of 13
 + reduced default view/load distance for faster dungeon rendering
@@ -61,6 +67,12 @@ WARNING: If a server restarts, players need to reconnect to get the world to net
 - don't let players place things on players
 
 ### Full ChangeLog
+
+r181
++ fixed a hiccup when loading chunk files. was using the rewrite method regardless if a chunk file version needed an update or not. now always opens with read first, and only uses rewrite when necessary (much smoother now)
++ reduced z view/load distance (cq_viewheight2 1, also cq_viewdist2 1 for good measure) (huge performance increase)
++ reduced instant load-in distance (cq_bgload_dist 1)
++ reduced cq_lights_static_updateinterval to 1.5, 2 seemed a little too long.
 
 r177
 + default dungeon gen depth is 6 instead of 13
