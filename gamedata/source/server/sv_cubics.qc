@@ -582,7 +582,7 @@ entity LoadCluster(entity player, vector pos, int forceload)
 		else
 		{*/
 			string filename = strcat(worldpath, itos(GetClusterRef(pos)));
-			file = fopen(filename, FILE_MMAP_RW, sizeof(int)*clusterdataslots);	// rewrite so fixclusterdata can fix the file also, else clusters with more than 1 chunk break (pretty sure this is still fast) .. can't really test this because I don't have old worlds with larger clusters
+			file = fopen(filename, FILE_MMAP_READ, sizeof(int)*clusterdataslots);	// rewrite so fixclusterdata can fix the file also, else clusters with more than 1 chunk break (pretty sure this is still fast) .. can't really test this because I don't have old worlds with larger clusters
 			
 			if(file == -1)
 			{
@@ -592,8 +592,16 @@ entity LoadCluster(entity player, vector pos, int forceload)
 
 			cluster_data = (int*)fgets(file);	
 
-			FixClusterDataForOldVersions(cluster_data);
 
+			int version = cluster_data[CLUSTERSLOT_VERSION];
+			if(version <= oldfileversion)
+			{
+				fclose(file);
+				file = fopen(filename, FILE_MMAP_RW, sizeof(int)*clusterdataslots);	// reopens file with re-write enabled
+				cluster_data = (int*)fgets(file);
+				FixClusterDataForOldVersions(cluster_data);
+			}
+			
 			if(!forceload)
 			{
 				player.loadcluster_file = file;
