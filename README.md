@@ -8,7 +8,7 @@ Use the F1-F4 Keys in-game for help!
 
 ### Recent Changes
 
-Everything pre r158 works now. Anything generated in r158-161 will be broken as the format changed without a version set. Going forward from r166, backward compatibility should be maintained. 
+Everything pre r158 works now. Anything generated in r158-161 will be broken as the format changed without a version set. Going forward from r166, backward compatibility should be maintained. It is still always a good idea to delete your fte.cfg file so any changes to default.cfg can be applied.
 
 r181
 + fixed a hiccup when loading chunk files. was using the rewrite method regardless if a chunk file version needed an update or not. now always opens with read first, and only uses rewrite when necessary (much smoother now)
