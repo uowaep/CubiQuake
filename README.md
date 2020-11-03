@@ -4,6 +4,11 @@ CubiQuake is a FTE QuakeWorld modification. It can be played as is in creative m
 
 Use the F1-F4 Keys in-game for help!
 
+### Media
+
++ [Twitch](https://www.twitch.tv/clay__clay)
++ [YouTube](https://www.youtube.com/user/uowaep)
+
 ### Recent Changes
 
 Everything pre r158 works now. Anything generated in r158-161 will be broken as the format changed without a version set. Going forward from r166, backward compatibility should be maintained. It is still always a good idea to delete your fte.cfg file so any changes to default.cfg can be applied.
