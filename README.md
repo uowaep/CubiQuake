@@ -11,34 +11,18 @@ Use the F1-F4 Keys in-game for help!
 
 ### Recent Changes
 
-Everything pre r158 works now. Anything generated in r158-161 will be broken as the format changed without a version set. Going forward from r166, backward compatibility should be maintained. It is still always a good idea to delete your fte.cfg file so any changes to default.cfg can be applied.
+Going forward from r166, backward compatibility should be maintained. It is still always a good idea to delete your fte.cfg file so any changes to default.cfg can be applied.
 
-r181
-+ fixed a hiccup when loading chunk files. was using the rewrite method regardless if a chunk file version needed an update or not. now always opens with read first, and only uses rewrite when necessary (much smoother now)
-+ reduced z view/load distance (cq_viewheight2 1, also cq_viewdist2 1 for good measure) (huge performance increase)
-+ reduced instant load-in distance (cq_bgload_dist 1)
-+ reduced cq_lights_static_updateinterval to 1.5, 2 seemed a little too long.
-
-r177
-+ default dungeon gen depth is 6 instead of 13
-+ reduced default view/load distance for faster dungeon rendering
-+ cq_chunksave_interval is now 0 by default until a good way to save on quit is figured out (this is a workaround for some horrible chunk save bugs. all changes are saved instantly with this setting)
-+ cq_lights_static_updateinterval is now 2 by default just for good measure performance wise
-+ cq_clientlightradius is 256 by default. just looks better.
-+ cq_ambientlight_radiance is turned up to 0.6
-+ cq_lights_radiance is turned up to 0.5
-+ sky is now black by default (r_clearcolor 0 0 0)
-+ moved the add cubic tool to R so E can be available right now for modding
-+ moved the MOVETYPE_BOUNCESLIDE testing binds to 90, 91, and 92 B, N, M (RMB is still also a test bind) so they no longer conflict with the tool size controls
-+ added offset support for model block types
-+ added offset support for lights
-+ fixed weird brightness level issues with dynamic lights
-+ added support for a flagfield for each cubic
-+ prefab and world file versions are now updated to 177 (old versions supported)
-+ updated collision to bounce more correctly, and stay away from surfaces by 1 unit better than previously
-+ fixed some trace angles to match the view better
-+ moving blocks lock back into place on map change (not on quit yet)
-+ cq_lights_models is off by default (back to engine model lighting)
+r194
++ block objects now bounce off surfaces much more smoothly
++ added cvar cq_dmgload_dist so damage faces can be set to load at a different proximity than normal faces
++ fixed some issues with some interface traceline calls
++ reduced network data sent for non block type cubics
++ client light toggle is now handled by csqc without needing info from the server
++ network objects now have an id so interaction in csqc can work more smoothly if not perfectly aligned with the server
++ model index is no longer networked since csqc has enough info to look up the model
++ fixed an issue with some rolling objects
++ fixed an issue with objects being removed incorrectly
 
 ### Installation
 - Download CubiQuake https://github.com/uowaep/CubiQuake/archive/master.zip and extract the entire contents of the zip file into any directory. The directory you choose will be your main CubiQuake directory.
@@ -70,6 +54,17 @@ WARNING: If a server restarts, players need to reconnect to get the world to net
 - don't let players place things on players
 
 ### Full ChangeLog
+
+r194
++ block objects now bounce off surfaces much more smoothly
++ added cvar cq_dmgload_dist so damage faces can be set to load at a different proximity than normal faces
++ fixed some issues with some interface traceline calls
++ reduced network data sent for non block type cubics
++ client light toggle is now handled by csqc without needing info from the server
++ network objects now have an id so interaction in csqc can work more smoothly if not perfectly aligned with the server
++ model index is no longer networked since csqc has enough info to look up the model
++ fixed an issue with some rolling objects
++ fixed an issue with objects being removed incorrectly
 
 r181
 + fixed a hiccup when loading chunk files. was using the rewrite method regardless if a chunk file version needed an update or not. now always opens with read first, and only uses rewrite when necessary (much smoother now)
