@@ -10,7 +10,8 @@ float SendObj(entity viewer, float sendflags)
 	if(sendflags & SFL_ISNEW)
 	{
 		WriteByte(MSG_ENTITY, self.objtype);
-		WriteShort(MSG_ENTITY, self.modelindex);
+	//	WriteShort(MSG_ENTITY, self.modelindex);
+		WriteLong(MSG_ENTITY, self.networkentnum);
 		
 		WriteCoord(MSG_ENTITY, self.angles_x);
 		WriteCoord(MSG_ENTITY, self.angles_y);

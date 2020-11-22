@@ -42,6 +42,7 @@
 #include "pdod/shared_server_client/pdod_sh_sv_cs_ai.qc"
 #include "pdod/shared_server_client/pdod_sh_sv_cs_objects.qc"
 #include "pdod/shared_server_client/pdod_sh_sv_cs_firepit.qc"
+#include "pdod/shared_server_client/pdod_sh_sv_cs_playercraft.qc"
 #include "pdod/shared_server_client/pdod_sh_sv_cs_cubicobjects.qc"
 #include "pdod/shared_server_client/pdod_sh_sv_cs_weapons.qc"
 #include "pdod/server/pdod_sv_subs.qc"

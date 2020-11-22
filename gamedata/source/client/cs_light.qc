@@ -474,6 +474,10 @@ void ApplyFaceLighting()
 
 void AddLights()
 {
+	
+	if(player_input[INPUT_CLIENTLIGHT] == 1)
+		ClientToggleLight();
+	
 	int count = 0;
 	vector rgb = '0 0 0';
 

@@ -91,7 +91,7 @@ void UpdateChunkBuildData(entity chunk, float sendflags, int bloatstage, int cle
 			chunk.cubic_blockrotation[memslot] = readbyte();	
 		
 		chunk.cubic_flags[memslot] = readbyte();
-		
+
 		getrotation = FALSE;
 	}		
 }
@@ -111,11 +111,12 @@ void CopyBloatChunkValuesToChunk(entity bloatent, entity chunk, int bloatstage)
 			if(type < baseobjecttypeid)	
 			{
 				chunk.cubic_blockshape[memslot] = bloatent.cubic_blockshape[memslot];			
-				chunk.cubic_blockrotation[memslot] = bloatent.cubic_blockrotation[memslot];
 				chunk.cubic_cullbits[memslot] = bloatent.cubic_cullbits[memslot];
 				chunk.cubic_health[memslot] = bloatent.cubic_health[memslot];
-				chunk.cubic_flags[memslot] = bloatent.cubic_flags[memslot];
 			}	
+			
+			chunk.cubic_blockrotation[memslot] = bloatent.cubic_blockrotation[memslot];
+			chunk.cubic_flags[memslot] = bloatent.cubic_flags[memslot];
 			
 			slotcount++;
 		}
@@ -136,7 +137,7 @@ void LoadChunkCubics(entity chunk)
 		{
 			if(chunk.cubic_health[memslot] > 0 && chunk.cubic_health[memslot] <= maxdmghealth)
 				chunk.numdamagedcubics++;
-			
+
 			LoadCubic(chunk, memslot, type);
 			loadcount++;
 		}
@@ -246,7 +247,7 @@ void UpdateCubicFlags()
 	if(!chunk)
 		return;
 	
-	if(chunk.findnetworkbloatent)	// updating via network
+	if(chunk.findnetworkbloatent)	// already updating
 		return;
 	
 	int oldflags = chunk.cubic_flags[cubicid];

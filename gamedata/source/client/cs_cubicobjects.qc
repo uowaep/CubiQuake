@@ -22,14 +22,15 @@ entity SetChunkCubicObject(entity chunk, int memslot, int type)
 	SetModelForCubicObject(e, type, TRUE);
 	setsize(e, '-1 -1 -1'*cubicradius, '1 1 1'*cubicradius);
 	SetYawForCubicObject(e, chunk.cubic_blockrotation[memslot]);
-	e.solid = SOLID_BBOX;
+//	e.solid = SOLID_BBOX;
+//	e.flags |= FL_FINDABLE_NONSOLID;
 	setorigin(e, chunk.origin + GetCubicOffset(memslot) + GetModelOffsetForBlockType(type));
 	e.drawmask = MASK_NORMAL;
 	e.blocktype = type;
 	e.cubicmemslot = memslot;
 	e.parentchunk = chunk;
 	e.ob_flags = e.oldblockflags = chunk.cubic_flags[memslot];
-	
+			
 	e.staticrgb = e.colormod = ambientlight_modified;			
 	RelightEntChain_Add(e); // this removes once lit
 	LightEntChain_Add(e); //this is referenced every frame for dynamic lights

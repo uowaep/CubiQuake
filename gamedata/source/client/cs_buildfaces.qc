@@ -584,15 +584,18 @@ void QueueChunkFaceBuild(entity chunk, float sendflags)
 
 	vector ofs = chunk.origin - GetNearChunkOrg(view_org);
 	float dist = ofs*ofs;
+
 	float proximitydist = chunksize*cubicradius*2*autocvar_cq_bgload_dist;
 	proximitydist = proximitydist*proximitydist;
+	
+	float dmg_proximitydist = chunksize*cubicradius*2*autocvar_cq_dmgload_dist;
+	dmg_proximitydist = dmg_proximitydist*dmg_proximitydist;	
 	
 	float isnew = (sendflags & SFL_ISNEW);
 	float sfldmgd = (sendflags & SFL_DAMAGED);	// geometry has changed
 	
 
-	
-	if(dist <= proximitydist || (!isnew && sfldmgd))
+	if(dist <= dmg_proximitydist || (!isnew && sfldmgd))
 	{
 	//	Damaged Faces	
 		if(chunk.numdamagedcubics)
@@ -603,13 +606,16 @@ void QueueChunkFaceBuild(entity chunk, float sendflags)
 				chunk.drawingdamage = TRUE;
 			}
 			else
-			if(dist <= proximitydist)	// non-geometry updated damage faces (near)
+			if(dist <= dmg_proximitydist)	// non-geometry updated damage faces (near)
 			{
 				QueueDamageFaceBuildChain_Append(chunk);		// add to slow chain	
 				chunk.drawingdamage = TRUE;
 			}
 		}
-		
+	}
+	
+	if(dist <= proximitydist || (!isnew && sfldmgd))
+	{
 //		Nearby or geometry updated Chunk Faces
 		QueueNearFaceBuildChain_Add(chunk);	// immediate chain
 		
@@ -639,8 +645,11 @@ void UpdateFaceQueuesForPlayerPosition()
 	float proximitydist = chunksize*cubicradius*2*autocvar_cq_bgload_dist;
 	proximitydist = proximitydist*proximitydist;	
 
-	float removedist = chunksize*cubicradius*2*autocvar_cq_bgload_dist*1.5;
-	removedist = removedist*removedist;	
+	float dmg_proximitydist = chunksize*cubicradius*2*autocvar_cq_dmgload_dist;
+	dmg_proximitydist = dmg_proximitydist*dmg_proximitydist;
+	
+	float dmg_removedist = chunksize*cubicradius*2*(autocvar_cq_dmgload_dist+1);
+	dmg_removedist = dmg_removedist*dmg_removedist;	
 	
 	for(e = list_queuefacebuildchain; e; e = nexte)
 	{
@@ -672,7 +681,7 @@ void UpdateFaceQueuesForPlayerPosition()
 		ofs = chunk.origin - currentplayerchunkpos;
 		dist = ofs*ofs;
 		
-		if(dist > removedist)
+		if(dist > dmg_removedist)
 		{		
 			if(chunk.drawingdamage)
 			{
@@ -689,7 +698,7 @@ void UpdateFaceQueuesForPlayerPosition()
 			}
 		}
 		else
-		if(dist <= proximitydist)
+		if(dist <= dmg_proximitydist)
 		if(!chunk.drawingdamage)
 		{
 			if(chunk.numdamagedcubics)

@@ -259,7 +259,7 @@ void Editor_ModifySide()
 		makevectors(view_ang);
 
 		self.dimension_hit = 255&~1;
-		traceline(view_org, view_org + v_forward*cubicradius*2*chunksize*clustersize*max(maxviewsize, maxviewheight), MOVE_NORMAL, self);
+		traceline(view_org, view_org + v_forward*cubicradius*2*chunksize*clustersize*max(maxviewsize, maxviewheight), MOVE_NORMAL, ignorenothing);
 		self.dimension_hit = 255;
 		
 		if(trace_ent)
@@ -771,7 +771,7 @@ void Editor_InfoEdit()
 	makevectors(view_ang);
 	
 	self.dimension_hit = 255&~1;
-	traceline(view_org, view_org + v_forward*cubicradius*2*(tooltracedist*2), MOVE_NORMAL, self);
+	traceline(view_org, view_org + v_forward*cubicradius*2*(tooltracedist*2), MOVE_NORMAL, ignorenothing);
 	self.dimension_hit = 255;
 
 	if(trace_ent)

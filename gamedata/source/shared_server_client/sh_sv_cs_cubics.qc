@@ -1,6 +1,6 @@
 // VERSION
-int		cq_version		= 181;
-string	cubic_revision	= "cubiquake r181";
+int		cq_version		= 194;
+string	cubic_revision	= "cubiquake r194";
 int		oldfileversion	= 174;
 
 // WORLD SETTINGS
@@ -348,8 +348,6 @@ int		EDITOR_BLOCKROTATION_Y_DECREASE		= 125;
 int		EDITOR_BLOCKROTATION_XZ_INCREASE	= 126;
 int		EDITOR_BLOCKROTATION_XZ_DECREASE	= 127;
 
-int		CLIENT_TOGGLELIGHT	= 150;
-
 .int	chunkconnectiontype;
 int		numconnectiontypes = 6;
 int		CHUNKCONNECTION_GENERATED	= -3;
@@ -362,9 +360,12 @@ int		CHUNKCONNECTION_ANY			= 3;
 int		CHUNKCONNECTION_RANDOM		= 4;
 int		CHUNKCONNECTION_REQUIREONE	= 5;
 
-int		tooltracedist		= 15;
+int		tooltracedist		= 15;	// this is distance in cubics halved, increases based on tool size also
+int		playertracedist		= 96;	// distancein qu
 
 .int	cubicmemslot;
+
+.int		networkentnum;
 
 int			clusters_allocated;
 entity		*cluster_ent;

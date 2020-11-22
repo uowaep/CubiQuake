@@ -4,6 +4,8 @@ void CSQC_Init(float apilevel, string enginename, float engineversion)
 	// FIXME need to find a way to set csqc cubic values here, intead of upon arrival of the first network entity.
 	// do not reference anything in InitGameVariables here.
 	
+	ignorenothing = spawn();
+	
 	registercommand("cq_worlds");	
 	registercommand("cq_resetview");
 	registercommand("cq_reinitializeclient");
@@ -31,20 +33,18 @@ void CSQC_Shutdown()
 // Return value should be 1 if CSQC handled the command, otherwise return 0 to have the engine handle it.
 float CSQC_ConsoleCommand(string strMessage)
 {
-	float nReturn;
-		nReturn = TRUE;
+	float nReturn = FALSE;
 		
 	// Tokenize String
 	tokenize(strMessage);
 	
 	// Acquire Command
 	string strCmd;
-		strCmd = argv(0);
+	strCmd = argv(0);
 	
 	switch(strCmd)
 	{
 		case "cq_worlds":				nReturn = TRUE;	ListWorlds();					break;	// this would be better if it worked while not already in a world (menuqc)
-		case "cq_toggleclientlight":	nReturn = TRUE;	ClientToggleLight();			break;
 		case "cq_resetview":			nReturn = TRUE;	localcmd(strcat("cmd cq_resetview ", cvar_string("cq_adminpass"), "\n"));	break;
 		case "cq_reinitializeclient":	nReturn = TRUE;	InitializeClientSettings();	print("Client Settings reinitialized.\n");		break;
 		case "cq_filename":				nReturn = TRUE;	localcmd(strcat("cmd cq_filename ", argv(1), "\n"));	break;
@@ -90,11 +90,11 @@ float CSQC_InputEvent(float evtype, float scanx, float chary, float devid)
 
 		switch(bind)
 		{
-			case "+attack":			inputid = INPUT_ATTACK;		break;
-			case "impulse 99":		inputid = INPUT_BUTTON1;	break;
-			case "+speed":			inputid = INPUT_SPEED;		break;	// this isn't doing anything
-	//		case "impulse 98":		inputid = INPUT_TOOLDIM;	break;
-	
+			case "+attack":			inputid = INPUT_ATTACK;			break;
+			case "impulse 99":		inputid = INPUT_BUTTON1;		break;
+			case "+speed":			inputid = INPUT_SPEED;			break;	// this isn't doing anything
+	//		case "impulse 98":		inputid = INPUT_TOOLDIM;		break;
+			case "impulse 150":		inputid = INPUT_CLIENTLIGHT;	break;
 			case "impulse 22":		eprint(GetChunkForLocation(__NULL__, view_org, __FUNC__));	 break;
 		}
 

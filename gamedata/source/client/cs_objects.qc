@@ -7,6 +7,9 @@ float PI      = 3.14159265358979323846264338327950288419716939937510582097494459
 
 void RollObject(entity e)
 {
+	if(e.physics_maxslidespeed == -1)
+		return;
+	
 	float slidelimit = max(1, e.physics_maxslidespeed); 
 
 	if(e.velocity_z > -1 && e.velocity_z < 1)
@@ -99,8 +102,8 @@ void UpdateObj(float isnew)
 		self.enttype = ENT_OBJ;
 		self.objtype = readbyte();
 	//	self.modelindex = readshort();
-		mdlindex = readshort();
-		
+//		mdlindex = readshort();
+		self.networkentnum = readlong();
 	//	self.solid = SOLID_BBOX;		// probably don't need a solid here
 	//	setsize(self, '-32 -32 -32', '32 32 32');
 		
@@ -141,7 +144,7 @@ void UpdateObj(float isnew)
 
 		if(!nomodel)
 		{
-			setmodel(self, modelnameforindex(mdlindex));
+		//	setmodel(self, modelnameforindex(mdlindex));
 			self.drawmask = MASK_NORMAL;
 			self.movementcorrection = '0 0 0';	// seems like i could delete this line (also in ai code)
 			self.predraw = Predraw_Obj;

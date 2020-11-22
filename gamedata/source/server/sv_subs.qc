@@ -45,9 +45,11 @@ void CleanUp_Remove (entity e)
 	
 	if(e.enttype == ENT_CUBICOBJ)
 	{
-		entity chunk = GetChunkForLocation(__NULL__, e.origin, __FUNC__);
-		if(chunk)
-			CubicObjChain_Remove(chunk, e);
+	//	entity chunk = GetChunkForLocation(__NULL__, e.origin, __FUNC__);
+		if(e.parentchunk)
+			CubicObjChain_Remove(e.parentchunk, e);
+		else
+			print("Missing parentchunk on removed cubic object. SSQC\n");
 	}
 	
 	LeaveSolidCubics(e, e.lastsolidcubicorigin);

@@ -290,7 +290,8 @@ void Movetype_BounceSlide(entity e)
 //	else
 //		tracetarget = e.origin+e.velocity*frametime;
 
-	tracetarget = e.origin+e.velocity*frametime + normalize(e.velocity)*tracepadding;
+	vector padofs = normalize(e.velocity)*tracepadding;
+	tracetarget = e.origin+e.velocity*frametime + padofs;
 
 	tracebox(e.origin, e.mins, e.maxs, tracetarget, MOVE_NORMAL, e);	// see what's in front of the object's velocity for this frame
 
@@ -333,7 +334,7 @@ void Movetype_BounceSlide(entity e)
 		if(e.pushvelocity != '0 0 0')
 			e.velocity = e.pushvelocity;
 		
-		org = trace_endpos;
+		org = trace_endpos - padofs;
 	}
 
 	// check to see if z bounce is weak, and if so, slide (or continue sliding)
@@ -362,27 +363,26 @@ void Movetype_BounceSlide(entity e)
 //		e.velocity = e.velocity - normalize(e.velocity)*min(vlen(e.velocity), 80*frametime);	// air friction (optional)
 	
 	// get movement offset for this frame
-	vector ofs = e.velocity*frametime + normalize(e.velocity)*tracepadding;
+	vector ofs = e.velocity*frametime;// + normalize(e.velocity)*tracepadding;
 		
 	if(ofs != '0 0 0')
 	{
 		// if we bounced earlier, or began sliding, trace offset before applying movement
 		if(trace_fraction < 1 || slidestart)
 		{
-		//	if(ofs*ofs < tracepadding*tracepadding)
-		//		tracetarget = org + normalize(ofs)*tracepadding;	// trace at least 1 unit
-		//	else
-				tracetarget = org+ofs;			
-			
-			tracebox(org, e.mins, e.maxs, tracetarget, MOVE_NORMAL, e);	// make sure any bouncing doesn't put the object past a different surface		
+			padofs = normalize(ofs)*tracepadding;
+			tracetarget = org+ofs + padofs;			
+			tracebox(org, e.mins, e.maxs, tracetarget, MOVE_NORMAL, e);	// make sure any bouncing doesn't put the object past a different surface	
+
+			if(trace_fraction < 1)
+				ofs = trace_endpos-org-padofs;
 		}
 
 		if(trace_fraction)
 		{
-			vector diff = ofs*trace_fraction;
-			
-			if(diff*diff > 1)
-				setorigin(e, org+ofs*trace_fraction - normalize(e.velocity)*tracepadding);	// update origin
+		//	vector diff = ofs;//*trace_fraction;
+		//	if(diff*diff > 1)
+				setorigin(e, org+ofs);//*trace_fraction - normalize(e.velocity)*tracepadding);	// update origin
 		}
 	}
 }

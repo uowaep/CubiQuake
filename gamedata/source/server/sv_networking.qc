@@ -284,3 +284,10 @@ void NetworkEntity(entity e, void(entity e) stopfunc, void(entity e) pushfunc)
 	e.origin_previous = e.origin;
 	e.origin_previous_set = TRUE; // probably don't need to set these on entities as they spawn if it's set here.. test this
 }
+
+void SetNetworkEnt(entity e)
+{
+	numnetworkents++;
+	e.networkentnum = numnetworkents;
+	// FIXME: do a cleanup event if numnetworkents somehow gets too big
+}

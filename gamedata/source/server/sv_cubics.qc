@@ -234,8 +234,9 @@ void RemoveClustersForPlayerClients()
 
 void RemoveChunkEnt(entity chunk, entity cluster)
 {
+	vector org = chunk.origin;
+	
 	FreeChunkAllocations(chunk);
-	cluster.chunk_ent[GetChunkRef(chunk.origin-cluster.origin, __FUNC__)] = __NULL__;
 	
 	while(chunk.list_cubicbboxchain)
 	{
@@ -246,8 +247,11 @@ void RemoveChunkEnt(entity chunk, entity cluster)
 		
 		Remove(chunk.list_cubicbboxchain);
 	}
+	
 	ChunkChain_Remove(cluster, chunk);
 	Remove(chunk);	
+	
+	cluster.chunk_ent[GetChunkRef(org-cluster.origin, __FUNC__)] = __NULL__;
 }
 
 

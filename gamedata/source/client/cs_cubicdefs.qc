@@ -1,3 +1,6 @@
+// hack for traceline
+entity	ignorenothing;
+
 // view orientation
 vector	view_size;
 vector	view_org;
@@ -67,6 +70,7 @@ int	FACE_ALL	= 64;	// doesn't work the same as FACE_SIDE. this is just a bit
 
 .int	queuedforfacebuild;
 float	autocvar_cq_bgload_dist;
+float	autocvar_cq_dmgload_dist;
 
 int		autocvar_cq_framesperfacebuild;
 int		autocvar_cq_maxfacegroupsperbuild;

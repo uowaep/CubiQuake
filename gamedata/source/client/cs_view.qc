@@ -128,7 +128,7 @@ void CSQC_UpdateView(float vwidth, float vheight, float notmenu)
 	
 	setorigin(clientlight, view_org);	// client light entity origin update
 
-	InitializeMousePos();
+//	InitializeMousePos();
 	UpdateCubicInterface();
 
 	DrawSky_Wrap();	

@@ -917,7 +917,7 @@ void FreeNearestCubic(vector org, vector vel, int push, int bsf)
 	BlockObjectChain_Add(block);
 
 	setsize(block, '-15 -15 -15', '15 15 15');
-	block.bs_tracepadding = 2;
+	block.bs_tracepadding = 1;
 	
 	block.velocity = vel;//(pushtoorg-tracepos)*1;
 	
@@ -966,7 +966,7 @@ void Fire_PushBounceSlideTest(entity e)
 		org = e.origin;
 	}
 
-	org = TraceCubic(org, org + v_forward*96, TRUE);
+	org = TraceCubic(org, org + v_forward*playertracedist, TRUE);
 
 	vector tracepos = GetNearestCubicOrigin(org, chunksize_iseven);
 	
@@ -1001,7 +1001,7 @@ void Fire_PlatTest(entity e)
 		org = e.origin;
 	}
 	
-	org = TraceCubic(org, org + v_forward*96, TRUE);
+	org = TraceCubic(org, org + v_forward*playertracedist, TRUE);
 	FreeNearestCubic(org, '0 0 100', TRUE, BSFLAG_NOBOUNCE | BSFLAG_NOGRAVITY);
 }	
 	
@@ -1024,7 +1024,7 @@ void Fire_TrainTest(entity e)
 		org = e.origin;
 	}
 	
-	org = TraceCubic(org, org + v_forward*96, TRUE);
+	org = TraceCubic(org, org + v_forward*playertracedist, TRUE);
 	
 	vector tracepos = GetNearestCubicOrigin(org, chunksize_iseven);
 	
@@ -1096,7 +1096,7 @@ void Fire_DamageTest(entity e)
 //	if(trace_ent)
 //		return;
 	
-	org = TraceCubic(org, org + v_forward*64, TRUE);
+	org = TraceCubic(org, org + v_forward*playertracedist, TRUE);
 	vector tracepos = GetNearestCubicOrigin(org, chunksize_iseven);
 	entity chunk = GetChunkForLocation(__NULL__, tracepos, __FUNC__);
 	
@@ -1202,9 +1202,6 @@ void Player_CubiQuakeControls()
 		if(!ModifyBlock(3, __NULL__, __NULL__, DecreaseBlockRotation_XZ))
 			self.editor_blockrotation = DecreaseBlockRotation_XZ(self.editor_blockshape, self.editor_blockrotation);
 	}
-
-	if(self.impulse == CLIENT_TOGGLELIGHT)
-		stuffcmd(self, "cq_toggleclientlight\n");
 
 	if(self.impulse == 98)
 	if(self.tool)

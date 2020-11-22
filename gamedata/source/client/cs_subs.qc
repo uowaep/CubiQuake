@@ -17,11 +17,12 @@ void CleanUp_Remove (entity e)
 	{
 		while(e.list_chunkbloatchain)
 			ChunkBloatChain_Remove(e, e.list_chunkbloatchain);
-		
+
 		if(e.list_chunklightchain)	// this unlights faces that were lit by lights that are now past the edge of the loaded world, but this also unlights faces near a chunk that was removed because it's last visible cubic was a light that was removed
 			ResetStaticLights(FALSE);
 		
 		ClearChunkValues(e, FALSE, TRUE);
+
 		if(e.chunkinitialized)
 			FreeChunkAllocations(e);
 
@@ -40,9 +41,6 @@ void CleanUp_Remove (entity e)
 //				Remove(cluster);
 				GhostCluster(cluster);
 			}
-			
-			while(e.list_cubicobjchain)
-				Remove(e.list_cubicobjchain);
 		}
 
 /*		e.numvisiblecubics = 0;
@@ -61,6 +59,9 @@ void CleanUp_Remove (entity e)
 		ChunkChain_Remove(e);
 	//	GhostChunkChain_Add(e);
 	//	return;
+	
+	
+	
 	}
 	else
 	if(e.enttype == ENT_CHUNKBLOAT)
@@ -100,9 +101,11 @@ void CleanUp_Remove (entity e)
 
 	if(e.enttype == ENT_CUBICOBJ)
 	{
-		chunk = GetChunkForLocation(__NULL__, e.origin, __FUNC__);
-		if(chunk)
-			CubicObjChain_Remove(chunk, e);
+	//	chunk = GetChunkForLocation(__NULL__, e.origin, __FUNC__);
+		if(e.parentchunk)
+			CubicObjChain_Remove(e.parentchunk, e);
+		else
+			print("Missing parent chunk on removed cubic object. CSQC\n");
 	}
 	
 	LightEntChain_Remove(e);

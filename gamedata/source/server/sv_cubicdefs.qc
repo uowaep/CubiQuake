@@ -6,6 +6,7 @@
 //.int		cs_worldsize;
 
 //.int		averagetype;
+int			numnetworkents;
 .*entity	cluster_playerlist;
 
 .int		damaged;
