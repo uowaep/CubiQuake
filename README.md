@@ -4,7 +4,7 @@ CubiQuake is a multiplayer Quake modification that lets players and modders expe
 
 It can be played as is in creative mode to build worlds, but it is also a core framework for Quake mod developers. Multiple rotatable shapes are supported: cube, ramp, wedges, slab. Each cubic/shape can use any texture (or model for more decorative applications).
 
-On a more technical side, Cubiquake uses trisoup_simple() to draw most surfaces, and dynamically spawns collision boxes and calculates lighting as the player moves through the world. Ambient, static, and (some experimental dynamic) light all work despite not using a BSP world. You do not need to be a modder to use CubiQuake as is. Just follow the installation and playing instructions.
+On a more technical side, Cubiquake uses trisoup_simple() to draw most surfaces, and dynamically spawns collision boxes and calculates lighting as the player moves through the world. Ambient, static, and (experimental) dynamic light all work despite not using a BSP world. You do not need to be a modder to use CubiQuake as is. Just follow the installation and playing instructions.
 
 ### Media
 
