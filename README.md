@@ -1,43 +1,46 @@
 <img align="left" src="https://raw.githubusercontent.com/uowaep/CubiQuake/master/cubiquake.png"> CubiQuake: Cubic/Voxel Style Game Framework for the FTEQW Engine __(Requires [FTEQW](http://fte.triptohell.info/downloads) 64bit strongly recommended.)__
 
-CubiQuake is a FTE QuakeWorld modification. It can be played as is in creative mode to build worlds, but it is also a core framework for Quake mod developers. It is designed for building cubic (or voxel to some of you) worlds. Cubiquake uses trisoup_simple() to draw most surfaces, and dynamically spawns collision surfaces and calculates lighting as the player moves through the world. Multiple rotatable shapes are supported: cube, ramp, wedges, slab. Each cubic/shape can use any texture or instead use models for more decorative applications such as the example torches. Ambient, static, and dynamic light all work despite not using a BSP world. You do not need to be a modder to use CubiQuake as is. Just follow the installation and playing/generation instructions.
+CubiQuake is a multiplayer Quake modification that lets players and modders experience classic Quake gameplay/physics in a cubic/voxel world. Generate worlds randomly, or create prefabs that link together dynamically to create complex structrues such as dungeons, or anything you can imagine and build. CubiQuake currently only runs on the FTE QuakeWorld engine, but it is possible that other great Quake engines may support it in the future.
 
-Use the F1-F4 Keys in-game for help!
+It can be played as is in creative mode to build worlds, but it is also a core framework for Quake mod developers. Multiple rotatable shapes are supported: cube, ramp, wedges, slab. Each cubic/shape can use any texture (or model for more decorative applications).
+
+On a more technical side, Cubiquake uses trisoup_simple() to draw most surfaces, and dynamically spawns collision boxes and calculates lighting as the player moves through the world. Ambient, static, and (some experimental dynamic) light all work despite not using a BSP world. You do not need to be a modder to use CubiQuake as is. Just follow the installation and playing instructions.
 
 ### Media
 
 + [Twitch](https://www.twitch.tv/clay__clay)
 + [YouTube](https://www.youtube.com/user/uowaep)
 
-### Installation
+### Install
 - Download CubiQuake https://github.com/uowaep/CubiQuake/archive/master.zip and extract the entire contents of the zip file into any directory. The directory you choose will be your main CubiQuake directory.
 - Download the appropriate client from FTEQW http://fte.triptohell.info/downloads and place it in your main CubiQuake directory. (64bit strongly recommended.)
 
 Note: Don't copy the default.fmf file if installing into an existing FTEQW directory with other mods.
 
-### Running CubiQuake
+### Play
 - Start FTEQW from the directory you installed to.
-- Click on "Start World"
+- Click on "Start World".
+- Use the F1-F4 Keys in-game for help!
 
-### Updating
+### Update
 - Extract and overwrite the new files into your install directory.
 - Delete the fte.cfg file to apply any changes made to default.cfg.
 
-### Multiplayer
+### Multiplayer Notes
 Multiplayer was working the last time it was tested. It's been a while though. It could be broken. It might be fine. Get the server from http://fte.triptohell.info/downloads. Use the cubiquakeserver.bat file or check the command line inside to run a dedicated server.
 
 WARNING: If a server restarts, players need to reconnect to get the world to network to them correctly. This is on the known issues list.
 
 ### Known Issues
-- cubics/chunks/clusters can be placed on players
-- players spawn inside of eachother on server restart and don't network chunks correctly (join an existing server!)
-- players can get stuck in cubics if they move too fast for the loading speed (haven't seen this happen in a while)
+- Cubics/chunks/clusters can be placed on players.
+- Players spawn inside of eachother on server restart and don't network chunks correctly. (Join an existing server!)
+- Players can get stuck in cubics if they move too fast for the loading speed. (I haven't seen this happen in a while.)
 
 ### ToDo
-- review multiplayer and test for issues
-- copy/paste multiple cubics via custom selection tool
-- make player light visible to other players
-- don't let players place things on players
+- Review multiplayer and test for issues.
+- Copy/paste multiple cubics via custom selection tool.
+- Make player light visible to other players.
+- Don't let players place things on players.
 
 ### ChangeLog
 
