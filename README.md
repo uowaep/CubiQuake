@@ -9,33 +9,19 @@ Use the F1-F4 Keys in-game for help!
 + [Twitch](https://www.twitch.tv/clay__clay)
 + [YouTube](https://www.youtube.com/user/uowaep)
 
-### Recent Changes
-
-Going forward from r166, backward compatibility should be maintained. It is still always a good idea to delete your fte.cfg file so any changes to default.cfg can be applied.
-
-r194
-+ block objects now bounce off surfaces much more smoothly
-+ added cvar cq_dmgload_dist so damage faces can be set to load at a different proximity than normal faces
-+ fixed some issues with some interface traceline calls
-+ reduced network data sent for non block type cubics
-+ client light toggle is now handled by csqc without needing info from the server
-+ network objects now have an id so interaction in csqc can work more smoothly if not perfectly aligned with the server
-+ model index is no longer networked since csqc has enough info to look up the model
-+ fixed an issue with some rolling objects
-+ fixed an issue with objects being removed incorrectly
-
 ### Installation
 - Download CubiQuake https://github.com/uowaep/CubiQuake/archive/master.zip and extract the entire contents of the zip file into any directory. The directory you choose will be your main CubiQuake directory.
 - Download the appropriate client from FTEQW http://fte.triptohell.info/downloads and place it in your main CubiQuake directory. (64bit strongly recommended.)
 
-Note: If sharing the same FTE install with other mods, the default.fmf file should not be installed.
+Note: Don't copy the default.fmf file if installing into an existing FTEQW directory with other mods.
+
+### Running CubiQuake
+- Start FTEQW from the directory you installed to.
+- Click on "Start World"
 
 ### Updating
-Extract the new files into your install directory. It's always good idea to start from scratch when updating, but you shouldn't need to. If anything is broken try clearing the data dir first. If that doesn't help, start from a clean install. If that doesn't help run debug mode in FTEQCC and get some screenshots.
-
-### Starting CubiQuake
-- Start FTEQW.
-- Click on "Start World"
+- Extract and overwrite the new files into your install directory.
+- Delete the fte.cfg file to apply any changes made to default.cfg.
 
 ### Multiplayer
 Multiplayer was working the last time it was tested. It's been a while though. It could be broken. It might be fine. Get the server from http://fte.triptohell.info/downloads. Use the cubiquakeserver.bat file or check the command line inside to run a dedicated server.
@@ -53,7 +39,7 @@ WARNING: If a server restarts, players need to reconnect to get the world to net
 - make player light visible to other players
 - don't let players place things on players
 
-### Full ChangeLog
+### ChangeLog
 
 r194
 + block objects now bounce off surfaces much more smoothly
