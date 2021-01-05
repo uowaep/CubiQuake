@@ -1,10 +1,12 @@
 <img align="left" src="https://raw.githubusercontent.com/uowaep/CubiQuake/master/cubiquake.png"> CubiQuake: Cubic/Voxel Style Game Framework for the FTEQW Engine __(Requires [FTEQW](http://fte.triptohell.info/downloads) 64bit strongly recommended.)__
 
-CubiQuake is a multiplayer Quake modification that lets players and modders experience classic Quake gameplay/physics in a cubic/voxel world. Generate worlds randomly, or create prefabs that link together dynamically to create complex structrues such as dungeons, or anything you can imagine and build. CubiQuake currently only runs on the FTE QuakeWorld engine, but it is possible that other great Quake engines may support it in the future.
+CubiQuake is a multiplayer Quake modification that allows players and modders to experience and experiment with classic Quake gameplay and physics in a cubic/voxel world using the QuakeC script language. Generate worlds randomly, or create prefabs that link together dynamically to create complex randomly generated structrues such as dungeons, or anything you can imagine. CubiQuake currently only runs on the FTE QuakeWorld engine, but it is possible that other great Quake engines may support it in the future.
 
-It can be played as is in creative mode to build worlds, but it is also a core framework for Quake mod developers. Multiple rotatable shapes are supported: cube, ramp, wedges, slab. Each cubic/shape can use any texture (or model for more decorative applications).
+You can build sandbox worlds, or if you're a modder, build upon the core framework and create your own mods powered by CubiQuake. 
 
-On a more technical side, Cubiquake uses trisoup_simple() to draw most surfaces, and dynamically spawns collision boxes and calculates lighting as the player moves through the world. Ambient, static, and (experimental) dynamic light all work despite not using a BSP world. You do not need to be a modder to use CubiQuake as is. Just follow the installation and playing instructions.
+On a more technical side, Cubiquake uses the FTE builtin function trisoup_simple() to draw most surfaces, and dynamically spawns collision models and calculates lighting as the player moves through the world. Ambient, static, and (experimental) dynamic light all work despite not using a BSP world. Multiple XYZ rotatable shapes are supported: cube, ramp, wedge(s), slab. Each cubic/shape can use any texture (or model for more decorative applications).
+
+You do not need to be a modder to play with CubiQuake as is. Just follow the installation and playing instructions below.
 
 ### Media
 
@@ -29,11 +31,11 @@ Note: Don't copy the default.fmf file if installing into an existing FTEQW direc
 ### Multiplayer Notes
 Multiplayer was working the last time it was tested. It's been a while though. It could be broken. It might be fine. Get the server from http://fte.triptohell.info/downloads. Use the cubiquakeserver.bat file or check the command line inside to run a dedicated server.
 
-WARNING: If a server restarts, players need to reconnect to get the world to network to them correctly. This is on the known issues list.
+WARNING: If a server restarts, players need to reconnect to get the world to network to them correctly. This is on the known issues list. (Join an existing server!)
 
 ### Known Issues
 - Cubics/chunks/clusters can be placed on players.
-- Players spawn inside of eachother on server restart and don't network chunks correctly. (Join an existing server!)
+- Players spawn inside of eachother on server restart and don't network chunks correctly.
 - Players can get stuck in cubics if they move too fast for the loading speed. (I haven't seen this happen in a while.)
 
 ### ToDo
