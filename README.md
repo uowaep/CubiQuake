@@ -1,3 +1,6 @@
++ [Twitch](https://www.twitch.tv/clay__clay)
++ [YouTube](https://www.youtube.com/user/uowaep)
+
 <img align="left" src="https://raw.githubusercontent.com/uowaep/CubiQuake/master/cubiquake.png"> CubiQuake: Cubic/Voxel Style Game Framework for the FTEQW Engine __(Requires [FTEQW](http://fte.triptohell.info/downloads) 64bit strongly recommended.)__
 
 CubiQuake is a multiplayer Quake modification that allows players and modders to experience and experiment with classic Quake gameplay and physics in a cubic/voxel world using the QuakeC script language. Generate worlds randomly, or create prefabs that link together dynamically to create complex randomly generated structrues such as dungeons, or anything you can imagine. CubiQuake currently only runs on the FTE QuakeWorld engine, but it is possible that other great Quake engines may support it in the future.
@@ -7,11 +10,6 @@ You can build sandbox worlds, or if you're a modder, build upon the core framewo
 On a more technical side, Cubiquake uses the FTE builtin function trisoup_simple() to draw most surfaces, and dynamically spawns collision models and calculates lighting as the player moves through the world. Ambient, static, and (experimental) dynamic light all work despite not using a BSP world. Multiple XYZ rotatable shapes are supported: cube, ramp, wedge(s), slab. Each cubic/shape can use any texture (or model for more decorative applications).
 
 You do not need to be a modder to play with CubiQuake as is. Just follow the installation and playing instructions below.
-
-### Media
-
-+ [Twitch](https://www.twitch.tv/clay__clay)
-+ [YouTube](https://www.youtube.com/user/uowaep)
 
 ### Install
 - Download CubiQuake https://github.com/uowaep/CubiQuake/archive/master.zip and extract the entire contents of the zip file into any directory. The directory you choose will be your main CubiQuake directory.
