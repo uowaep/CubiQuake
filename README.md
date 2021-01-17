@@ -30,20 +30,12 @@ Note: Don't copy the default.fmf file if installing into an existing FTEQW direc
 
 ### Multiplayer Notes
 Multiplayer was working the last time it was tested. It's been a while though. It could be broken. It might be fine. Get the server from http://fte.triptohell.info/downloads. Use the cubiquakeserver.bat file or check the command line inside to run a dedicated server.
-
-WARNING: If a server restarts, players need to reconnect to get the world to network to them correctly. This is on the known issues list. (Join an existing server!)
-
-### Known Issues
-- Using the 'quit' console command bypasses chunk saving routines, so 'cq_chunksave_interval' is set to 0 (modifications write to disk instantly) in order to avoid losing changes and breaking worlds.
-- Cubics/chunks/clusters can be placed on players.
-- Players spawn inside of eachother on server restart and don't network chunks correctly.
-- Players can get stuck in cubics if they move too fast for the loading speed. (I haven't seen this happen in a while.)
+<span style="color:red">WARNING: If a server restarts, players need to reconnect to get the world to network to them correctly. This is on the issues list.</span>
 
 ### ToDo
 - Review multiplayer and test for issues.
-- Copy/paste multiple cubics via custom selection tool.
+- Copy/paste multiple cubics via custom selection box tool.
 - Make player light visible to other players.
-- Don't let players place things on players.
 
 ### ChangeLog
 
