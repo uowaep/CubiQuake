@@ -1,9 +1,9 @@
 + [Twitch](https://www.twitch.tv/clay__clay)
 + [YouTube](https://www.youtube.com/user/uowaep)
 
-<img align="left" src="https://raw.githubusercontent.com/uowaep/CubiQuake/master/cubiquake.png"> **CubiQuake:** Cubic/Voxel Style Game Framework for the FTEQW Engine
+<img align="left" src="https://raw.githubusercontent.com/uowaep/CubiQuake/master/cubiquake.png"> **CubiQuake** : Cubic/Voxel Style Game Framework for the FTEQW Engine
 
-CubiQuake is a multiplayer Quake modification that allows players and modders to experience and experiment with classic Quake gameplay and physics in a cubic/voxel world using the QuakeC script language. Generate worlds randomly, or create prefabs that link together dynamically to create complex randomly generated structrues such as dungeons, or anything you can imagine. CubiQuake currently only runs on the FTE QuakeWorld engine, but it is possible that other great Quake engines may support it in the future.
+CubiQuake is a multiplayer Quake modification that allows players and modders to experience and experiment with classic Quake gameplay and physics in a cubic/voxel world using the QuakeC script language. Generate worlds randomly, or create prefabs that link together dynamically to create complex randomly generated structrues such as dungeons, cities, or anything you can imagine. CubiQuake currently only runs on the FTE QuakeWorld engine, but it is possible that other great Quake engines may support it in the future.
 
 You can build sandbox worlds, or if you're a modder, build upon the core framework and create your own mods powered by CubiQuake. 
 
