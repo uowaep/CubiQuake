@@ -30,7 +30,8 @@ Note: Don't copy the default.fmf file if installing into an existing FTEQW direc
 
 ### Multiplayer Notes
 Multiplayer was working the last time it was tested. It's been a while though. It could be broken. It might be fine. Get the server from http://fte.triptohell.info/downloads. Use the cubiquakeserver.bat file or check the command line inside to run a dedicated server.
-<span style="color:red">WARNING: If a server restarts, players need to reconnect to get the world to network to them correctly. This is on the issues list.</span>
+
+WARNING: If a server restarts, players need to reconnect to get the world to network to them correctly. This is on the issues list.
 
 ### ToDo
 - Review multiplayer and test for issues.
