@@ -34,6 +34,7 @@ Multiplayer was working the last time it was tested. It's been a while though. I
 WARNING: If a server restarts, players need to reconnect to get the world to network to them correctly. This is on the known issues list. (Join an existing server!)
 
 ### Known Issues
+- Using the 'quit' console command bypasses chunk saving routines, so 'cq_chunksave_interval' is set to 0 (modifications write to disk instantly) in order to avoid losing changes and breaking worlds.
 - Cubics/chunks/clusters can be placed on players.
 - Players spawn inside of eachother on server restart and don't network chunks correctly.
 - Players can get stuck in cubics if they move too fast for the loading speed. (I haven't seen this happen in a while.)
