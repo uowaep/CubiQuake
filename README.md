@@ -33,8 +33,10 @@ WARNING: If a server restarts, players need to reconnect to get the world to net
 
 ### ToDo
 - Review multiplayer and test for issues.
-- Copy/paste multiple cubics via custom selection box tool.
+- Implement copy/paste multiple cubics via custom selection box tool.
+- Improve dynamic light speed.
 - Make player light visible to other players.
+- Experiment with (and learn) shaders to attempt shadows.
 
 ### ChangeLog
 
