@@ -42,8 +42,8 @@ WARNING: If a server restarts, players need to reconnect to get the world to net
 
 r208
 + cubic, chunk, cluster tools have been moved from 1 2 3 to HOME, END, PGUP keys by default (help menus now reflect this)
-+ small optimization when counting cubis for selection tool to draw
-+ core now supports a STAT_OBJECT_PLACEMENTTYPE stat for modders. Set the appropriate stat field to a blocktype tell csqc to draw an object that a player is trying to place. (outside of the editor)
++ small optimization when counting cubics for selection tool to draw
++ core now supports a STAT_OBJECT_PLACEMENTTYPE stat for modders. Set the appropriate stat field to a blocktype to tell csqc to draw an object that a player is trying to place. (outside of the editor)
 + renamed SetModelForCubicObject to SetModelForCubicObject_Wrap becase it's for using __wrap
 + removed case sensitivity in file searches
 + AddCubic and AddCubicArea now return the number of cubics placed as an int
