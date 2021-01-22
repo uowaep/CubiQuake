@@ -40,6 +40,16 @@ WARNING: If a server restarts, players need to reconnect to get the world to net
 
 ### ChangeLog
 
+r208
++ cubic, chunk, cluster tools have been moved from 1 2 3 to HOME, END, PGUP keys by default (help menus now reflect this)
++ small optimization when counting cubis for selection tool to draw
++ core now supports a STAT_OBJECT_PLACEMENTTYPE stat for modders. Set the appropriate stat field to a blocktype tell csqc to draw an object that a player is trying to place. (outside of the editor)
++ renamed SetModelForCubicObject to SetModelForCubicObject_Wrap becase it's for using __wrap
++ removed case sensitivity in file searches
++ AddCubic and AddCubicArea now return the number of cubics placed as an int
++ added shared server/client function for getting block type for placeable item: GetBlockTypeForItemType_Wrap
++ added credits to id inside swquaketextures.pk3
+
 r194
 + block objects now bounce off surfaces much more smoothly
 + added cvar cq_dmgload_dist so damage faces can be set to load at a different proximity than normal faces
