@@ -36,6 +36,7 @@ entity		stagger_removeunoccupiedclusters_ghostchunk;
 .int		maxviewheight_prev;
 .vector		maxviewcenter_prev;
 
+.int		object_placementtype;
 .int		tool;
 .int		toolsize;
 .int		editor_blocktype;

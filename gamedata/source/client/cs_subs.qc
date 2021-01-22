@@ -124,7 +124,7 @@ void ListWorlds()
 {
 	string s;
 	
-	float h = search_begin("data/worlds/*", FALSE, FALSE);
+	float h = search_begin("data/worlds/*", TRUE, FALSE);
 	float n = search_getsize(h);
 
 	print("Worlds:\n");

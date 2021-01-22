@@ -19,7 +19,7 @@ entity SetChunkCubicObject(entity chunk, int memslot, int type)
 	
 	entity e = spawn();
 	e.enttype = ENT_CUBICOBJ;
-	SetModelForCubicObject(e, type, TRUE);
+	SetModelForCubicObject_Wrap(e, type, TRUE);
 	setsize(e, '-1 -1 -1'*cubicradius, '1 1 1'*cubicradius);
 	SetYawForCubicObject(e, chunk.cubic_blockrotation[memslot]);
 //	e.solid = SOLID_BBOX;

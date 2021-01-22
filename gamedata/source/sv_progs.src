@@ -13,7 +13,7 @@
 #include "shared_server_client/sh_sv_cs_animation.qc"
 #include "server/sv_cubicdefs.qc"
 
-// PDOD DEFS
+// MOD DEFS
 #ifdef CQ_ISMOD
 #include "pdod/shared_server_client/pdod_sh_sv_cs_defs.qc"
 #include "pdod/shared_server_client/pdod_sh_sv_cs_chains.qc"
@@ -37,7 +37,7 @@
 #include "server/sv_main.qc"
 #include "server/sv_client.qc"
 
-// PDOD GAMEDATA
+// MOD GAMEDATA
 #ifdef CQ_ISMOD
 #include "pdod/shared_server_client/pdod_sh_sv_cs_ai.qc"
 #include "pdod/shared_server_client/pdod_sh_sv_cs_objects.qc"

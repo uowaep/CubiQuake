@@ -16,7 +16,7 @@
 #include "client/cs_chains.qc"
 #include "client/cs_cubicdefs.qc"
 
-// PDOD DEFS
+// MOD DEFS
 #ifdef CQ_ISMOD
 #include "pdod/shared_server_client/pdod_sh_sv_cs_defs.qc"
 #include "pdod/shared_server_client/pdod_sh_sv_cs_chains.qc"
@@ -46,7 +46,7 @@
 #include "client/cs_main.qc"
 #include "client/cs_view.qc"
 
-// PDOD GAMEDATA
+// MOD GAMEDATA
 #ifdef CQ_ISMOD
 #include "pdod/shared_server_client/pdod_sh_sv_cs_ai.qc"
 #include "pdod/shared_server_client/pdod_sh_sv_cs_objects.qc"

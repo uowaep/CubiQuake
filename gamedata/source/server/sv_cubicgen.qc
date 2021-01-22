@@ -704,7 +704,7 @@ void SetupPrefabs()
 	int *chunk_data;
 	float file = 0;
 	
-	float h = search_begin("data/prefabs/worldgen/*", FALSE, FALSE);
+	float h = search_begin("data/prefabs/worldgen/*", TRUE, FALSE);
 	float n = search_getsize(h);
 
 	for(int count = 0; count < n; count++)

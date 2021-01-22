@@ -435,16 +435,16 @@ void CopyCubicData(vector org)
 
 void InitializeCubic_Wrap(entity chunk, int count) {}
 
-void AddCubic(vector org, int type, int shape, int rotation, int c_health, int c_flags, int avoidexistingcubics)
+int AddCubic(vector org, int type, int shape, int rotation, int c_health, int c_flags, int avoidexistingcubics)
 {
 	if(!type || !shape)
-		return;
+		return FALSE;
 	
 	vector cubicchunkorg = GetNearChunkOrg(org);
 	entity chunk = GetChunkForLocation(__NULL__, cubicchunkorg, __FUNC__);
 	
 	if(!chunk)
-		return;
+		return FALSE;
 	
 /*
 	if(GetCubicStatus(chunk, org, FALSE) != -1)
@@ -456,7 +456,7 @@ void AddCubic(vector org, int type, int shape, int rotation, int c_health, int c
 
 	if(avoidexistingcubics)
 		if(GetCubicStatus(chunk, org, FALSE) != -1)
-			return;
+			return FALSE;
 
 	if(GetCubicStatus(chunk, org, FALSE) == -1)
 		QueueSetNumVisibleCubics(chunk, chunk.numvisiblecubics+1);
@@ -472,10 +472,13 @@ void AddCubic(vector org, int type, int shape, int rotation, int c_health, int c
 	InitializeCubic_Wrap(chunk, i);	// for mods
 	
 	UpdateChunkAreaVisibility(chunk, org, TRUE, TRUE);
+	
+	return TRUE;
 }
 
-void AddCubicArea(vector cubicorg, int type, int shape, int rotation, int avoidexistingcubics)
+int AddCubicArea(vector cubicorg, int type, int shape, int rotation, int avoidexistingcubics)
 {
+	int placed = 0;
 	vector org = '0 0 0';
 	vector edgemins = cubicorg + self.editor_selection_mins + '1 1 1'*cubicradius*2;
 	vector edgemaxs = cubicorg + self.editor_selection_maxs - '1 1 1'*cubicradius*2;
@@ -489,8 +492,10 @@ void AddCubicArea(vector cubicorg, int type, int shape, int rotation, int avoide
 				|| org_z > worlddim_z*0.5 || org_z < worlddim_z*-0.5)
 					continue;
 
-				AddCubic(org, type, shape, rotation, 100, 0, avoidexistingcubics);
+				placed += AddCubic(org, type, shape, rotation, 100, 0, avoidexistingcubics);
 			}
+			
+	return placed;
 }
 
 int CubicIsOnEdge(vector org)

@@ -1106,6 +1106,8 @@ void InitServerCubics()
 	maxplayers = 0;
 	for(entity p = world; (p=nextent(p)); maxplayers++) {}
 	
+	clientstat(STAT_OBJECT_PLACEMENTTYPE, EV_INTEGER, object_placementtype);
+	
 	clientstat(STAT_TOOL, EV_INTEGER, tool);
 	clientstat(STAT_TOOLSIZE, EV_INTEGER, toolsize);
 	clientstat(STAT_EDITOR_BLOCKTYPE, EV_INTEGER, editor_blocktype);

@@ -165,7 +165,7 @@ void InitializeModifySides(vector org)
 void BuildFacesForPlacementTool()
 {
 	vector sel_mins = '0 0 0', sel_maxs = '0 0 0', pos = '0 0 0';
-	int numcubicsinselection = 0;
+	int cells_on_perimeter_of_cube = 0;
 	
 	sel_maxs_z = editor_selection_maxs_z/(cubicradius*2);
 	sel_mins_x = (editor_selection_mins_x+cubicradius*2)/(cubicradius*2);
@@ -174,15 +174,20 @@ void BuildFacesForPlacementTool()
 	sel_maxs_y = editor_selection_maxs_y/(cubicradius*2);
 	sel_mins_z = (editor_selection_mins_z+cubicradius*2)/(cubicradius*2);
 	
-	for(pos_x = sel_mins_x; pos_x < sel_maxs_x; pos_x++)
+/*	for(pos_x = sel_mins_x; pos_x < sel_maxs_x; pos_x++)
 		for(pos_y = sel_mins_y; pos_y < sel_maxs_y; pos_y++)
 			for(pos_z = sel_mins_z; pos_z < sel_maxs_z; pos_z++)
 			{
 				if(pos_x == sel_mins_x || pos_x == sel_maxs_x-1
 				|| pos_y == sel_mins_y || pos_y == sel_maxs_y-1
 				|| pos_z == sel_mins_z || pos_z == sel_maxs_z-1)
-					numcubicsinselection++;
-			}
+					cells_on_perimeter_of_cube++;
+			}*/
+
+	int w = (sel_maxs_x - sel_mins_x);
+	int l = (sel_maxs_y - sel_mins_y);
+	int h = (sel_maxs_z - sel_mins_z);
+	cells_on_perimeter_of_cube = (((w + l)*2 - 4) * max(0, (h - 2))) + (w*l*(1+(h>1)));
 
 	for(pos_x = sel_mins_x; pos_x < sel_maxs_x; pos_x++)
 		for(pos_y = sel_mins_y; pos_y < sel_maxs_y; pos_y++)
@@ -191,7 +196,7 @@ void BuildFacesForPlacementTool()
 				if(pos_x == sel_mins_x || pos_x == sel_maxs_x-1
 				|| pos_y == sel_mins_y || pos_y == sel_maxs_y-1
 				|| pos_z == sel_mins_z || pos_z == sel_maxs_z-1)
-					BuildFacesForShape(cubeselector, editor_cubicshape, editor_cubicrotation, 0, cubeselector.origin+pos*cubicradius*2, numcubicsinselection, 1, DRAWLIST_EDIT); // FIXME set cullbits to hide internal faces
+					BuildFacesForShape(cubeselector, editor_cubicshape, editor_cubicrotation, 0, cubeselector.origin+pos*cubicradius*2, cells_on_perimeter_of_cube, 1, DRAWLIST_EDIT); // FIXME set cullbits to hide internal faces
 			}									
 }
 
@@ -852,6 +857,8 @@ void UpdateCubicInterface()
 	if(!client_initialized)
 		return;
 
+	int object_placementtype = getstati(STAT_OBJECT_PLACEMENTTYPE);
+
 	editor_tool = getstati(STAT_TOOL);	
 	editor_infoedit = getstati(STAT_EDITOR_INFOEDIT);
 	editor_editchunk = getstati(STAT_EDITOR_EDITCHUNK);
@@ -871,6 +878,12 @@ void UpdateCubicInterface()
 
 //print(ftos(editor_tool), "\n");
 
+	if(object_placementtype)
+	{
+		editor_tool = TOOL_EDITOR_ADD;
+		editor_cubictype = object_placementtype;
+	}
+	
 	if(editor_tool != editor_tool_old || !hudstring_editor_tool)
 		hudstring_editor_tool = strcat("Tool:", GetToolName(editor_tool));
 	
@@ -930,7 +943,7 @@ void UpdateCubicInterface()
 			{	// we just run this every frame because it doesn't need to rebuild anything
 
 				if(cubeselector.blocktype != editor_cubictype)
-					SetModelForCubicObject(cubeselector, editor_cubictype, FALSE);
+					SetModelForCubicObject_Wrap(cubeselector, editor_cubictype, FALSE);
 
 				if(editor_cubicrotation != editor_cubicrotation_old)
 					SetYawForCubicObject(cubeselector, editor_cubicrotation);

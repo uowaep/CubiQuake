@@ -1,5 +1,15 @@
 entity list_lastent;
 
+enumflags
+{
+	SEARCH_INSENSITIVE,
+	SEARCH_FULLPACKAGE,
+	SEARCH_ALLOWDUPES,
+	SEARCH_FORCESEARCH,
+	SEARCH_MULTISEARCH,		// separate with :
+	SEARCH_NAMESORT
+};
+
 entity LinkedList_Remove(entity e, entity list, entity lastent, .entity entchain, .entity entparent)
 {
 	list_lastent = lastent;

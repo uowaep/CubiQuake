@@ -1,6 +1,6 @@
 // VERSION
-int		cq_version		= 194;
-string	cubic_revision	= "cubiquake r194";
+int		cq_version		= 208;
+string	cubic_revision	= "cubiquake r208";
 int		oldfileversion	= 174;
 
 // WORLD SETTINGS
@@ -255,6 +255,8 @@ int		ENT_MODIFYSIDE_SELECTION					= 7;
 int		ENT_OBJ										= 8;
 int		ENT_CUBICOBJ								= 9;
 
+int		STAT_OBJECT_PLACEMENTTYPE			= 32;
+
 int		STAT_TOOL							= 33;
 int		STAT_TOOLSIZE						= 34;
 int		STAT_PLAYERCLUSTERID				= 35;
@@ -400,6 +402,8 @@ int		OBJ_ITEM		= 1;
 int		OBJ_GIB			= 2;
 int		OBJ_ROCKET		= 3;
 int		OBJ_BLOCK		= 4;
+
+int		ITEM_TORCH			= 1;
 
 void InitGameVariables()
 {
@@ -1183,7 +1187,19 @@ int ToolIsOnEdge(vector clusterpos, vector toolpos, int toolsize, int toolid, ve
 	return FALSE;
 }
 
-void SetModelForCubicObject(entity cubic, int type, int setbboxsize)
+int GetBlockTypeForItemType_Wrap(int ITEM_TYPE)
+{
+	int BLOCKTYPE = 0;
+
+	switch(ITEM_TYPE)
+	{
+		case ITEM_TORCH:	BLOCKTYPE = BLOCKTYPE_TORCH;	break;
+	}
+	
+	return BLOCKTYPE;
+}
+
+void SetModelForCubicObject_Wrap(entity cubic, int type, int setbboxsize)
 {
 	switch(type)
 	{
