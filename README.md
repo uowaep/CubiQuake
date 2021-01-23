@@ -31,6 +31,9 @@ Multiplayer was working the last time it was tested. It's been a while though. I
 
 WARNING: If a server restarts, players need to reconnect to get the world to network to them correctly. This is on the issues list.
 
+### Modding
+https://github.com/uowaep/CubiQuake/discussions/categories/modding
+ 
 ### ToDo
 - Review multiplayer and test for issues.
 - Implement copy/paste multiple cubics via custom selection box tool.
