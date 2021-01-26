@@ -1,3 +1,5 @@
+---
+
 <img align="left" src="https://raw.githubusercontent.com/uowaep/CubiQuake/master/cubiquake.png">
 
 ##### [Twitch](https://www.twitch.tv/clay__clay) - [YouTube](https://www.youtube.com/user/uowaep) - [Discord](https://discord.gg/JRsyePP)
@@ -16,7 +18,7 @@ CubiQuake is a multiplayer Quake modification that allows players and modders to
 
 You can build sandbox worlds without needing to touch any code, or if you're a modder, build upon the core framework and create your own mods powered by CubiQuake. 
 
-On a more technical side, Cubiquake uses the FTE builtin function trisoup_simple() to draw most surfaces, and dynamically spawns collision models and calculates lighting as the player moves through the world. Ambient, static, and (experimental) dynamic light all work despite not using a BSP world. Multiple XYZ rotatable shapes are supported: cube, ramp, wedge(s), slab. Each cubic/shape can use any texture (or model for more decorative applications).
+On a more technical note, CubiQuake uses the FTE builtin function addtrisoup_simple() to draw most surfaces, and dynamically spawns collision models and calculates lighting as the player moves through the world. Ambient, static, and (experimental) dynamic light all work despite not using a BSP world. Multiple XYZ rotatable shapes are supported: cube, ramp, wedge(s), slab. Each cubic/shape can use any texture (or model for more decorative applications).
 
 You do not need to be a modder to play with CubiQuake as is. Just follow the installation and playing instructions below.
 
