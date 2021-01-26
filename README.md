@@ -23,8 +23,8 @@ On a more technical note, CubiQuake uses the FTE builtin function addtrisoup_sim
 You do not need to be a modder to play with CubiQuake as is. Just follow the installation and playing instructions below.
 
 ## Install
-- Download CubiQuake https://github.com/uowaep/CubiQuake/archive/master.zip and extract the entire contents of the zip file into any directory. The directory you choose will be your main CubiQuake directory.
-- Download the appropriate client from FTEQW https://fte.triptohell.info/downloads and place it in your main CubiQuake directory. (64bit strongly recommended.)
+- [Download CubiQuake](https://github.com/uowaep/CubiQuake/archive/master.zip) and extract the entire contents of the zip file into any directory. The directory you choose will be your main CubiQuake directory.
+- [Download a FTEQW Client](https://fte.triptohell.info/downloads) and place it in your main CubiQuake directory. (64bit recommended.)
 
 Note: Don't copy the default.fmf file if installing into an existing FTEQW directory with other mods.
 
