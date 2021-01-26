@@ -5,10 +5,12 @@ void ChunkChain_Add(entity e)			{	list_chunkchain = LinkedList_Add(e, list_chunk
 void ChunkChain_Remove(entity e)		{	list_chunkchain = LinkedList_Remove(e, list_chunkchain, __NULL__, chunkchain, chunkchain_prev);	}
 
 entity		list_drawfacegroupchain;
+entity		listend_drawfacegroupchain;
 .entity		drawfacegroupchain;
 .entity		drawfacegroupchain_prev;
 void DrawFaceGroupChain_Add(entity e)		{	list_drawfacegroupchain = LinkedList_Add(e, list_drawfacegroupchain, drawfacegroupchain, drawfacegroupchain_prev);	}
-void DrawFaceGroupChain_Remove(entity e)	{	list_drawfacegroupchain = LinkedList_Remove(e, list_drawfacegroupchain, __NULL__, drawfacegroupchain, drawfacegroupchain_prev);	}
+//void DrawFaceGroupChain_Append(entity e)	{	list_drawfacegroupchain = LinkedList_Append(e, list_drawfacegroupchain, listend_drawfacegroupchain, drawfacegroupchain, drawfacegroupchain_prev);	listend_drawfacegroupchain = list_lastent;	}
+void DrawFaceGroupChain_Remove(entity e)	{	list_drawfacegroupchain = LinkedList_Remove(e, list_drawfacegroupchain, listend_drawfacegroupchain, drawfacegroupchain, drawfacegroupchain_prev);		listend_drawfacegroupchain = list_lastent;	}
 
 entity		list_drawdamagefacegroupchain;
 .entity		drawdamagefacegroupchain;
@@ -51,6 +53,7 @@ entity		list_queuefacebuildchain;
 entity		listend_queuefacebuildchain;
 .entity		queuefacebuildchain;
 .entity		queuefacebuildchain_prev;
+//void QueueFaceBuildChain_Add(entity e)		{	list_queuefacebuildchain = LinkedList_Add(e, list_queuefacebuildchain, queuefacebuildchain, queuefacebuildchain_prev);	}
 void QueueFaceBuildChain_Append(entity e)		{	list_queuefacebuildchain = LinkedList_Append(e, list_queuefacebuildchain, listend_queuefacebuildchain, queuefacebuildchain, queuefacebuildchain_prev);	listend_queuefacebuildchain = list_lastent;	}
 void QueueFaceBuildChain_Remove_(entity e)	{	list_queuefacebuildchain = LinkedList_Remove(e, list_queuefacebuildchain, listend_queuefacebuildchain, queuefacebuildchain, queuefacebuildchain_prev);	listend_queuefacebuildchain = list_lastent;	}
 

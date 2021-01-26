@@ -51,6 +51,8 @@ entity LinkedList_Add(entity e, entity list, .entity entchain, .entity entparent
 		e.entchain = list;
 		list.entparent = e;
 	}
+//	else
+//		list_lastent = e;
 	
 	list = e;
 	

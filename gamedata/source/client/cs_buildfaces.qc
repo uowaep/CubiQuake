@@ -624,8 +624,8 @@ void QueueChunkFaceBuild(entity chunk, float sendflags)
 				chunk.resetlights = TRUE;
 	}
 	else
-//	Distant Chunk Faces
-	QueueFaceBuildChain_Append(chunk);	// slow chain
+//		Distant Chunk Faces
+		QueueFaceBuildChain_Append(chunk);	// slow chain
 	
 
 }

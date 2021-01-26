@@ -117,6 +117,7 @@ float	dynamic_relighttime;
 .int	staticlno;
 .vector	staticrgb;
 .vector	lightofs;
+.int	selflit;
 entity	vwepmodel;		// lights refers to this to know when to use the player's location for face origin reference
 
 // editor

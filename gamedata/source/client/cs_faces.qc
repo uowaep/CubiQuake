@@ -228,7 +228,10 @@ void SetFaceValues(vector cubicpos, vector vertofs, entity typegroup, int facebi
 		facegroup.typegroupent = typegroup;
 		
 		if(listid == DRAWLIST_CHUNK)
+		{
+//			DrawFaceGroupChain_Append(facegroup);
 			DrawFaceGroupChain_Add(facegroup);
+		}
 		else
 		if(listid == DRAWLIST_DMG)
 			DrawDamageFaceGroupChain_Add(facegroup);
@@ -377,6 +380,8 @@ void RemoveFaceGroup(entity typegroup, entity facegroup, int allowghost)
 	if(GhostFaceGroup(typegroup, facegroup))
 		return;
 	
+
+	
 	memfree(facegroup.verts);
 	memfree(facegroup.vertex_indexes);
 	memfree(facegroup.verts_ambientrgb);	
@@ -415,10 +420,38 @@ void SetFacesToBuildForFrame()
 	}		
 }
 
+entity	facegroup_blank;
+int		tss_batchsize;
+void SpawnHack_FaceGroup_Blank()
+{
+	int facegroupsize = 1;
+	entity facegroup = facegroup_blank = spawn();
+	facegroup.verts = memalloc(sizeof(trisoup_simple_vert_t)*(facegroupsize*1)); // vertexes
+	facegroup.vertex_indexes = memalloc(sizeof(int)*(facegroupsize*1)); // triangles
+	facegroup.verts_ambientrgb = memalloc(sizeof(vector)*(facegroupsize*1)); // vertex ambient lighting/basergb		
+	facegroup.verts_staticrgb = memalloc(sizeof(vector)*(facegroupsize*1)); // vertex static lighting/basergb
+	facegroup.allocsize_verts = facegroupsize*1;			// some facegroups will have extra space already depending on hidden faces
+	facegroup.allocsize_indexes = facegroupsize*1;	
+
+	facegroup.faces = FACE_SIDE;
+
+	facegroup.verts[facegroup.numvertexes].xyz	= (vec3) {0, 0, 0};	// vert coords
+	facegroup.verts[facegroup.numvertexes].st	= (vec2) {0, 0};	// texture coords
+	facegroup.verts[facegroup.numvertexes].rgba	= (vec4) {0, 0, 0, 0};	// color and alpha	
+}
+
 void DrawFaceGroup(entity typegroup, entity facegroup)
 {
 	if(!typegroup || !facegroup)
 		return;
 
+	tss_batchsize += facegroup.numvertexes;
+	if(tss_batchsize > 32000)
+	{
+		addtrisoup_simple("", 0, facegroup_blank.verts, facegroup_blank.vertex_indexes, facegroup_blank.numvertexindexes);
+		tss_batchsize = facegroup.numvertexes;
+	}
+	
 	addtrisoup_simple(facegroup.texturename, 0, facegroup.verts, facegroup.vertex_indexes, facegroup.numvertexindexes);
+	
 }

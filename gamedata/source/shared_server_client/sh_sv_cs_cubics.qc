@@ -1,6 +1,6 @@
 // VERSION
-int		cq_version		= 208;
-string	cubic_revision	= "cubiquake r208";
+int		cq_version		= 212;
+string	cubic_revision	= "cubiquake r212";
 int		oldfileversion	= 174;
 
 // WORLD SETTINGS
@@ -1214,6 +1214,10 @@ vector GetModelOffsetForBlockType(int type)
 	vector ofs = '0 0 0';
 	
 	//switch stuff here
+	switch(type)
+	{
+		case BLOCKTYPE_TORCH:		ofs = '8 0 0';		break;
+	}
 	
 	// wrap func for mods to wrap
 	ofs = GetModelOffsetForBlockType_Wrap(type, ofs);

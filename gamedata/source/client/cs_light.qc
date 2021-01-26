@@ -223,7 +223,7 @@ entity SetChunkLight(entity light, entity chunk, float rad, vector rgb, float br
 {
 	light.lightradius = rad;
 	light.lightcolor = rgb;
-	light.lightbrightness = bright;
+	light.lightbrightness = 1;//bright; // FIXME: Remove .lightbrightness. Totally unnecessary.
 	
 	if(addtolights)
 		AddToActiveLights(light, chunk, FALSE);
@@ -433,7 +433,6 @@ void ApplyEntityLighting()
 	// end dynamic lights		
 }
 
-// This function gives mods access to the relightstatic and relightdynamic fields before they are cleared. Use __wrap or __accumulate.
 void ApplyFaceLighting()
 {
 	if(relightstatic || (!autocvar_cq_lights_models && cq_lights_models_old))		
@@ -441,7 +440,10 @@ void ApplyFaceLighting()
 	{
 		if(!autocvar_cq_lights_models)
 		if(!light.staticlno)
+		{
 			light.staticlno = dynamiclight_spawnstatic(light.origin+light.lightofs, light.lightradius, light.lightcolor*light.lightbrightness);
+		//	dynamiclight_set(light.staticlno, LFIELD_AMBIENTSCALE, 1); dynamiclight_set(light.staticlno, LFIELD_DIFFUSESCALE, 0);
+		}
 		
 		if(relightstatic)
 			SetVertLights(light, TRUE, FALSE);

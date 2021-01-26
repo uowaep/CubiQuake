@@ -24,7 +24,9 @@ entity SetChunkCubicObject(entity chunk, int memslot, int type)
 	SetYawForCubicObject(e, chunk.cubic_blockrotation[memslot]);
 //	e.solid = SOLID_BBOX;
 //	e.flags |= FL_FINDABLE_NONSOLID;
-	setorigin(e, chunk.origin + GetCubicOffset(memslot) + GetModelOffsetForBlockType(type));
+	makevectors(e.angles);
+	vector model_ofs = GetModelOffsetForBlockType(type);
+	setorigin(e, chunk.origin + GetCubicOffset(memslot) + v_forward*model_ofs_x - v_right*model_ofs_y + v_up*model_ofs_z);
 	e.drawmask = MASK_NORMAL;
 	e.blocktype = type;
 	e.cubicmemslot = memslot;
@@ -59,9 +61,12 @@ void LoadCubic(entity chunk, int memslot, int type)
 		// EXAMPLE CUBIC OBJECT : Light
 		case BLOCKTYPE_TORCH:	modelent = SetChunkCubicObject(chunk,  memslot, type);
 								SetChunkLight(modelent, chunk, 416, '1 0.9 0.7', 2, CUBICFLAG_ON);	 // adds a light to the chunk of specified type (BLOCKTYPE_TORCH in this case)
-								modelent.lightofs = '0 0 4';
+								modelent.lightofs = '0 0 8';
 								SetAnimation(modelent, 0, 6, 0.1, TRUE, FALSE, TRUE);	// Sets up the animation for this model.
 								modelent.predraw = Predraw_Torch;	// set predraw func if necessary
+								modelent.selflit = TRUE;
+								if(!autocvar_cq_lights_models)
+									modelent.colormod = modelent.lightcolor;
 							//	modelent.parentchunk = chunk;
 								break;
 		

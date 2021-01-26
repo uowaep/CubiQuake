@@ -371,6 +371,8 @@ int AddPlayerToCluster(entity player, entity cluster, int chunkcount)
 
 int RemovePlayerFromCluster(entity player, entity cluster)
 {
+//	return FALSE;
+	
 	entity e = __NULL__;
 	int shiftslots = FALSE;
 	

@@ -21,7 +21,9 @@ void CSQC_Init(float apilevel, string enginename, float engineversion)
 	InitializeClientLight();
 	InitializeStrings();
 	
-	print("You have entered the world.\n");
+	SpawnHack_FaceGroup_Blank();
+	
+	print("You have entered the world.\nESC to exit the console.\n");
 }
 
 // CSQC_Shutdown : Called every time the CSQC code is shutdown (changing maps, quitting, etc)

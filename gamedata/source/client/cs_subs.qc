@@ -86,11 +86,16 @@ void CleanUp_Remove (entity e)
 	// FIXME: look for larger allocations to ghost, but only small allocations should ever see this
 	for(entity typegroup = e.list_typegroupchain; typegroup; typegroup = typegroup.typegroupchain)
 		while(typegroup.list_facegroupchain)
+		{
+		//	print("testA\n");
 			RemoveFaceGroup(typegroup, typegroup.list_facegroupchain, FALSE);
+		}
 		
 	while(e.list_facegroupchain)
+	{
+	//	print("testB\n");
 		RemoveFaceGroup(e, e.list_facegroupchain, FALSE);	
-	
+	}
 	BlockObjectChain_Remove(e);
 	
 	QueueNearFaceBuildChain_Remove(e);

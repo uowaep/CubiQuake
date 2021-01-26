@@ -555,14 +555,20 @@ void DrawFaces()
 	entity typegroup = __NULL__, facegroup = __NULL__, editchunk = __NULL__;
 	int drawplane = 0, builtfaces = 0;
 			
+
 	for(facegroup = list_drawfacegroupchain; facegroup; facegroup = facegroup.drawfacegroupchain)
+//	for(facegroup = listend_drawfacegroupchain; facegroup; facegroup = facegroup.drawfacegroupchain_prev)
 		DrawFaceGroup(facegroup.typegroupent, facegroup);	
+		
+	tss_batchsize = 0;
 }
 
 void DrawFaceDamage()
 {
 	for(entity facegroup = list_drawdamagefacegroupchain; facegroup; facegroup = facegroup.drawdamagefacegroupchain)
 		DrawFaceGroup(facegroup.typegroupent, facegroup);	
+		
+	tss_batchsize = 0;
 }
 
 vector GetIntercept(vector line_start, vector line_end, vector edge_offset)

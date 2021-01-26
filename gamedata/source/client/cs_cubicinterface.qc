@@ -948,7 +948,9 @@ void UpdateCubicInterface()
 				if(editor_cubicrotation != editor_cubicrotation_old)
 					SetYawForCubicObject(cubeselector, editor_cubicrotation);
 
-				setorigin(cubeselector, org+GetModelOffsetForBlockType(editor_cubictype));
+				makevectors(cubeselector.angles);
+				vector model_ofs = GetModelOffsetForBlockType(editor_cubictype);
+				setorigin(cubeselector, org+v_forward*model_ofs_x - v_right*model_ofs_y + v_up*model_ofs_z);
 				UpdateModifySideButtonOrgs();
 
 				cubeselector.scale = 1;
@@ -1042,7 +1044,12 @@ void UpdateCubicInterface()
 	// cleans up colormod values to the base ambient level if turning on engine lighting
 	if(!autocvar_cq_lights_models && cq_lights_models_old)
 	for(entity e = list_lightentchain; e; e = e.lightentchain)
-		e.colormod = ambientlight_modified;
+	{
+		if(e.selflit)
+			e.colormod = e.lightcolor;
+		else
+			e.colormod = ambientlight_modified;
+	}
 	
 	//trigger a static reset because daytime may have changed since ambient light base colors have been set (that loop does not run when using engine model lighting)
 	if(autocvar_cq_lights_models && !cq_lights_models_old)

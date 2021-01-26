@@ -43,6 +43,19 @@ https://github.com/uowaep/CubiQuake/discussions/categories/modding
 
 ### ChangeLog
 
+r212
++ added hover tips and changed some colors in the console menu
++ added note to hit ESC when starting a game to close console
++ cq_lights_models now defaults to 1 (uses cheap cubiquake ent lighting)
++ fixed description of why r_shadow_realtime_dlight 1 is set in default.cfg
++ added .selflit to csqc - set to 1 on any object or cubic object to set the base light value to it's .lightcolor value when using cq_lights_models 0
++ the torch uses .selflit 1
++ cubic object offset set via .model_ofs now rotates to match the object's rotation
++ added a '8 0 0' offset to the torch
++ updated stair_lower_0 and wall_torch_0 prefabs to use proper torch rotation
++ stopped using the .lightbrightness variable (the torches are now a little more dim)
++ stopped a bug from occuring involving large texture batch sizes that caused some chunks not to draw when viewing large flat planes
+
 r208
 + cubic, chunk, cluster tools have been moved from 1 2 3 to HOME, END, PGUP keys by default (help menus now reflect this)
 + small optimization when counting cubics for selection tool to draw
