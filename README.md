@@ -1,10 +1,17 @@
 <img align="left" src="https://raw.githubusercontent.com/uowaep/CubiQuake/master/cubiquake.png">
 
-#### [Twitch](https://www.twitch.tv/clay__clay) - [YouTube](https://www.youtube.com/user/uowaep) - [Discord](https://discord.gg/JRsyePP)
----
+**[Twitch](https://www.twitch.tv/clay__clay) - [YouTube](https://www.youtube.com/user/uowaep) - [Discord](https://discord.gg/JRsyePP)**
+
 # CubiQuake
-#### Cubic/Voxel Style Game Framework for the [FTEQW Engine](https://fte.triptohell.info/downloads) 
+
+#### Cubic/Voxel Style Game Framework for the [FTEQW Engine](https://fte.triptohell.info/downloads)
+
 ---
+
+[Install](https://github.com/uowaep/CubiQuake#install) - [Play](https://github.com/uowaep/CubiQuake#play) - [Update](https://github.com/uowaep/CubiQuake#update) - [Multiplayer](https://github.com/uowaep/CubiQuake#multiplayer-notes) - [Modding](https://github.com/uowaep/CubiQuake#modding) - [ToDo](https://github.com/uowaep/CubiQuake#todo) - [ChangeLog](https://github.com/uowaep/CubiQuake#changelog)
+
+---
+
 CubiQuake is a multiplayer Quake modification that allows players and modders to experience and experiment with classic Quake gameplay and physics in a cubic/voxel world using the QuakeC script language. Generate worlds randomly, or create prefabs that link together dynamically to create complex randomly generated structrues such as dungeons, cities, or anything you can imagine. CubiQuake currently only runs on the FTE QuakeWorld engine, but it is possible that other great Quake engines may support it in the future.
 
 You can build sandbox worlds, or if you're a modder, build upon the core framework and create your own mods powered by CubiQuake. 
@@ -13,37 +20,37 @@ On a more technical side, Cubiquake uses the FTE builtin function trisoup_simple
 
 You do not need to be a modder to play with CubiQuake as is. Just follow the installation and playing instructions below.
 
-### Install
+## Install
 - Download CubiQuake https://github.com/uowaep/CubiQuake/archive/master.zip and extract the entire contents of the zip file into any directory. The directory you choose will be your main CubiQuake directory.
 - Download the appropriate client from FTEQW https://fte.triptohell.info/downloads and place it in your main CubiQuake directory. (64bit strongly recommended.)
 
 Note: Don't copy the default.fmf file if installing into an existing FTEQW directory with other mods.
 
-### Play
+## Play
 - Start FTEQW from the directory you installed to.
 - Click on "Start World".
 - Use the F1-F4 Keys in-game for help!
 
-### Update
+## Update
 - Extract and overwrite the new files into your install directory.
 - Delete the fte.cfg file to apply any changes made to default.cfg.
 
-### Multiplayer Notes
+## Multiplayer Notes
 Multiplayer was working the last time it was tested. It's been a while though. It could be broken. It might be fine. Get the server from http://fte.triptohell.info/downloads. Use the cubiquakeserver.bat file or check the command line inside to run a dedicated server.
 
 WARNING: If a server restarts, players need to reconnect to get the world to network to them correctly. This is on the issues list.
 
-### Modding
+## Modding
 https://github.com/uowaep/CubiQuake/discussions/categories/modding
  
-### ToDo
+## ToDo
 - Review multiplayer and test for issues.
 - Implement copy/paste multiple cubics via custom selection box tool.
 - Improve dynamic light speed.
 - Make player light visible to other players.
 - Experiment with (and learn) shaders to attempt shadows.
 
-### ChangeLog
+## ChangeLog
 
 r212
 + added hover tips and changed some colors in the console menu
