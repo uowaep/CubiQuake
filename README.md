@@ -1,8 +1,10 @@
-+ [Twitch](https://www.twitch.tv/clay__clay)
-+ [YouTube](https://www.youtube.com/user/uowaep)
+<img align="left" src="https://raw.githubusercontent.com/uowaep/CubiQuake/master/cubiquake.png">
 
-<img align="left" src="https://raw.githubusercontent.com/uowaep/CubiQuake/master/cubiquake.png"> **CubiQuake** : Cubic/Voxel Style Game Framework for the FTEQW Engine
-
+#### [Twitch](https://www.twitch.tv/clay__clay) - [YouTube](https://www.youtube.com/user/uowaep) - [Discord](https://discord.gg/JRsyePP)
+---
+# CubiQuake
+#### Cubic/Voxel Style Game Framework for the [FTEQW Engine](https://fte.triptohell.info/downloads) 
+---
 CubiQuake is a multiplayer Quake modification that allows players and modders to experience and experiment with classic Quake gameplay and physics in a cubic/voxel world using the QuakeC script language. Generate worlds randomly, or create prefabs that link together dynamically to create complex randomly generated structrues such as dungeons, cities, or anything you can imagine. CubiQuake currently only runs on the FTE QuakeWorld engine, but it is possible that other great Quake engines may support it in the future.
 
 You can build sandbox worlds, or if you're a modder, build upon the core framework and create your own mods powered by CubiQuake. 
@@ -13,7 +15,7 @@ You do not need to be a modder to play with CubiQuake as is. Just follow the ins
 
 ### Install
 - Download CubiQuake https://github.com/uowaep/CubiQuake/archive/master.zip and extract the entire contents of the zip file into any directory. The directory you choose will be your main CubiQuake directory.
-- Download the appropriate client from FTEQW http://fte.triptohell.info/downloads and place it in your main CubiQuake directory. (64bit strongly recommended.)
+- Download the appropriate client from FTEQW https://fte.triptohell.info/downloads and place it in your main CubiQuake directory. (64bit strongly recommended.)
 
 Note: Don't copy the default.fmf file if installing into an existing FTEQW directory with other mods.
 
