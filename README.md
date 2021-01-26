@@ -6,7 +6,7 @@
 
 # CubiQuake
 
-#### Cubic/Voxel Style Game Framework for the [FTEQW Engine](https://fte.triptohell.info/downloads)
+#### Cubic/Voxel Framework for the [FTEQW Engine](https://fte.triptohell.info/downloads)
 
 ---
 
