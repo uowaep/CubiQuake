@@ -1,6 +1,8 @@
+---
+
 <img align="left" src="https://raw.githubusercontent.com/uowaep/CubiQuake/master/cubiquake.png">
 
-**[Twitch](https://www.twitch.tv/clay__clay) - [YouTube](https://www.youtube.com/user/uowaep) - [Discord](https://discord.gg/JRsyePP)**
+##### [Twitch](https://www.twitch.tv/clay__clay) - [YouTube](https://www.youtube.com/user/uowaep) - [Discord](https://discord.gg/JRsyePP)
 
 # CubiQuake
 
@@ -8,7 +10,7 @@
 
 ---
 
-[Install](https://github.com/uowaep/CubiQuake#install) - [Play](https://github.com/uowaep/CubiQuake#play) - [Update](https://github.com/uowaep/CubiQuake#update) - [Multiplayer](https://github.com/uowaep/CubiQuake#multiplayer-notes) - [Modding](https://github.com/uowaep/CubiQuake#modding) - [ToDo](https://github.com/uowaep/CubiQuake#todo) - [ChangeLog](https://github.com/uowaep/CubiQuake#changelog)
+###### [Install](https://github.com/uowaep/CubiQuake#install) - [Play](https://github.com/uowaep/CubiQuake#play) - [Update](https://github.com/uowaep/CubiQuake#update) - [Multiplayer](https://github.com/uowaep/CubiQuake#multiplayer-notes) - [Modding](https://github.com/uowaep/CubiQuake#modding) - [ToDo](https://github.com/uowaep/CubiQuake#todo) - [ChangeLog](https://github.com/uowaep/CubiQuake#changelog)
 
 ---
 
