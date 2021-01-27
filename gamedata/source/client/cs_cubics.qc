@@ -221,7 +221,7 @@ void UpdateCubicHealth()
 		
 	if(oldlvl != newlvl)		
 	{
-		RemoveDamageFacesForCubic(chunk, cubicid, oldhealth);	// removes old shader
+		RemoveDamageFacesForCubic(chunk, cubicid, oldhealth);	// removes old polygons from previous dmg lvl's facegroup
 		AddDamageFacesForCubic(chunk, cubicid);	// need to allocate extra slots, and reallocate / rebuild with extra slots when those slots are full.
 	}
 }

@@ -1,6 +1,6 @@
 // VERSION
-int		cq_version		= 212;
-string	cubic_revision	= "cubiquake r212";
+int		cq_version		= 220;
+string	cubic_revision	= "cubiquake r220";
 int		oldfileversion	= 174;
 
 // WORLD SETTINGS

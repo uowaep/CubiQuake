@@ -357,7 +357,7 @@ void AddDamageFacesForCubic(entity chunk, int cubiccount)
 			facegroup = GetFaceGroup(typegroup, facebit);
 
 			if(facegroup)
-			if(chunk.numdamagedcubics*4 >= facegroup.allocsize_verts || chunk.numdamagedcubics*6 >= facegroup.allocsize_indexes)
+			if(chunk.numdamagedcubics*4 >= facegroup.allocsize_verts || chunk.numdamagedcubics*6 >= facegroup.allocsize_indexes)	// allocations are too small, rebuild/reallocate
 			{
 				RemoveFaceGroup(typegroup, facegroup, TRUE);	// clear existing facegroup
 				BuildChunkDamageFaces(chunk, CULLBITS_ALL - facebit, type, FALSE);		// rebuild faces for this damage type for this side only
@@ -600,7 +600,7 @@ void QueueChunkFaceBuild(entity chunk, float sendflags)
 	//	Damaged Faces	
 		if(chunk.numdamagedcubics)
 		{
-			if(!isnew && sfldmgd)	// geometry updated damage faces (any range)
+			if(!isnew && (sfldmgd || (sendflags & SFL_BUILD)))	// geometry updated damage faces (any range)
 			{
 				QueueNearDamageFaceBuildChain_Add(chunk);	// immediate chain		
 				chunk.drawingdamage = TRUE;

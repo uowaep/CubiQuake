@@ -43,6 +43,11 @@ https://github.com/uowaep/CubiQuake/discussions/categories/modding
 
 ### ChangeLog
 
+r220
++ damage faces on chunks now redraw immediately instead of over time when adding blocks to a chunk (no more flashing dmg texture when placing blocks)
++ changed tooltip for Start World menu hover
++ commented out PDoD fog stuff in default.cfg because it's experimental
+
 r212
 + added hover tips and changed some colors in the console menu
 + added note to hit ESC when starting a game to close console
