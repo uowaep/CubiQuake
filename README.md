@@ -60,7 +60,7 @@ r224
 r222
 + blocks can no longer be placed where players or other solid or modeled objects exist
 + increased background/slow chunk load dist from 1 to 2 so that it at least extends past the tool range (you could see slow redraw when subtracting from diagonal chunks) (cq_bgload_dist 2 in default.cfg)
-+ aslo increased the cubic damage texture load distance from 1 to 2 for the same reason, and it there was too much pop in at 1 (cq_dmgload_dist 2 in default.cfg)
++ aslo increased the cubic damage texture load distance from 1 to 2 for the same reason, plus there was too much pop in at 1 (cq_dmgload_dist 2 in default.cfg)
 + cq_maxdamagecubicsperbuild reduced from 64 to 2 in default.cfg (no need to load so fast, 2 is still pretty fast, even with a lot of damaged cubics)
 
 r220
