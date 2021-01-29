@@ -264,7 +264,7 @@ void Editor_ModifySide()
 		makevectors(view_ang);
 
 		self.dimension_hit = 255&~1;
-		traceline(view_org, view_org + v_forward*cubicradius*2*chunksize*clustersize*max(maxviewsize, maxviewheight), MOVE_NORMAL, ignorenothing);
+		traceline(view_org, view_org + v_forward*cubicradius*2*chunksize*clustersize*max(maxviewsize, maxviewheight), MOVE_NORMAL, IGNORE_NOTHING);
 		self.dimension_hit = 255;
 		
 		if(trace_ent)
@@ -776,7 +776,7 @@ void Editor_InfoEdit()
 	makevectors(view_ang);
 	
 	self.dimension_hit = 255&~1;
-	traceline(view_org, view_org + v_forward*cubicradius*2*(tooltracedist*2), MOVE_NORMAL, ignorenothing);
+	traceline(view_org, view_org + v_forward*cubicradius*2*(tooltracedist*2), MOVE_NORMAL, IGNORE_NOTHING);
 	self.dimension_hit = 255;
 
 	if(trace_ent)
@@ -923,7 +923,7 @@ void UpdateCubicInterface()
 			}
 			
 			clusterpos = GetClusterOffset(playerclusterid);
-			toolonedge = ToolIsOnEdge(clusterpos, org, editor_toolsize, editor_tool, editor_selection_mins, editor_selection_maxs);
+			toolonedge = ToolIsOnEdge(clusterpos, org, editor_toolsize, editor_tool, editor_selection_mins+'1 1 1'*cubicradius, editor_selection_maxs+'-1 -1 -1'*cubicradius);
 			
 /*				if(getinside && toolscale > 1)
 			{

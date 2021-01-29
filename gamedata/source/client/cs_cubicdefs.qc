@@ -1,6 +1,3 @@
-// hack for traceline
-entity	ignorenothing;
-
 // view orientation
 vector	view_size;
 vector	view_org;

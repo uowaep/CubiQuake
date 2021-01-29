@@ -1278,7 +1278,7 @@ void Player_CubiQuakeControls()
 			tracepos = TraceCubic(self.origin+self.view_ofs, targetpos, getinside);
 			org = GeatNearOrgForTool(tracepos, self.toolsize);
 
-			if(!ToolIsOnEdge(self.playerclusterorg, org, self.toolsize, self.tool, self.editor_selection_mins, self.editor_selection_maxs))
+			if(!ToolIsOnEdge(self.playerclusterorg, org, self.toolsize, self.tool, self.editor_selection_mins+'1 1 1'*cubicradius, self.editor_selection_maxs+'-1 -1 -1'*cubicradius))
 			if(self.tool == TOOL_EDITOR_ADD)
 			{
 				switch(self.toolsize)
@@ -1349,7 +1349,7 @@ void Player_CubiQuakeControls()
 			tracepos = TraceCubic(self.origin+self.view_ofs, targetpos, getinside);
 			org = GeatNearOrgForTool(tracepos, self.toolsize);
 			
-			if(!ToolIsOnEdge(self.playerclusterorg, org, self.toolsize, self.tool, self.editor_selection_mins, self.editor_selection_maxs))
+			if(!ToolIsOnEdge(self.playerclusterorg, org, self.toolsize, self.tool, self.editor_selection_mins+'1 1 1'*cubicradius, self.editor_selection_maxs+'-1 -1 -1'*cubicradius))
 			if(self.tool == TOOL_EDITOR_MODIFY)
 			{
 				switch(self.toolsize)
@@ -1377,7 +1377,7 @@ void Player_CubiQuakeControls()
 			if(self.tool == TOOL_EDITOR_ADD)
 				self.editor_fillmode = !self.editor_fillmode;
 			else	
-			if(!ToolIsOnEdge(self.playerclusterorg, org, self.toolsize, self.tool, self.editor_selection_mins, self.editor_selection_maxs))				
+			if(!ToolIsOnEdge(self.playerclusterorg, org, self.toolsize, self.tool, self.editor_selection_mins+'1 1 1'*cubicradius, self.editor_selection_maxs+'-1 -1 -1'*cubicradius))				
 			if(self.tool == TOOL_EDITOR_MODIFY)
 			{
 				switch(self.toolsize)

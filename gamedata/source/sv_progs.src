@@ -4,14 +4,17 @@
 #define SSQC
 //#define CQ_ISMOD
 
-// CORE DEFS
+// CORE DEFS & SHARED FILES
 #include "shared_all/fteextensions.qc"
+#include "shared_server_client/sh_sv_cs_defs.qc"
+#include "server/sv_cubicdefs.qc"
+
 #include "shared_all/sh_all_subs.qc"
 #include "shared_server_client/sh_sv_cs_precaches.qc"
 #include "shared_server_client/sh_sv_cs_chains.qc"
 #include "shared_server_client/sh_sv_cs_cubics.qc"
 #include "shared_server_client/sh_sv_cs_animation.qc"
-#include "server/sv_cubicdefs.qc"
+
 
 // MOD DEFS
 #ifdef CQ_ISMOD

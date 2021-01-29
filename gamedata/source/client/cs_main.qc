@@ -4,7 +4,7 @@ void CSQC_Init(float apilevel, string enginename, float engineversion)
 	// FIXME need to find a way to set csqc cubic values here, intead of upon arrival of the first network entity.
 	// do not reference anything in InitGameVariables here.
 	
-	ignorenothing = spawn();
+	IGNORE_NOTHING = spawn();
 	
 	registercommand("cq_worlds");	
 	registercommand("cq_resetview");
