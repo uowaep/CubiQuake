@@ -1,6 +1,6 @@
 // VERSION
-int		cq_version		= 222;
-string	cubic_revision	= "cubiquake r222";
+int		cq_version		= 224;
+string	cubic_revision	= "cubiquake r224";
 int		oldfileversion	= 174;
 
 // hack for traceline

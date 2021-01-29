@@ -295,6 +295,13 @@ void Movetype_BounceSlide(entity e)
 
 	tracebox(e.origin, e.mins, e.maxs, tracetarget, MOVE_NORMAL, e);	// see what's in front of the object's velocity for this frame
 
+/*	if(trace_plane_normal_x <= 0.000001 && trace_plane_normal_x >= -0.000001)
+		trace_plane_normal_x = 0;
+	if(trace_plane_normal_y <= 0.000001 && trace_plane_normal_y >= -0.000001)
+		trace_plane_normal_y = 0;
+	if(trace_plane_normal_z <= 0.000001 && trace_plane_normal_z >= -0.000001)
+		trace_plane_normal_z = 0;*/
+		
 	vector org = e.origin;
 	// check if object will hit something
 	if(trace_fraction < 1)
@@ -318,16 +325,8 @@ void Movetype_BounceSlide(entity e)
 			e.velocity = vel;
 		}
 		else
-		{								// bounce off it at half speed
-			if(trace_plane_normal_x)
-				vel_x = vel_x*-1;
-					
-			if(trace_plane_normal_y)
-				vel_y = vel_y*-1;
-			
-			if(trace_plane_normal_z)
-				vel_z = vel_z*-1;
-
+		{	// bounce off it at half speed
+			vel = -2*(vel*trace_plane_normal)*trace_plane_normal + vel;
 			e.velocity = vel*0.5;		
 		}
 		

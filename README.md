@@ -54,6 +54,9 @@ https://github.com/uowaep/CubiQuake/discussions/categories/modding
 
 ## ChangeLog
 
+r224
++ bouncing objects now use (-2*(vel*trace_plane_normal)*trace_plane_normal + vel) to calculate bounce velocity instead of just individually reversing xyz axis
+
 r222
 + blocks can no longer be placed where players or other solid or modeled objects exist
 + increased background/slow chunk load dist from 1 to 2 so that it at least extends past the tool range (you could see slow redraw when subtracting from diagonal chunks) (cq_bgload_dist 2 in default.cfg)
