@@ -2,7 +2,7 @@
 
 <img align="left" src="https://raw.githubusercontent.com/uowaep/CubiQuake/master/cubiquake.png">
 
-##### [YouTube](https://www.youtube.com/user/uowaep) - [Twitch](https://www.twitch.tv/clay__clay) - [Imgur](https://www.twitch.tv/clay__clay) - [Discord](https://discord.gg/JRsyePP)
+##### [YouTube](https://www.youtube.com/user/uowaep) - [Twitch](https://www.twitch.tv/clay__clay) - [Imgur](https://imgur.com/a/ue9xyzZ) - [Discord](https://discord.gg/JRsyePP)
 
 # CubiQuake
 
